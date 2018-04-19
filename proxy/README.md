@@ -11,11 +11,14 @@ The following NGSI v1 endpoints are supported
 * `/static/<type>/queryContext`
   returns static data  values of `"type": "<type>"`  - e.g. `/static/Text/queryContext` will return "I never could get the hang of thursdays"
 
-* `/twitter/<type>/<attr>/queryContext`
+* `/twitter/<type>/<queryString>/<attr>/queryContext`
   Work in progress
 
-* `/weather/<type>/<attr>/queryContext`
-  Work in progress
+* `/weather/<type>/<queryString>/<attr>/queryContext`
+  Retrieves the Weather data for the `queryString` location and maps the data from the given `attr` to the entity response.
+
+  For Example `/proxy/weather/number/Germany%2FBerlin/wind_gust_mph/queryContext` will read the  `wind_gust_speed` value from Berlin.
+  and `/proxy/weather/number/Egypt%2FCairo/temp_c/queryContext` will read the  `temp_c` value from Cairo.
 
 
 # Health Check Endpoints

@@ -6,24 +6,64 @@ const debug = require('debug')('proxy:server');
 const _ = require('lodash');
 
 
-function toTitleCase(str)
-{
-    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+//
+// The Health Check endpoint returns some random data values to show it is functioning
+//
+function healthCheck(req, res) {
+	debug('Random API is available - responding with some random values');
+	res.status(200).send({
+		boolean: generateValue('boolean'),
+		number: generateValue('number'),
+		structuredValue: generateValue('structuredValue'),
+		text: generateValue('text'),
+	});
 }
 
 //
-// A structure to  generate random responses.
+// The Query Context endpoint responds with data in the NGSI v1 queryContext format
+// This endpoint is called by the Orion Broker when "legacyForwarding"
+// is set to "true" during registration
+//
+// For the random content provider, the response is in the form of random values
+// which change with each request.
+//
+function queryContext(req, res) {
+	const response = formatAsV1Response(req, function(attr, req) {
+		return {
+			name: attr,
+			type: toTitleCase(req.params.type),
+			value: generateValue(req.params.type),
+		};
+	});
+
+	res.send(response);
+}
+
+//
+// Entity types are typically title cased following Schema.org
+//
+function toTitleCase(str) {
+	return str.replace(/\w\S*/g, function(txt) {
+		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+	});
+}
+
+//
+// A function to generate some random responses.
 //
 function generateValue(type) {
 	switch (type.toLowerCase()) {
 		case 'boolean':
 			return Math.random() >= 0.5;
+		case 'float':
+		case 'integer':
 		case 'number':
 			return Math.floor(Math.random() * 43);
 		case 'structuredValue':
 			return {
 				somevalue: 'this',
 			};
+		case 'string':
 		case 'text':
 			const loremIpsum =
 				'lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor ' +
@@ -53,28 +93,10 @@ function generateValue(type) {
 }
 
 //
-// The Health Check function returns some random data values to show it is functioning
+// Formatting function for an NSGI v1 response to a context query.
 //
-function healthCheck(req, res) {
-	debug('Random API is available - responding with some random values');
-	res.status(200).send({
-		boolean: generateValue('boolean'),
-		number: generateValue('number'),
-		structuredValue: generateValue('structuredValue'),
-		text: generateValue('text'),
-	});
-}
-
-//  
-// The Query Context endpoint responds with data in the NGSI v1 queryContext format
-// This endpoint is called by the Orion Broker when "legacyForwarding" 
-// is set to "true" during registration
-//
-// For the random content provider, the response is in the form of random values
-// which change with each request.
-//
-function queryContext(req, res) {
-	const cannedResponse = {
+function formatAsV1Response(req, formatter) {
+	const ngsiV1Response = {
 		contextResponses: [],
 	};
 
@@ -93,18 +115,16 @@ function queryContext(req, res) {
 		};
 
 		_.forEach(req.body.attributes, function(attr) {
-			obj.contextElement.attributes.push({
-				name: attr,
-				type: toTitleCase(req.params.type),
-				value: generateValue(req.params.type),
-			});
+			obj.contextElement.attributes.push(formatter(attr, req));
 		});
 
-		cannedResponse.contextResponses.push(obj);
+		ngsiV1Response.contextResponses.push(obj);
 	});
 
-	res.send(cannedResponse);
+	return ngsiV1Response;
 }
+
+
 
 module.exports = {
 	healthCheck,

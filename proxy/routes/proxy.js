@@ -13,9 +13,9 @@ router.get('/static/health', StaticNGSIProxy.healthCheck);
 router.post('/static/:type/queryContext', StaticNGSIProxy.queryContext);
 
 router.get('/twitter/health', TwitterNSGIProxy.healthCheck);
-router.post('/twitter/:id/:attr/queryContext', TwitterNSGIProxy.queryContext);
+router.post('/twitter/:type/:queryString/:attr/queryContext', TwitterNSGIProxy.queryContext);
 
 router.get('/weather/health', WeatherNSGIProxy.healthCheck);
-router.post('/weather/:id/:attr/queryContext', WeatherNSGIProxy.queryContext);
+router.post('/weather/:type/:queryString/:attr/queryContext', WeatherNSGIProxy.queryContext);
 
 module.exports = router;
