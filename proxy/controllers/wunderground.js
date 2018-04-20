@@ -6,7 +6,7 @@
 
 const debug = require('debug')('proxy:server');
 const request = require('request-promise');
-const _ = require('lodash');
+const Formatter = require('../lib/formatter');
 
 //  The  Weather API key is personal to you.
 //  Do not place them directly in the code - read them in as environment variables.
@@ -57,10 +57,10 @@ function queryContext(req, res) {
 
 			res.set('Content-Type', 'application/json');
 			res.send(
-				formatAsV1Response(req, observation, (attr, req, observation) => {
+				Formatter.formatAsV1Response(req, observation, (attr, req, observation) => {
 					return {
 						name: attr,
-						type: toTitleCase(req.params.type),
+						type: Formatter.toTitleCase(req.params.type),
 						value: observation[req.params.attr],
 					};
 				})
@@ -84,52 +84,6 @@ function makeWeatherRequest(query) {
 		method: 'GET',
 	});
 }
-
-//
-// Entity types are typically title cased following Schema.org
-//
-function toTitleCase(str) {
-	return str.replace(/\w\S*/g, function(txt) {
-		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	});
-}
-
-//
-// Formatting function for an NSGI v1 response to a context query.
-//
-function formatAsV1Response(req, observation, formatter) {
-	const ngsiV1Response = {
-		contextResponses: [],
-	};
-
-	_.forEach(req.body.entities, function(entity) {
-		const obj = {
-			contextElement: {
-				attributes: [],
-				id: entity.id,
-				isPattern: 'false',
-				type: entity.type,
-			},
-			statusCode: {
-				code: '200',
-				reasonPhrase: 'OK',
-			},
-		};
-
-		_.forEach(req.body.attributes, function(attr) {
-			obj.contextElement.attributes.push(formatter(attr, req, observation));
-		});
-
-		ngsiV1Response.contextResponses.push(obj);
-	});
-
-	return ngsiV1Response;
-}
-
-module.exports = {
-	healthCheck,
-	queryContext,
-};
 
 module.exports = {
 	healthCheck,

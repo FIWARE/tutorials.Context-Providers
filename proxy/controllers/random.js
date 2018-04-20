@@ -3,8 +3,7 @@
 //
 
 const debug = require('debug')('proxy:server');
-const _ = require('lodash');
-
+const Formatter = require('../lib/formatter');
 
 //
 // The Health Check endpoint returns some random data values to show it is functioning
@@ -28,24 +27,15 @@ function healthCheck(req, res) {
 // which change with each request.
 //
 function queryContext(req, res) {
-	const response = formatAsV1Response(req, function(attr, req) {
+	const response = Formatter.formatAsV1Response(req, null, (attr, req) => {
 		return {
 			name: attr,
-			type: toTitleCase(req.params.type),
+			type: Formatter.toTitleCase(req.params.type),
 			value: generateValue(req.params.type),
 		};
 	});
 
 	res.send(response);
-}
-
-//
-// Entity types are typically title cased following Schema.org
-//
-function toTitleCase(str) {
-	return str.replace(/\w\S*/g, function(txt) {
-		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	});
 }
 
 //
@@ -91,40 +81,6 @@ function generateValue(type) {
 			return null;
 	}
 }
-
-//
-// Formatting function for an NSGI v1 response to a context query.
-//
-function formatAsV1Response(req, formatter) {
-	const ngsiV1Response = {
-		contextResponses: [],
-	};
-
-	_.forEach(req.body.entities, function(entity) {
-		const obj = {
-			contextElement: {
-				attributes: [],
-				id: entity.id,
-				isPattern: 'false',
-				type: entity.type,
-			},
-			statusCode: {
-				code: '200',
-				reasonPhrase: 'OK',
-			},
-		};
-
-		_.forEach(req.body.attributes, function(attr) {
-			obj.contextElement.attributes.push(formatter(attr, req));
-		});
-
-		ngsiV1Response.contextResponses.push(obj);
-	});
-
-	return ngsiV1Response;
-}
-
-
 
 module.exports = {
 	healthCheck,
