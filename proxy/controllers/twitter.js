@@ -119,13 +119,14 @@ function getValuesFromTweets(name, type, key, data) {
 	debug(name + ' was requested - returning tweet data for ' + key);
 
 	const value = [];
-
+	// In order to avoid script injections attack in some circustances 
+	// certain  characters are forbidden in any request:
 	_.forEach(data, element => {
-		value.push(encodeURIComponent(element[key]).replace(/%20/g, ' '));
+		value.push(element[key].replace(/[<>"'=;()?/%&]/g,''));
 	});
 
 	// Return the data as an array.
-	return ['value', 'vv'];
+	return value;
 }
 
 module.exports = {

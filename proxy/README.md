@@ -5,20 +5,40 @@ This is a simple nodejs express application which offers an NGSI v1 proxy interf
 
 The following NGSI v1 endpoints are supported
 
-* `/random/<type>/queryContext`. 
-  returns random data  values of `"type": "<type>"`  - e.g. `/random/Text/queryContext` will return  random lorem ipsum
+* `/random/<type>/<mapping>/queryContext`. 
+  returns random data  values of `"type": "<type>"`  - e.g. `/random/text/quote/queryContext` will return  random lorem ipsum
 
-* `/static/<type>/queryContext`
-  returns static data  values of `"type": "<type>"`  - e.g. `/static/Text/queryContext` will return "I never could get the hang of thursdays"
+* `/static/<type>/<mapping>/queryContext`
+  returns static data  values of `"type": "<type>"`  - e.g. `/static/text/quote/queryContext` will return "I never could get the hang of thursdays"
 
-* `/twitter/<type>/<queryString>/<attr>/queryContext`
+* `/twitter/<type>/<mapping><queryString>/<attr>/queryContext`
   Work in progress
 
-* `/weather/<type>/<queryString>/<attr>/queryContext`
+* `/weather/<type>/<mapping>/<queryString>/<attr>/queryContext`
   Retrieves the Weather data for the `queryString` location and maps the data from the given `attr` to the entity response.
 
   For Example `/proxy/weather/number/Germany%2FBerlin/wind_gust_mph/queryContext` will read the  `wind_gust_speed` value from Berlin.
   and `/proxy/weather/number/Egypt%2FCairo/temp_c/queryContext` will read the  `temp_c` value from Cairo.
+
+
+## Mappings
+
+NGSI attribute names should follow Data Model Guidelines (e.g. `camelCasing`)
+Data returned from third-party APIs will not enforce the same guidelines.
+It is therefore necessary to invoke a mapping to be able to know which values to retieve.
+
+The mapping path element is assumes that mappings are defined in the path as follows:
+
+* `temperature`
+  + `temperature` NGSI attribute maps to `temperature` attribute on the API data
+* `temperature:temp_c`
+  + `temperature` NGSI attribute maps to `temp_c` attribute on the API data
+* `temperature:temp_c,windSpeed:wind_speed`
+  + `temperature` NGSI attribute maps to `temp_c` attribute on the API data
+  + `windSpeed` NGSI attribute maps to `wind_speed` attribute on the API data
+
+For the full guidelines see:
+   http://fiware-datamodels.readthedocs.io/en/latest/guidelines/index.html
 
 
 # Health Check Endpoints
