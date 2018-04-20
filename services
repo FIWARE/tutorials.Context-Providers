@@ -28,6 +28,8 @@ case "${command}" in
 	"stop")
 		echo "stopping containers"
 		docker-compose down
+		echo "removing volumes"
+		docker volume prune --force
 		;;
 	"create")
 		echo "Obtaining Mongo DB image"
