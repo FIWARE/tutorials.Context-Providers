@@ -11,10 +11,10 @@ const Formatter = require('../lib/formatter');
 function healthCheck(req, res) {
 	debug('Random API is available - responding with some random values');
 	res.status(200).send({
-		boolean: generateValue('boolean'),
-		number: generateValue('number'),
-		structuredValue: generateValue('structuredValue'),
-		text: generateValue('text'),
+		boolean: randomValueForType('boolean'),
+		number: randomValueForType('number'),
+		structuredValue: randomValueForType('structuredValue'),
+		text: randomValueForType('text'),
 	});
 }
 
@@ -27,12 +27,8 @@ function healthCheck(req, res) {
 // which change with each request.
 //
 function queryContext(req, res) {
-	const response = Formatter.formatAsV1Response(req, null, (attr, req) => {
-		return {
-			name: attr,
-			type: Formatter.toTitleCase(req.params.type),
-			value: generateValue(req.params.type),
-		};
+	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
+		return randomValueForType(type);
 	});
 
 	res.send(response);
@@ -41,7 +37,7 @@ function queryContext(req, res) {
 //
 // A function to generate some random responses.
 //
-function generateValue(type) {
+function randomValueForType(type) {
 	switch (type.toLowerCase()) {
 		case 'boolean':
 			return Math.random() >= 0.5;

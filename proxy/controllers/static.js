@@ -11,10 +11,10 @@ const Formatter = require('../lib/formatter');
 function healthCheck(req, res) {
 	debug('Static API is available - responding with some static values');
 	res.status(200).send({
-		boolean: staticResponses('boolean'),
-		number: staticResponses('number'),
-		structuredValue: staticResponses('structuredValue'),
-		text: staticResponses('text'),
+		boolean: staticValueForType('boolean'),
+		number: staticValueForType('number'),
+		structuredValue: staticValueForType('structuredValue'),
+		text: staticValueForType('text'),
 	});
 }
 
@@ -26,12 +26,8 @@ function healthCheck(req, res) {
 // For the static content provider, the response is in the form of static data.
 //
 function queryContext(req, res) {
-	const response = Formatter.formatAsV1Response(req, null, (attr, req) => {
-		return {
-			name: attr,
-			type: Formatter.toTitleCase(req.params.type),
-			value: staticResponses(req.params.type),
-		};
+	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
+		return staticValueForType(type);
 	});
 
 	res.send(response);
@@ -40,7 +36,7 @@ function queryContext(req, res) {
 //
 // A function for generating canned responses.
 //
-function staticResponses(type) {
+function staticValueForType(type) {
 	switch (type.toLowerCase()) {
 		case 'boolean':
 			return true;

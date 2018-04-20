@@ -7,6 +7,8 @@
 const debug = require('debug')('proxy:server');
 const Twitter = require('twitter');
 const request = require('request-promise');
+const Formatter = require('../lib/formatter');
+const _ = require('lodash');
 
 // The  Twitter Consumer Key & Consumer Secret are personal to you.
 // Do not place them directly in the code - read them in as environment variables.
@@ -38,7 +40,7 @@ function healthCheck(req, res) {
 			debug(
 				'Twitter is not responding - have you added your Consumer Key & Consumer Secret as environment variables?'
 			);
-			res.statusCode = err.statusCode;
+			res.statusCode = err.statusCode || 501;
 			res.send(err);
 		}
 	);
@@ -50,10 +52,27 @@ function healthCheck(req, res) {
 // is set to "true" during registration
 //
 function queryContext(req, res) {
-	debug('Listening on ' + JSON.stringify(req.params));
-	debug('Listening on ' + JSON.stringify(req.body));
-	debug('Listening on ' + JSON.stringify(req.query));
-	res.send('respond with a resource');
+	makeTwitterRequest(
+		{ q: req.params.queryString },
+		(error, tweets) => {
+			if (tweets.statuses == null) {
+				// No tweets were returned for the query.
+				throw new Error({ message: 'Not Found', statusCode: 404 });
+			}
+
+			res.set('Content-Type', 'application/json');
+			const payload = Formatter.formatAsV1Response(req, tweets.statuses, getValuesFromTweets);
+
+			debug(JSON.stringify(payload));
+
+			res.send(payload);
+		},
+		err => {
+			debug(err);
+			res.statusCode = err.statusCode || 501;
+			res.send(err);
+		}
+	);
 }
 
 //
@@ -86,6 +105,27 @@ function makeTwitterRequest(params, callback, errorHandler) {
 			client.get(TWITTER_SEARCH_PATH, params, callback);
 		})
 		.catch(errorHandler);
+}
+
+//
+// This function returns a value field from the array of twitter statuses
+//
+// @param {string} name - The NGSI attribute name requested
+// @param {string} type - The type of the attribute requested
+// @param {string} key  - The name of the attribute within the tweets
+// @param {string} data - The Twitter data - an array of status updates.
+//
+function getValuesFromTweets(name, type, key, data) {
+	debug(name + ' was requested - returning tweet data for ' + key);
+
+	const value = [];
+
+	_.forEach(data, element => {
+		value.push(encodeURIComponent(element[key]).replace(/%20/g, ' '));
+	});
+
+	// Return the data as an array.
+	return ['value', 'vv'];
 }
 
 module.exports = {

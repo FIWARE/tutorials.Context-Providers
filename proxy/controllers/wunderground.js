@@ -23,16 +23,17 @@ const WUNDERGROUND_URL =
 //
 function healthCheck(req, res) {
 	makeWeatherRequest('Germany/Berlin')
-		.then(function(result) {
+		.then(result => {
 			const response = JSON.parse(result).response || {};
 			if (response.error) {
+				// An error response was returned for the query for Berlin.
 				throw new Error({ message: 'API Key Not Found', statusCode: 401 });
 			}
 			debug('Weather API is available - KeyID is valid  - responding with the weather for Berlin.');
 			res.set('Content-Type', 'application/json');
 			res.send(result);
 		})
-		.catch(function(err) {
+		.catch(err => {
 			debug(
 				'Weather API is not responding - have you added your KeyID as an environment variable?'
 			);
@@ -48,25 +49,19 @@ function healthCheck(req, res) {
 //
 function queryContext(req, res) {
 	makeWeatherRequest(req.params.queryString)
-		.then(function(result) {
+		.then(result => {
+			// Weather observation data is held in the current_observation attribute
 			const observation = JSON.parse(result).current_observation;
 
 			if (observation == null) {
+				// No weather observation was returned for the query.
 				throw new Error({ message: 'Not Found', statusCode: 404 });
 			}
 
 			res.set('Content-Type', 'application/json');
-			res.send(
-				Formatter.formatAsV1Response(req, observation, (attr, req, observation) => {
-					return {
-						name: attr,
-						type: Formatter.toTitleCase(req.params.type),
-						value: observation[req.params.attr],
-					};
-				})
-			);
+			res.send(Formatter.formatAsV1Response(req, observation, getValueFromObservation));
 		})
-		.catch(function(err) {
+		.catch(err => {
 			debug(err);
 			res.statusCode = err.statusCode || 501;
 			res.send(err);
@@ -83,6 +78,19 @@ function makeWeatherRequest(query) {
 		url: WUNDERGROUND_URL + query + '.json',
 		method: 'GET',
 	});
+}
+
+//
+// This function returns a value field from the weather observation
+//
+// @param {string} name - The NGSI attribute name requested
+// @param {string} type - The type of the attribute requested
+// @param {string} key  - The name of the attribute within the weather observation
+// @param {string} data - The Weather Data - an object of Weather observations
+//
+function getValueFromObservation(name, type, key, data) {
+	debug(name + ' was requested - returning current_observation.' + key + ' : ' + data[key]);
+	return data[key];
 }
 
 module.exports = {
