@@ -1,1 +1,0 @@
-This tutorial teaches FIWARE users about content providers.
