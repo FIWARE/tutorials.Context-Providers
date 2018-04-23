@@ -11,6 +11,7 @@ const Formatter = require('../lib/formatter');
 function healthCheck(req, res) {
 	debug('Static API is available - responding with some static values');
 	res.status(200).send({
+		array: staticValueForType('array'),
 		boolean: staticValueForType('boolean'),
 		number: staticValueForType('number'),
 		structuredValue: staticValueForType('structuredValue'),
@@ -38,6 +39,8 @@ function queryContext(req, res) {
 //
 function staticValueForType(type) {
 	switch (type.toLowerCase()) {
+		case 'array':
+			return ['Arthur', 'Dent'];
 		case 'boolean':
 			return true;
 		case 'float':
