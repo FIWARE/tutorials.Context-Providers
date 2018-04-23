@@ -2,12 +2,13 @@
 	"info": {
 		"_postman_id": "ce8cdaaf-e082-4860-854a-2d66a3854e51",
 		"name": "FIWARE Context Providers",
+		"description": "This tutorial builds on the **Store** entity created in the previous [stock management example](https://github.com/Fiware/tutorials.CRUD-Operations/) and enables a user to \nretrieve data about a store which is not held directly within the Orion Context Broker.\n\n# Context Providers\n\n> \"Knowledge is of two kinds. We know a subject ourselves, or we know where we can find information about it.\"\n>\n> — Samuel Johnson (Boswell's Life of Johnson)\n\n\nWithin the FIWARE platform, an entity represents the state of a physical or conceptural object which exists in the real world. \nFor example, a **Store** is a real world bricks and mortar building.\n\nThe context data of that entity defines the state of that real-world object at a given moment in time. \n\nIn all of the tutorials so far, we are holding all of the context data for our **Store** entities directly within the Orion \nContext Broker, for example stores would have attributes such as:\n\n* A unique identifier for the store e.g. `urn:ngsi-ld:Store:002`\n* The name of the store e.g. \"Checkpoint Markt\"\n* The address \"Friedrichstraße 44, 10969 Kreuzberg, Berlin\"\n* A physical location  e.g. *52.5075 N, 13.3903 E*\n\nAs you can see, most of these attributes are completely static (such as the location) and the others are unlikely to be\nchanged on a regular basis - though a street could be renamed, or the store name could be rebranded.\n\nThere is however another class of context data about the **Store** entity which is much more dynamic, information such as:\n\n* The current temperature at the store location\n* The current relative humidity at the store location\n* Recent social media tweets regarding the store \n\nThis information is always changing, and if it were held in a database, the data would always be out-of-date. To keep the context\ndata fresh, and to be able to retrieve the current state of the system on demand, new values for these dynamic data attributes will \nneed to be retrieved whenever the entity context is requested.\n\nSmart solutions are designed to react on the current state of the real-world. They are \"aware\" since they rely on dynamic data readings from \nexternal sources (such social media, IoT sensors, user inputs). The FIWARE platform makes the gathering and presentation of real-time \ncontext data transparent, since whenever an [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/) request is made to the Orion Context\nBroker it will always return the latest context by combining the data held within its database along with real-time data readings from \nany registered external context providers.\n\nIn order to be able to fulfil these requests, the Orion Context Broker, must first be supplied with two types of information:\n\n* The static context data held within Orion itself  (*Entities that Orion \"knows\" about*) \n* Registered external context providers associated with existing entities (*Entities that Orion can \"find information\" about*) \n\n\n## Entities within a stock management system\n\n\nWithin our simple stock management system, our **Store** entity currently returns `id`, `name`,  `address` and `location` attributes. \nWe will augment this with additional real-time context data from the following free publicly available data sources:\n\n* The temperature and relative humidity from the [Weather Underground API](https://www.wunderground.com/weather/api/d/docs?MR=1)\n* Recent social media tweets regarding the store from the [Twitter API](https://developer.twitter.com/](https://developer.twitter.com/)\n\nThe relationship between our entities is defined as shown:\n\n![](https://fiware.github.io/tutorials.Context-Providers/img/entities.svg)\n\nThe items highlighted in blue are to be provided by the external context providers. \n\n\n# Architecture\n\nThis application will only make use of one FIWARE component - the [Orion Context Broker](https://catalogue.fiware.org/enablers/publishsubscribe-context-broker-orion-context-broker). Usage of the Orion Context Broker is sufficient for an application to qualify as *“Powered by FIWARE”*.\n\nCurrently, the Orion Context Broker relies on open source [MongoDB](https://www.mongodb.com/) technology to keep persistence of the context data it holds. \nTo request context data from external sources, we will now need to add a simple Context Provider NGSI proxy.\n\n\nTherefore, the architecture will consist of three elements:\n\n* The Orion Context Broker server which will receive requests using [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/)\n* The underlying MongoDB database associated to the Orion Context Broker server\n* The Context Provider NGSI proxy which will will:\n  + receive requests using [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/)\n  + makes requests to publicly available data sources using their own APIs in a proprietory format \n  + returns context data back to the Orion Context Broker in [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/) format.\n\nSince all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run from exposed ports. \n\n![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.svg)\n\n# Prerequisites\n\n## Docker\n\nTo keep things simple both components will be run using [Docker](https://www.docker.com). **Docker** is a container technology which allows to different components isolated into their respective environments. \n\n* To install Docker on Windows follow the instructions [here](https://docs.docker.com/docker-for-windows/)\n* To install Docker on Mac follow the instructions [here](https://docs.docker.com/docker-for-mac/)\n* To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)\n\n**Docker Compose** is a tool for defining and running multi-container Docker applications. A [YAML file](https://raw.githubusercontent.com/Fiware/tutorials.Entity-Relationships/master/docker-compose.yml) is used configure the required\nservices for the application. This means all container sevices can be brought up in a single commmand. Docker Compose is installed by default as part of Docker for Windows and  Docker for Mac, however Linux users will need to follow the instructions found [here](https://docs.docker.com/compose/install/)\n\n## Cygwin \n\nWe will start up our services using a simple bash script. Windows users should download [cygwin](www.cygwin.com) to provide a command line functionality similar to a Linux distribution on Windows. \n\n## Context Provider NGSI proxy\n\nA simple [nodejs](https://nodejs.org/) [Express](https://expressjs.com/) application has been bundled as part of the repository. The application offers an NGSI v1 interface for four different context providers - the Weather Underground API, the Twitter Search API and two dummy data context providers - a static data provider (which always returns the same data) and a random data context provider (which will change every time it is invoked). \n\nMore information about the proxy endpoints can be found [here](https://github.com/Fiware/tutorials.Context-Providers/blob/master/proxy/README.md)\n\n* In order to access the Weather Underground API, you will need to sign up for a key at https://www.wunderground.com/weather/api/ \n* In order to access the Twitter Search API, you will have to create an app in Twitter via  https://apps.twitter.com/app/new to obtain a \nConsumer Key & Consumer Secret. \n\n\nReplace the placeholders in `docker-compose.yml` in the root of the repository with the values you obtain for your application:\n\n```yaml\n    environment:\n        - \"DEBUG=proxy:*\"\n        - \"WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>\"\n        - \"TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>\"\n        - \"TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>\"\n```\n\nIf you do not wish to sign-up for an API key, you can use data from the random data context provider instead.\n\n# Start Up\n\nAll services can be initialised from the command line by running the bash script provided within the repository:\n\n```console\n./services create; ./services start;\n```\n\nThis command will also import seed data from the previous [Stock Management example](https://github.com/Fiware/tutorials.CRUD-Operations) on startup.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "Health Checks",
-			"description": "",
+			"description": "The nodejs proxy application offers a `health` endpoint for each of the four context providers. Making a request to the appropriate endpoint will check that the provider is running and external data can be received. The application runs on port `3000`.",
 			"item": [
 				{
 					"name": "Static Data Context Provider (Health Check)",
@@ -122,11 +123,11 @@
 			]
 		},
 		{
-			"name": "Registering a Content Provider",
-			"description": "",
+			"name": "Accessing the NGSI v1 QueryContext Endpoint",
+			"description": "Because the `3000` port of the Context Provider has been exposed outside of the Docker container, it is possible for curl to make requests directly to the Context Provider - this simulates the requests that would have been made by the Orion Context Broker. You can also simulate making the requests as part of the docker container network by running the `appropriate/curl` Docker image.\n\nFirstly obtain the name of the network used within the Docker containers by running\n\n```console\ndocker network ls\n```\n\nThen run the following curl command including the `--network` parameter:\n\n```console\ndocker run --network tutorialscontextproviders_my-net --rm appropriate/curl -X GET http://context-provider:3000/proxy/random/health\n```\n\nAs you can see, within the network, the host name of the Context Provider is `context-provider`.",
 			"item": [
 				{
-					"name": "NGSI v1 QueryContext Endpoint",
+					"name": "Retrieving a Single Attribute Value",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -140,7 +141,7 @@
 							"raw": "{\n    \"entities\": [\n        {\n            \"type\": \"Store\",\n            \"isPattern\": \"false\",\n            \"id\": \"urn:ngsi-ld:Store:001\"\n        }\n    ],\n    \"attributes\": [\n        \"temperature\"\n    ]\n} "
 						},
 						"url": {
-							"raw": "http://{{context-provider}}/proxy/static/number/queryContext",
+							"raw": "http://{{context-provider}}/proxy/static/number/temperature/queryContext",
 							"protocol": "http",
 							"host": [
 								"{{context-provider}}"
@@ -149,6 +150,7 @@
 								"proxy",
 								"static",
 								"number",
+								"temperature",
 								"queryContext"
 							]
 						},
@@ -156,6 +158,44 @@
 					},
 					"response": []
 				},
+				{
+					"name": "Retrieving Multiple Attribute Values",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"entities\": [\n        {\n            \"type\": \"Store\",\n            \"isPattern\": \"false\",\n            \"id\": \"urn:ngsi-ld:Store:001\"\n        }\n    ],\n    \"attributes\": [\n        \"temperature\",\n        \"relativeHumidity\"\n    ]\n} "
+						},
+						"url": {
+							"raw": "http://{{context-provider}}/proxy/random/number/temperature,relativeHumidity/queryContext",
+							"protocol": "http",
+							"host": [
+								"{{context-provider}}"
+							],
+							"path": [
+								"proxy",
+								"random",
+								"number",
+								"temperature,relativeHumidity",
+								"queryContext"
+							]
+						},
+						"description": "It is possible for the Orion Context Broker to make a request for multiple data values. This example uses the NGSI v1 `queryContext` endpoint to request  `temperature` and `relativeHumidity` readings from the Random Data Generator Context Provider. The requested attributes are found within the `attributes` array of the POST body.\n\n\nThe response will return a object with values for both `temperature` and `relativeHumidity`\n\nThe Orion Context Broker will make similar requests to this `queryContext` endpoint once a context provider has been registered."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Context Provider Registration Actions",
+			"description": "All Context Provider Registration actions take place on the `v2/registrations` endpoint. The standatd CRUD mappings apply:\n\n* Creation is mapped to the HTTP POST\n* Reading/Listing registrations to HTTP GET verb\n* Deletion is mapped to HTTP DELETE",
+			"item": [
 				{
 					"name": "Register a Context Provider",
 					"request": {
@@ -168,7 +208,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"description\": \"Relative Humidity Context Source\",\n  \"dataProvided\": {\n    \"entities\": [\n      {\n        \"id\": \"urn:ngsi-ld:Store:001\",\n        \"type\": \"Store\"\n      }\n    ],\n    \"attrs\": [\n      \"relativeHumidity\"\n    ]\n  },\n  \"provider\": {\n    \"http\": {\n      \"url\": \"http://context-provider:3000/proxy/random/number\"\n    },\n     \"legacyForwarding\": true\n  }\n}"
+							"raw": "{\n  \"description\": \"Relative Humidity Context Source\",\n  \"dataProvided\": {\n    \"entities\": [\n      {\n        \"id\": \"urn:ngsi-ld:Store:001\",\n        \"type\": \"Store\"\n      }\n    ],\n    \"attrs\": [\n      \"temperature\",\n      \"relativeHumidity\"\n    ]\n  },\n  \"provider\": {\n    \"http\": {\n      \"url\": \"http://context-provider:3000/proxy/random/number/temperature,relativeHumidity\"\n    },\n     \"legacyForwarding\": true\n  }\n}"
 						},
 						"url": {
 							"raw": "http://{{orion}}/v2/registrations",
@@ -195,7 +235,43 @@
 								}
 							]
 						},
-						"description": "This example registers the Random Data Context Provider with the Orion Context Broker.\n\nThe body of the request states that: *\"The URL* `http://context-provider:3000/proxy/random/number` *is capable of providing* `relativeHumidity` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*\"*\n\nThe value of `relativeHumidity` is **never** held within Orion, it is always requested on demand from the registered context provider. Orion merely holds the registration information about which context providers can offer context data.\n\nThe presence of the flag `\"legacyForwarding\": true` indicates that the registered context provider offers an NGSI v1 interface - therefore Orion  will make POST request for data on `http://context-provider:3000/proxy/random/number/queryContext` using the NGSI v1 format for the body, and expect to receive data in the NGSI v1 format in return.\n\nThis request will return with a **201 - Created** response code. The `Location` Header of the response contains a path to the registration record held in Orion"
+						"description": "This example registers the Random Data Context Provider with the Orion Context Broker.\n\nThe body of the request states that: *\"The URL* `http://context-provider:3000/proxy/random/number/temperature,relativeHumidity` *is capable of providing* `relativeHumidity`  and `temperature` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*\"*\n\nThe values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion merely holds the registration information about which context providers can offer context data.\n\nThe presence of the flag `\"legacyForwarding\": true` indicates that the registered context provider offers an NGSI v1 interface - therefore Orion  will make POST request for data on `http://context-provider:3000/proxy/random/number/queryContext` using the NGSI v1 format for the body, and expect to receive data in the NGSI v1 format in return.\n\nThis request will return with a **201 - Created** response code. The `Location` Header of the response contains a path to the registration record held in Orion.\n\n>*Note:* if you have registered with the Weather API, you can retrieve live values for `temperature` and `relativeHumidity` in Berlin by placing the following `url` in the `provider`:\n>\n> * `http://context-provider:3000/proxy/weather/number/temperature:temp_c,relativeHumidity:relative_humidity/Germany%2FBerlin`\n>"
+					},
+					"response": []
+				},
+				{
+					"name": "Read a registered content provider",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://{{orion}}/v2/registrations/5addeffd93e53f86d8264521",
+							"protocol": "http",
+							"host": [
+								"{{orion}}"
+							],
+							"path": [
+								"v2",
+								"registrations",
+								"5addeffd93e53f86d8264521"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "Store",
+									"description": "Entity type, to avoid ambiguity in case there are several entities with the same entity id",
+									"disabled": true
+								},
+								{
+									"key": "attrs",
+									"value": "name",
+									"description": "Ordered list of attribute names to display",
+									"disabled": true
+								}
+							]
+						},
+						"description": "This example reads  the registration data with the id `5addeffd93e53f86d8264521` from the context.\n\nRegistration data can be obtained by making a GET request to the `/v2/registrations/<entity>` endpoint."
 					},
 					"response": []
 				},
@@ -229,7 +305,7 @@
 					"response": []
 				},
 				{
-					"name": "Remove a registered content provider",
+					"name": "Remove a registered content provider Copy",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -264,11 +340,33 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ecb1fe44-a6ca-45f0-b04f-8fd08c24e916",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "fe5b4d0c-f893-45bc-b2ce-b128e18491f3",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
 			"name": "Reading Context Data",
-			"description": "",
+			"description": "Once a Context Provider has been registered, the new context data will be included in the response if the context of the associated entity is requested.",
 			"item": [
 				{
 					"name": "Obtain Store Information",
@@ -317,6 +415,28 @@
 					},
 					"response": []
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c43b57f2-84cc-4d57-8c6d-5b4260399699",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "cc26f7d9-301c-48e2-891f-3c336c18fe96",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		}
 	],
@@ -344,14 +464,14 @@
 	],
 	"variable": [
 		{
-			"id": "a8b78fa6-8b83-41d4-86a2-a22925d9a78e",
+			"id": "948cad81-8afb-4236-9e6e-243bdc7c19f6",
 			"key": "orion",
 			"value": "localhost:1026",
 			"type": "string",
 			"description": ""
 		},
 		{
-			"id": "d7fa9880-efb7-40b4-a0ea-3a0a1b02d73c",
+			"id": "2ab9daf6-0e87-4cc0-9f6c-0ec50a129ceb",
 			"key": "context-provider",
 			"value": "localhost:3000",
 			"type": "string",
