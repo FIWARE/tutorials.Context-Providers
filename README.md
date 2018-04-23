@@ -264,8 +264,6 @@ The response will contain a series of 15 tweets about FIWARE. The full response 
 {
 	"statuses": [
 	{
-
-		{
 		"created_at": "Mon Apr 23 13:08:35 +0000 2018",
 		"id": 988404265227038700,
 		"id_str": "988404265227038721",
@@ -335,7 +333,7 @@ The response will contain a data about the current weather in Berlin. The full r
             ... ETC
         },
         "observation_location": {
-        	... ETC
+            ... ETC
         },
         ... ETC
         "temp_f": 71.4,
@@ -493,7 +491,7 @@ The response will be in NGSI v1 response format as shown. The `attributes` eleme
 
 ## Context Provider Registration Actions
 
-All Context Provider Registration actions take place on the `v2/registrations` endpoint. The standatd CRUD mappings apply:
+All Context Provider Registration actions take place on the `v2/registrations` endpoint. The standard CRUD mappings apply:
 
 * Creation is mapped to the HTTP POST
 * Reading/Listing registrations to HTTP GET verb
