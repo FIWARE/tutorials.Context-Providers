@@ -21,7 +21,7 @@
     + [スタティック・データのコンテキスト・プロバイダ (ヘルスチェック)](#static-data-context-provider-health-check)
     + [ランダムデータのコンテキスト・プロバイダ (ヘルスチェック)](#random-data-context-provider-health-check)
     + [Twitter API のコンテキスト・プロバイダ (ヘルスチェック)](#twitter-api-context-provider-health-check)
-    + [Wather API　のコンテキスト・プロバイダ (ヘルスチェック)](#weather-api-context-provider-health-check)
+    + [Weather API　のコンテキスト・プロバイダ (ヘルスチェック)](#weather-api-context-provider-health-check)
   * [NGSI v1 QueryContext エンドポイントへのアクセス](#accessing-the-ngsi-v1-querycontext-endpoint)
     + [単一の属性値の取得](#retrieving-a-single-attribute-value)
     + [複数の属性値の取得](#retrieving-multiple-attribute-values)
