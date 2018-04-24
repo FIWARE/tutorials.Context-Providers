@@ -349,7 +349,7 @@ docker network ls
 次に、`--network` パラメータを含む次の `curl` コマンドを実行します :
 
 ```console
-docker run --network tutorialscontextproviders_my-net --rm appropriate/curl -X GET http://context-provider:3000/proxy/random/health
+docker run --network fiware_default --rm appropriate/curl -X GET http://context-provider:3000/proxy/random/health
 ```
 
 ご覧のとおり、ネットワーク内では、コンテキスト・プロバイダのホスト名は `context-provider` です。

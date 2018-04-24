@@ -20,14 +20,14 @@ case "${command}" in
         ;;
     "start")
 		echo "starting containers"
-		docker-compose up -d
+		docker-compose -p fiware up -d
 		sleep 2
 		echo "loading data"
 		./import-data
 		;;
 	"stop")
 		echo "stopping containers"
-		docker-compose down
+		docker-compose -p fiware down
 		echo "removing volumes"
 		docker volume prune --force
 		;;

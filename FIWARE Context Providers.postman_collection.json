@@ -124,7 +124,7 @@
 		},
 		{
 			"name": "Accessing the NGSI v1 QueryContext Endpoint",
-			"description": "Because the `3000` port of the Context Provider has been exposed outside of the Docker container, it is possible for curl to make requests directly to the Context Provider - this simulates the requests that would have been made by the Orion Context Broker. You can also simulate making the requests as part of the docker container network by running the `appropriate/curl` Docker image.\n\nFirstly obtain the name of the network used within the Docker containers by running\n\n```console\ndocker network ls\n```\n\nThen run the following curl command including the `--network` parameter:\n\n```console\ndocker run --network tutorialscontextproviders_my-net --rm appropriate/curl -X GET http://context-provider:3000/proxy/random/health\n```\n\nAs you can see, within the network, the host name of the Context Provider is `context-provider`.",
+			"description": "Because the `3000` port of the Context Provider has been exposed outside of the Docker container, it is possible for curl to make requests directly to the Context Provider - this simulates the requests that would have been made by the Orion Context Broker. You can also simulate making the requests as part of the docker container network by running the `appropriate/curl` Docker image.\n\nFirstly obtain the name of the network used within the Docker containers by running\n\n```console\ndocker network ls\n```\n\nThen run the following curl command including the `--network` parameter:\n\n```console\ndocker run --network fiware_default --rm appropriate/curl -X GET http://context-provider:3000/proxy/random/health\n```\n\nAs you can see, within the network, the host name of the Context Provider is `context-provider`.",
 			"item": [
 				{
 					"name": "Retrieving a Single Attribute Value",
@@ -189,6 +189,28 @@
 						"description": "It is possible for the Orion Context Broker to make a request for multiple data values. This example uses the NGSI v1 `queryContext` endpoint to request  `temperature` and `relativeHumidity` readings from the Random Data Generator Context Provider. The requested attributes are found within the `attributes` array of the POST body.\n\n\nThe response will return a object with values for both `temperature` and `relativeHumidity`\n\nThe Orion Context Broker will make similar requests to this `queryContext` endpoint once a context provider has been registered."
 					},
 					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6c72a7b6-107b-4d17-98b8-41fa833c675a",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "d4f0cf7e-297b-4674-bc92-bcbe91c53b76",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		},
@@ -464,14 +486,14 @@
 	],
 	"variable": [
 		{
-			"id": "948cad81-8afb-4236-9e6e-243bdc7c19f6",
+			"id": "091e759b-e8e6-4e93-b2af-dc7746d01731",
 			"key": "orion",
 			"value": "localhost:1026",
 			"type": "string",
 			"description": ""
 		},
 		{
-			"id": "2ab9daf6-0e87-4cc0-9f6c-0ec50a129ceb",
+			"id": "51e59b64-4971-45fd-9d51-5ff70f9fd401",
 			"key": "context-provider",
 			"value": "localhost:3000",
 			"type": "string",

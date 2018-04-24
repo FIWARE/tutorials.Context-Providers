@@ -6,6 +6,12 @@
 
 set -e
 
+
+curl () {
+  docker run --network fiware_default --rm appropriate/curl -s \
+    "$@"
+}
+
 #
 # Create four Store Entities in various locations across Berlin
 #

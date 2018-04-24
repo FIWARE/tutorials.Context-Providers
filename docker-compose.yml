@@ -9,7 +9,7 @@ services:
     ports:
         - "27017:27017"
     networks:
-        - my-net
+        - default
     command: --bind_ip_all --smallfiles
 
   orion:
@@ -20,7 +20,7 @@ services:
       - context-db
       - context-provider
     networks:
-        - my-net
+        - default
     expose:
         - "1026"
     ports:
@@ -32,7 +32,7 @@ services:
     hostname: context-provider
     container_name: context-provider
     networks:
-        - my-net
+        - default
     expose:
         - "3000"
     ports:
@@ -44,4 +44,4 @@ services:
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
 
 networks:
-  my-net:
+  default:
