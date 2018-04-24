@@ -7,6 +7,8 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/7c9bed4bd2ce5213a80b)
 
+* このチュートリアルは[日本語](README.ja.md)でもご覧いただけます。
+
 # Contents
 
 - [Context Data and Context Providers](#context-data-and-context-providers)
