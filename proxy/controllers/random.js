@@ -10,6 +10,7 @@ const Formatter = require('../lib/formatter');
 //
 function healthCheck(req, res) {
 	debug('Random API is available - responding with some random values');
+	req.app.get('io').emit('health', 'Random API is healthy');
 	res.status(200).send({
 		array: randomValueForType('array'),
 		boolean: randomValueForType('boolean'),
@@ -28,6 +29,7 @@ function healthCheck(req, res) {
 // which change with each request.
 //
 function queryContext(req, res) {
+	req.app.get('io').emit('v1', 'Data requested from Random API');
 	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
 		return randomValueForType(type);
 	});

@@ -30,6 +30,7 @@ function healthCheck(req, res) {
 				throw new Error({ message: 'API Key Not Found', statusCode: 401 });
 			}
 			debug('Weather API is available - KeyID is valid  - responding with the weather for Berlin.');
+			req.app.get('io').emit('health', 'Weather API is healthy');
 			res.set('Content-Type', 'application/json');
 			res.send(result);
 		})
@@ -37,6 +38,7 @@ function healthCheck(req, res) {
 			debug(
 				'Weather API is not responding - have you added your KeyID as an environment variable?'
 			);
+			req.app.get('io').emit('health', 'Weather API is unhealthy');
 			res.statusCode = err.statusCode || 501;
 			res.send(err);
 		});
@@ -48,6 +50,7 @@ function healthCheck(req, res) {
 // is set to "true" during registration
 //
 function queryContext(req, res) {
+	req.app.get('io').emit('v1', 'Data requested from Weather API');
 	makeWeatherRequest(req.params.queryString)
 		.then(result => {
 			// Weather observation data is held in the current_observation attribute

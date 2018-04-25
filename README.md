@@ -175,7 +175,7 @@ This command will also import seed data from the previous [Stock Management exam
 
 ## Health Checks
 
-The nodejs proxy application offers a `health` endpoint for each of the four context providers. Making a request to the appropriate endpoint will check that the provider is running and external data can be received. The application runs on port `3000`.
+The nodejs proxy application offers a `health` endpoint for each of the four context providers. Making a request to the appropriate endpoint will check that the provider is running and external data can be received. The application runs on port `3000`. You can also watch the status of recent requests yourself by following the container logs or viewing information on `localhost:3000`
 
 
 ### Static Data Context Provider (Health Check)

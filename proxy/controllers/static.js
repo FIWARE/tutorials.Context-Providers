@@ -10,6 +10,7 @@ const Formatter = require('../lib/formatter');
 //
 function healthCheck(req, res) {
 	debug('Static API is available - responding with some static values');
+	req.app.get('io').emit('health', 'Static API is healthy');
 	res.status(200).send({
 		array: staticValueForType('array'),
 		boolean: staticValueForType('boolean'),
@@ -27,6 +28,7 @@ function healthCheck(req, res) {
 // For the static content provider, the response is in the form of static data.
 //
 function queryContext(req, res) {
+	req.app.get('io').emit('v1', 'Data requested from Static API');
 	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
 		return staticValueForType(type);
 	});

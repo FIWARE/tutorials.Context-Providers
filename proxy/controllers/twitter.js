@@ -34,12 +34,14 @@ function healthCheck(req, res) {
 			debug(
 				'Twitter is responding - your keys are valid  - responding with the tweets about FIWARE.'
 			);
+			req.app.get('io').emit('health', 'Twitter API is healthy');
 			res.send(tweets);
 		},
 		err => {
 			debug(
 				'Twitter is not responding - have you added your Consumer Key & Consumer Secret as environment variables?'
 			);
+			req.app.get('io').emit('health', 'Twitter API is unhealthy');
 			res.statusCode = err.statusCode || 501;
 			res.send(err);
 		}
@@ -52,6 +54,7 @@ function healthCheck(req, res) {
 // is set to "true" during registration
 //
 function queryContext(req, res) {
+	req.app.get('io').emit('v1', 'Data requested from Twitter API');
 	makeTwitterRequest(
 		{ q: req.params.queryString },
 		(error, tweets) => {
