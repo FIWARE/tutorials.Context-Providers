@@ -6,6 +6,10 @@ block content
 
   ul#messages
 
+  p Recent Notifications:
+
+  ul#notifications
+
   script(src='https://cdn.socket.io/socket.io-1.2.0.js')
   script(src='https://code.jquery.com/jquery-1.11.1.js')
   script.
@@ -21,6 +25,12 @@ block content
             $('#messages').append($('<li>').text(msg));
             if($('#messages li').size() > 5){
                 $('#messages li').first().remove();
+            }
+        });
+        socket.on('notify', function(msg){
+            $('#notifications').append($('<li>').text(msg));
+            if($('#notifications li').size() > 5){
+                $('#notifications li').first().remove();
             }
         });
     });
