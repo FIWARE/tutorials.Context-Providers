@@ -1,3 +1,5 @@
+![FIWARE Banner](https://fiware.github.io/tutorials.Context-Providers/img/fiware.png)
+
 このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロバイダについて説明しています。
 
 チュートリアルは、以前の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations/)で作成された **Store** エンティティをベースにしていて、ユーザは、Orion Context Broker 内で直接保持されていないストアに関するデータを取得できます。
@@ -137,6 +139,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 ```yaml
     environment:
         - "DEBUG=proxy:*"
+        - "CONTEXT_BROKER=http://orion:1026/v2"
         - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
@@ -176,7 +179,7 @@ nodejs proxy アプリケーションは、4つのコンテキスト・プロバ
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/static/health
+  'http://localhost:3000/health/static'
 ```
 
 #### レスポンス :
@@ -205,7 +208,7 @@ curl -X GET \
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/random/health
+  'http://localhost:3000/health/random'
 ```
 
 #### レスポンス :
@@ -239,7 +242,7 @@ Twitter API は OAuth2 を使用します :
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/twitter/health
+  'http://localhost:3000/health/twitter'
 ```
 
 #### レスポンス :
@@ -294,7 +297,7 @@ curl -X GET \
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/weather/health
+  'http://localhost:3000/health/weather'
 ```
 
 #### レスポンス :
@@ -349,7 +352,7 @@ docker network ls
 次に、`--network` パラメータを含む次の `curl` コマンドを実行します :
 
 ```console
-docker run --network fiware_default --rm appropriate/curl -X GET http://context-provider:3000/proxy/random/health
+docker run --network fiware_default --rm appropriate/curl -X GET http://context-provider:3000/health/random
 ```
 
 ご覧のとおり、ネットワーク内では、コンテキスト・プロバイダのホスト名は `context-provider` です。
@@ -366,7 +369,7 @@ Orion Context Broker は、コンテキスト・プロバイダが登録され�
 
 ```console
 curl -X POST \
-  'http://localhost:3000/proxy/static/number/temperature/queryContext' \
+  'http://localhost:3000/proxy/v1/static/temperature/queryContext' \
   -H 'Content-Type: application/json' \
   -d '{
     "entities": [
@@ -420,7 +423,7 @@ Orion Context Broker が複数のデータ値をリクエストすることは�
 
 ```console
 curl -X POST \
-  'http://{{context-provider}}/proxy/random/number/temperature,relativeHumidity/queryContext' \
+  'http://{{context-provider}}/proxy/v1/random/weatherConditions' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: 2ae9e6d6-802b-4a62-a561-5c7739489fb3' \
@@ -486,15 +489,15 @@ curl -X POST \
 ### 新しいコンテキスト・プロバイダの登録
 この例では、ランダム・データのコンテキスト・プロバイダを Orion Context Broker に登録します。
 
-リクエストのボディには、"URL  `http://context-provider:3000/proxy/random/number/temperature,relativeHumidity` は、 `id=urn:ngsi-ld:Store:001` と呼ばれるエンティティ の `relativeHumidity` と `temperature` データ を提供することができます" と記述します。
+リクエストのボディには、"URL  `http://context-provider:3000/proxy/v1/random/weatherConditions` は、 `id=urn:ngsi-ld:Store:001` と呼ばれるエンティティ の `relativeHumidity` と `temperature` データ を提供することができます" と記述します。
 
 値は**決して**、 Orion 内に保持されず、登録されたコンテキスト・プロバイダからの要求に応じて常にリクエストされます。Orion は、どのコンテキスト・プロバイダがコンテキスト・データを提供できるかについての登録情報を保持するだけです。
 
-`"legacyForwarding": true` フラグがあると、登録されたコンテキスト・プロバイダが NGSI v1 インターフェイスを提供していることを示します。したがって、Orion は、`http://context-provider:3000/proxy/random/number/queryContextNGSI v1` 形式のデータを POST でリクエストし、NGSI v1 形式のデータを受け取ります。
+`"legacyForwarding": true` フラグがあると、登録されたコンテキスト・プロバイダが NGSI v1 インターフェイスを提供していることを示します。したがって、Orion は、`http://context-provider:3000/proxy/v1/random/weatherConditions/queryContext` 形式のデータを POST でリクエストし、NGSI v1 形式のデータを受け取ります。
 
->*注* : Weather API に登録している場合、`provider` の中に 次の `url` を置くことで、Berlin の 'temperature' と　'relativeHumidity' のライブ値を取得することができます : 
+>*注* : Weather API に登録している場合、`provider` の中に 次の `url` を置くことで、Berlin の `temperature` と　`relativeHumidity` のライブ値を取得することができます : 
 >
-> * `http://context-provider:3000/proxy/weather/number/temperature:temp_c,relativeHumidity:relative_humidity/Germany%2FBerlin`
+> * `http://context-provider:3000/proxy/v1/weather/weatherConditions`
 >
 
 このリクエストは、**201 - Created** レスポンス・コードとともに返されます。レスポンスの `Location` ヘッダには、Orion で保持されている登録レコードへのパスが含まれています :
@@ -520,7 +523,7 @@ curl -X POST \
   },
   "provider": {
     "http": {
-      "url": "http://context-provider:3000/proxy/random/number/temperature,relativeHumidity"
+      "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
     },
      "legacyForwarding": true
   }
@@ -605,7 +608,7 @@ curl -X GET \
 
 ```console
 curl -X DELETE \
-  'http://{{orion}}/v2/registrations/5ad5b9435c28633f0ae90671'
+  'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
 ```
 
 <A name="list-all-registered-content-providers"></A>
@@ -628,7 +631,7 @@ curl -X GET \
 [
     {
         "id": "5addeffd93e53f86d8264521",
-        "description": "Relative Humidity Context Source",
+        "description": "Random Weather Conditions",
         "dataProvided": {
             "entities": [
                 {
@@ -643,7 +646,7 @@ curl -X GET \
         },
         "provider": {
             "http": {
-                "url": "http://context-provider:3000/proxy/weather/number/temperature:temp_c,relativeHumidity:relative_humidity/Germany%2FBerlin"
+                "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
             },
             "supportedForwardingMode": "all",
             "legacyForwarding": true
@@ -660,7 +663,7 @@ curl -X GET \
 
 ```console
 curl -X DELETE \
-  'http://{{orion}}/v2/registrations/5ad5b9435c28633f0ae90671'
+  'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
 ```
 
 

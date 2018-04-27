@@ -39,6 +39,7 @@ services:
         - "3000:3000"
     environment:
         - "DEBUG=proxy:*"
+        - "CONTEXT_BROKER=http://orion:1026/v2"
         - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"

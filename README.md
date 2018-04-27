@@ -1,3 +1,5 @@
+![FIWARE Banner](https://fiware.github.io/tutorials.Context-Providers/img/fiware.png)
+
 This tutorial teaches FIWARE users about context data and context providers.
 
 The tutorial builds on the **Store** entity created in the previous [stock management example](https://github.com/Fiware/tutorials.CRUD-Operations/) and enables a user to 
@@ -153,6 +155,7 @@ Replace the placeholders in `docker-compose.yml` in the root of the repository w
 ```yaml
     environment:
         - "DEBUG=proxy:*"
+        - "CONTEXT_BROKER=http://orion:1026/v2"
         - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
@@ -171,11 +174,21 @@ All services can be initialised from the command line by running the bash script
 
 This command will also import seed data from the previous [Stock Management example](https://github.com/Fiware/tutorials.CRUD-Operations) on startup.
 
+>:information_source: **Note:** If you want to clean up and start over again you can do so with the following command:
+>
+>```console
+>./services stop
+>``` 
+>
+
 # Using a Context Provider
+
+>:information_source: **Tip** You can also watch the status of recent requests yourself by following the container logs or 
+>viewing information on `localhost:3000/app/monitor` on a web browser.
 
 ## Health Checks
 
-The nodejs proxy application offers a `health` endpoint for each of the four context providers. Making a request to the appropriate endpoint will check that the provider is running and external data can be received. The application runs on port `3000`. You can also watch the status of recent requests yourself by following the container logs or viewing information on `localhost:3000`
+The nodejs proxy application offers a `health` endpoint for each of the four context providers. Making a request to the appropriate endpoint will check that the provider is running and external data can be received. The application runs on port `3000`. 
 
 
 ### Static Data Context Provider (Health Check)
@@ -189,7 +202,7 @@ Each Request will return the same data.
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/static/health
+  'http://localhost:3000/health/static'
 ```
 
 #### Response:
@@ -218,7 +231,7 @@ Each Request will return some random dummy data.
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/random/health
+  'http://localhost:3000/health/random'
 ```
 
 #### Response:
@@ -255,7 +268,7 @@ The Twitter API uses OAuth2:
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/twitter/health
+  'http://localhost:3000/health/twitter'
 ```
 
 #### Response:
@@ -310,7 +323,7 @@ Each Request will return the same data.
 
 ```console
 curl -X GET \
-  'http://localhost:3000/proxy/weather/health
+  'http://localhost:3000/health/weather'
 ```
 
 #### Response:
@@ -365,7 +378,7 @@ docker network ls
 Then run the following curl command including the `--network` parameter:
 
 ```console
-docker run --network fiware_default --rm appropriate/curl -X GET http://context-provider:3000/proxy/random/health
+docker run --network fiware_default --rm appropriate/curl -X GET http://context-provider:3000/health/random
 ```
 
 As you can see, within the network, the host name of the Context Provider is `context-provider`.
@@ -381,7 +394,7 @@ The Orion Context Broker will make similar requests to this `queryContext` endpo
 
 ```console
 curl -X POST \
-  'http://localhost:3000/proxy/static/number/temperature/queryContext' \
+  'http://localhost:3000/proxy/static/temperature/queryContext' \
   -H 'Content-Type: application/json' \
   -d '{
     "entities": [
@@ -437,7 +450,7 @@ It is possible for the Orion Context Broker to make a request for multiple data 
 
 ```console
 curl -X POST \
-  'http://{{context-provider}}/proxy/random/number/temperature,relativeHumidity/queryContext' \
+  'http://localhost:3000/proxy/v1/random/weatherConditions/queryContext' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: 2ae9e6d6-802b-4a62-a561-5c7739489fb3' \
@@ -502,15 +515,15 @@ All Context Provider Registration actions take place on the `v2/registrations` e
 ### Registering a new Context Provider
 This example registers the Random Data Context Provider with the Orion Context Broker.
 
-The body of the request states that: *"The URL* `http://context-provider:3000/proxy/random/number/temperature,relativeHumidity` *is capable of providing* `relativeHumidity`  and `temperature` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*"*
+The body of the request states that: *"The URL* `http://context-provider:3000/proxy/v1/random/weatherConditions` *is capable of providing* `relativeHumidity`  and `temperature` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*"*
 
 The values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion merely holds the registration information about which context providers can offer context data.
 
-The presence of the flag `"legacyForwarding": true` indicates that the registered context provider offers an NGSI v1 interface - therefore Orion  will make POST request for data on `http://context-provider:3000/proxy/random/number/queryContext` using the NGSI v1 format for the body, and expect to receive data in the NGSI v1 format in return.
+The presence of the flag `"legacyForwarding": true` indicates that the registered context provider offers an NGSI v1 interface - therefore Orion  will make POST request for data on `http://context-provider:3000/proxy/v1/random/weatherConditions/queryContext` using the NGSI v1 format for the body, and expect to receive data in the NGSI v1 format in return.
 
 >*Note:* if you have registered with the Weather API, you can retrieve live values for `temperature` and `relativeHumidity` in Berlin by placing the following `url` in the `provider`:
 >
-> * `http://context-provider:3000/proxy/weather/number/temperature:temp_c,relativeHumidity:relative_humidity/Germany%2FBerlin`
+> * `http://context-provider:3000/proxy/v1/weather/weatherConditions`
 >
 
 This request will return with a **201 - Created** response code. The `Location` Header of the response contains a path to the registration record held in Orion
@@ -522,7 +535,7 @@ curl -X POST \
   'http://localhost:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -d '{
-  "description": "Relative Humidity Context Source",
+  "description": "Random Weather Conditions",
   "dataProvided": {
     "entities": [
       {
@@ -536,7 +549,7 @@ curl -X POST \
   },
   "provider": {
     "http": {
-      "url": "http://context-provider:3000/proxy/random/number/temperature,relativeHumidity"
+      "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
     },
      "legacyForwarding": true
   }
@@ -621,7 +634,7 @@ Registration data can be obtained by making a GET request to the `/v2/registrati
 
 ```console
 curl -X DELETE \
-  'http://{{orion}}/v2/registrations/5ad5b9435c28633f0ae90671'
+  'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
 ```
 
 
@@ -644,7 +657,7 @@ curl -X GET \
 [
     {
         "id": "5addeffd93e53f86d8264521",
-        "description": "Relative Humidity Context Source",
+        "description": "Random Weather Conditions",
         "dataProvided": {
             "entities": [
                 {
@@ -659,7 +672,7 @@ curl -X GET \
         },
         "provider": {
             "http": {
-                "url": "http://context-provider:3000/proxy/weather/number/temperature:temp_c,relativeHumidity:relative_humidity/Germany%2FBerlin"
+                "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
             },
             "supportedForwardingMode": "all",
             "legacyForwarding": true
@@ -676,7 +689,7 @@ Registrations can be deleted by making a DELETE request to the `/v2/registration
 
 ```console
 curl -X DELETE \
-  'http://{{orion}}/v2/registrations/5ad5b9435c28633f0ae90671'
+  'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
 ```
 
 

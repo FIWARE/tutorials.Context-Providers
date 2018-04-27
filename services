@@ -36,7 +36,7 @@ case "${command}" in
 		docker pull mongo:3.6
 		echo "Obtaining Latest Orion Image"
 		docker pull fiware/orion
-		echo "recreate content-provider proxy"
+		echo "recreate Context Provider proxy"
 		docker build -t fiware/cp-web-app ./proxy
 		;;
 esac
