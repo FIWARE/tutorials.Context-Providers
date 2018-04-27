@@ -185,6 +185,8 @@ This command will also import seed data from the previous [Stock Management exam
 
 >:information_source: **Tip** You can also watch the status of recent requests yourself by following the container logs or 
 >viewing information on `localhost:3000/app/monitor` on a web browser.
+>
+>![FIWARE Monitor](https://fiware.github.io/tutorials.Context-Providers/img/monitor.png)
 
 ## Health Checks
 

@@ -18,7 +18,7 @@ router.get('/', function(req, res) {
 
 // eslint-disable-next-line no-unused-vars
 router.get('/app/monitor', function(req, res) {
-	res.render('monitor', { title: 'FIWARE Monitor' });
+	res.render('monitor', { title: 'Event Monitor' });
 });
 
 router.get('/app/store/:storeId', catchErrors(Store.readContextData), Store.displayStore);
