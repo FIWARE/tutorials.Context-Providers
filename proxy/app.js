@@ -5,8 +5,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const indexRouter = require('./routes/index');
-const proxyRouter = require('./routes/proxy');
-const notifyRouter = require('./routes/notify');
+const proxyV1Router = require('./routes/proxy-v1');
+const healthRouter = require('./routes/health');
 
 const app = express();
 
@@ -25,9 +25,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
+app.use('/proxy/v1', proxyV1Router);
+app.use('/health', healthRouter);
 app.use('/', indexRouter);
-app.use('/proxy', proxyRouter);
-app.use('/notify', notifyRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

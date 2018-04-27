@@ -4,13 +4,14 @@
 
 const debug = require('debug')('proxy:server');
 const Formatter = require('../lib/formatter');
+const monitor = require('../lib/monitoring');
 
 //
 // The Health Check endpoint returns some  canned responses to show it is functioning
 //
 function healthCheck(req, res) {
 	debug('Static API is available - responding with some static values');
-	req.app.get('io').emit('health', 'Static API is healthy');
+	monitor('health', 'Static API is healthy', req);
 	res.status(200).send({
 		array: staticValueForType('array'),
 		boolean: staticValueForType('boolean'),
@@ -28,7 +29,7 @@ function healthCheck(req, res) {
 // For the static content provider, the response is in the form of static data.
 //
 function queryContext(req, res) {
-	req.app.get('io').emit('v1', 'Data requested from Static API');
+	monitor('queryContext', 'Data requested from Static API', req, req.body);
 	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
 		return staticValueForType(type);
 	});
@@ -43,6 +44,16 @@ function staticValueForType(type) {
 	switch (type.toLowerCase()) {
 		case 'array':
 			return ['Arthur', 'Dent'];
+		case 'list':
+			return [
+				'it has great practical value – you can wrap it around you for warmth as you bound across the cold moons of Jaglan Beta;',
+				'you can lie on it on the brilliant marble-sanded beaches of Santraginus V, inhaling the heady sea vapours;',
+				'you can sleep under it beneath the stars which shine so redly on the desert world of Kakrafoon;',
+				'use it to sail a mini raft down the slow heavy river Moth; wet it for use in hand-to-hand-combat;',
+				'wrap it round your head to ward off noxious fumes or to avoid the gaze of the Ravenous Bugblatter Beast of Traal  ' +
+					'(a mindboggingly stupid animal, it assumes that if you can’t see it, it can’t see you – daft as a bush, but very, very ravenous);',
+				'you can wave your towel in emergencies as a distress signal, and of course dry yourself off with it if it still seems to be clean enough.',
+			];
 		case 'boolean':
 			return true;
 		case 'float':

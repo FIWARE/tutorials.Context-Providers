@@ -4,13 +4,21 @@
 
 const debug = require('debug')('proxy:server');
 const Formatter = require('../lib/formatter');
+const monitor = require('../lib/monitoring');
+
+const LOREM_IPSUM =
+	'lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor ' +
+	'incididunt ut labore et dolore magna aliqua. enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ' +
+	'ut aliquip ex ea commodo consequat. duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore ' +
+	'eu fugiat nulla pariatur. excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit ';
+const LOREM_IPSUM_WORD_BANK = LOREM_IPSUM.split(' ');
 
 //
 // The Health Check endpoint returns some random data values to show it is functioning
 //
 function healthCheck(req, res) {
 	debug('Random API is available - responding with some random values');
-	req.app.get('io').emit('health', 'Random API is healthy');
+	monitor('health', 'Random API is healthy', req);
 	res.status(200).send({
 		array: randomValueForType('array'),
 		boolean: randomValueForType('boolean'),
@@ -29,7 +37,7 @@ function healthCheck(req, res) {
 // which change with each request.
 //
 function queryContext(req, res) {
-	req.app.get('io').emit('v1', 'Data requested from Random API');
+	monitor('queryContext', 'Data requested from Random API', req, req.body);
 	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
 		return randomValueForType(type);
 	});
@@ -41,12 +49,6 @@ function queryContext(req, res) {
 // A function to generate some random responses.
 //
 function randomValueForType(type) {
-	const loremIpsum =
-		'lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor ' +
-		'incididunt ut labore et dolore magna aliqua. enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ' +
-		'ut aliquip ex ea commodo consequat. duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore ' +
-		'eu fugiat nulla pariatur. excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit ';
-	const loremIpsumWordBank = loremIpsum.split(' ');
 	const randy = Math.floor(Math.random() * 10) + 5;
 	let ret;
 
@@ -55,7 +57,16 @@ function randomValueForType(type) {
 			ret = [];
 			// eslint-disable-next-line id-blacklist
 			for (let i = 0; i < randy; i++) {
-				ret.push(loremIpsumWordBank[Math.floor(Math.random() * (loremIpsumWordBank.length - 1))]);
+				ret.push(
+					LOREM_IPSUM_WORD_BANK[Math.floor(Math.random() * (LOREM_IPSUM_WORD_BANK.length - 1))]
+				);
+			}
+			break;
+		case 'list':
+			ret = [];
+			// eslint-disable-next-line id-blacklist
+			for (let i = 0; i < randy; i++) {
+				ret.push(getLoremIpsum());
 			}
 			break;
 		case 'boolean':
@@ -76,24 +87,30 @@ function randomValueForType(type) {
 			break;
 		case 'string':
 		case 'text':
-			ret = '';
-			// eslint-disable-next-line id-blacklist
-			for (let i = 0; i < randy; i++) {
-				let newTxt =
-					loremIpsumWordBank[Math.floor(Math.random() * (loremIpsumWordBank.length - 1))];
-				if (
-					ret.substring(ret.length - 1, ret.length) === '.' ||
-					ret.substring(ret.length - 1, ret.length) === '?'
-				) {
-					newTxt = newTxt.substring(0, 1).toUpperCase() + newTxt.substring(1, newTxt.length);
-				}
-				ret += ' ' + newTxt;
-			}
+			ret = getLoremIpsum();
 			break;
 		default:
 			return null;
 	}
 	return ret;
+}
+
+function getLoremIpsum() {
+	const randy = Math.floor(Math.random() * 10) + 5;
+	let text = '';
+	// eslint-disable-next-line id-blacklist
+	for (let i = 0; i < randy; i++) {
+		let newTxt =
+			LOREM_IPSUM_WORD_BANK[Math.floor(Math.random() * (LOREM_IPSUM_WORD_BANK.length - 1))];
+		if (
+			text.substring(text.length - 1, text.length) === '.' ||
+			text.substring(text.length - 1, text.length) === '?'
+		) {
+			newTxt = newTxt.substring(0, 1).toUpperCase() + newTxt.substring(1, newTxt.length);
+		}
+		text += ' ' + newTxt;
+	}
+	return text;
 }
 
 module.exports = {

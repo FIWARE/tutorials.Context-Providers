@@ -9,6 +9,7 @@ const Twitter = require('twitter');
 const request = require('request-promise');
 const Formatter = require('../lib/formatter');
 const _ = require('lodash');
+const monitor = require('../lib/monitoring');
 
 // The  Twitter Consumer Key & Consumer Secret are personal to you.
 // Do not place them directly in the code - read them in as environment variables.
@@ -34,14 +35,14 @@ function healthCheck(req, res) {
 			debug(
 				'Twitter is responding - your keys are valid  - responding with the tweets about FIWARE.'
 			);
-			req.app.get('io').emit('health', 'Twitter API is healthy');
+			monitor('health', 'Twitter API is healthy', req);
 			res.send(tweets);
 		},
 		err => {
 			debug(
 				'Twitter is not responding - have you added your Consumer Key & Consumer Secret as environment variables?'
 			);
-			req.app.get('io').emit('health', 'Twitter API is unhealthy');
+			monitor('health', 'Twitter API is unhealthy', req);
 			res.statusCode = err.statusCode || 501;
 			res.send(err);
 		}
@@ -54,7 +55,7 @@ function healthCheck(req, res) {
 // is set to "true" during registration
 //
 function queryContext(req, res) {
-	req.app.get('io').emit('v1', 'Data requested from Twitter API');
+	monitor('queryContext', 'Data requested from Twitter API', req, req.body);
 	makeTwitterRequest(
 		{ q: req.params.queryString },
 		(error, tweets) => {

@@ -1,0 +1,16 @@
+extends layout
+
+include product
+
+block content
+  h1= title
+
+  div
+    address
+      | #{store.address.streetAddress} #[br]
+      | #{store.address.addressLocality} #[br]
+      | #{store.address.postalCode} #[br]
+      | #{store.address.addressRegion} #[br]
+
+  iframe(width='560', height='400', src=`/app/store/${store.id}/till`, frameborder='0')
+  iframe(width='560', height='315', src=`/app/store/${store.id}/warehouse`, frameborder='0')

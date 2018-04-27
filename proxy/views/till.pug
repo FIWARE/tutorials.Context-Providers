@@ -1,0 +1,11 @@
+extends layout
+
+include product
+
+block content
+  h2 Items on Sale
+  ul
+    each item in inventory
+      li
+        +product(item, products)
+        br

@@ -7,6 +7,7 @@
 const debug = require('debug')('proxy:server');
 const request = require('request-promise');
 const Formatter = require('../lib/formatter');
+const monitor = require('../lib/monitoring');
 
 //  The  Weather API key is personal to you.
 //  Do not place them directly in the code - read them in as environment variables.
@@ -30,7 +31,7 @@ function healthCheck(req, res) {
 				throw new Error({ message: 'API Key Not Found', statusCode: 401 });
 			}
 			debug('Weather API is available - KeyID is valid  - responding with the weather for Berlin.');
-			req.app.get('io').emit('health', 'Weather API is healthy');
+			monitor('health', 'Weather API is healthy', req);
 			res.set('Content-Type', 'application/json');
 			res.send(result);
 		})
@@ -38,7 +39,7 @@ function healthCheck(req, res) {
 			debug(
 				'Weather API is not responding - have you added your KeyID as an environment variable?'
 			);
-			req.app.get('io').emit('health', 'Weather API is unhealthy');
+			monitor('health', 'Weather API is unhealthy', req);
 			res.statusCode = err.statusCode || 501;
 			res.send(err);
 		});
@@ -50,7 +51,7 @@ function healthCheck(req, res) {
 // is set to "true" during registration
 //
 function queryContext(req, res) {
-	req.app.get('io').emit('v1', 'Data requested from Weather API');
+	monitor('queryContext', 'Data requested from Weather API', req, req.body);
 	makeWeatherRequest(req.params.queryString)
 		.then(result => {
 			// Weather observation data is held in the current_observation attribute

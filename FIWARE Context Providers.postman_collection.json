@@ -17,15 +17,14 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://{{context-provider}}/proxy/static/health",
+							"raw": "http://{{context-provider}}/health/static",
 							"protocol": "http",
 							"host": [
 								"{{context-provider}}"
 							],
 							"path": [
-								"proxy",
-								"static",
-								"health"
+								"health",
+								"static"
 							]
 						},
 						"description": "This example returns the health of the Static Data Context Provider endpoint.\n\nA non-error response shows that an NGSI proxy is available on the network and returning values.\nEach Request will return the same data."
@@ -39,15 +38,14 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://{{context-provider}}/proxy/random/health",
+							"raw": "http://{{context-provider}}/health/random",
 							"protocol": "http",
 							"host": [
 								"{{context-provider}}"
 							],
 							"path": [
-								"proxy",
-								"random",
-								"health"
+								"health",
+								"random"
 							]
 						},
 						"description": "This example returns the health of the Random Data Generator Context Provider endpoint.\n\nA non-error response shows that an NGSI proxy is available on the network and returning values.\nEach Request will return some random dummy data."
@@ -61,15 +59,14 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://{{context-provider}}/proxy/twitter/health",
+							"raw": "http://{{context-provider}}/health/twitter",
 							"protocol": "http",
 							"host": [
 								"{{context-provider}}"
 							],
 							"path": [
-								"proxy",
-								"twitter",
-								"health"
+								"health",
+								"twitter"
 							]
 						},
 						"description": "This example returns the health of the Twitter API Context Provider endpoint.\n\nA non-error response shows that an NGSI proxy for the Twitter API is available on the network and returning values.\n\nIf the proxy is correctly configured to connect to the Twitter API, a series of Tweets will be\nreturned.\n\nThe Twitter API uses OAuth2: \n* To get Consumer Key & Consumer Secret for the Twitter API, you have to create an app in Twitter via [https://apps.twitter.com/app/new](https://apps.twitter.com/app/new). Then you'll be taken to a page containing Consumer Key & Consumer Secret.\n* For more information see: [https://developer.twitter.com/](https://developer.twitter.com/)"
@@ -83,15 +80,14 @@
 						"header": [],
 						"body": {},
 						"url": {
-							"raw": "http://{{context-provider}}/proxy/weather/health",
+							"raw": "http://{{context-provider}}/health/weather",
 							"protocol": "http",
 							"host": [
 								"{{context-provider}}"
 							],
 							"path": [
-								"proxy",
-								"weather",
-								"health"
+								"health",
+								"weather"
 							]
 						},
 						"description": "This example returns the health of the Weather API Context Provider endpoint.\n\nA non-error response shows that an NGSI proxy for the Weather API is available on the network and returning values.\n\nIf the proxy is correctly configured to connect to the Weather Underground API, the current weather in Berlin will be returned.\n\nMost of the Weather API features require an API key. \n\n* Sign up for a key at [https://www.wunderground.com/weather/api/](https://www.wunderground.com/weather/api/)\n\n* For more information see: [https://www.wunderground.com/weather/api/d/docs?MR=1](https://www.wunderground.com/weather/api/d/docs?MR=1)"
@@ -141,15 +137,15 @@
 							"raw": "{\n    \"entities\": [\n        {\n            \"type\": \"Store\",\n            \"isPattern\": \"false\",\n            \"id\": \"urn:ngsi-ld:Store:001\"\n        }\n    ],\n    \"attributes\": [\n        \"temperature\"\n    ]\n} "
 						},
 						"url": {
-							"raw": "http://{{context-provider}}/proxy/static/number/temperature/queryContext",
+							"raw": "http://{{context-provider}}/proxy/v1/static/temperature/queryContext",
 							"protocol": "http",
 							"host": [
 								"{{context-provider}}"
 							],
 							"path": [
 								"proxy",
+								"v1",
 								"static",
-								"number",
 								"temperature",
 								"queryContext"
 							]
@@ -173,20 +169,84 @@
 							"raw": "{\n    \"entities\": [\n        {\n            \"type\": \"Store\",\n            \"isPattern\": \"false\",\n            \"id\": \"urn:ngsi-ld:Store:001\"\n        }\n    ],\n    \"attributes\": [\n        \"temperature\",\n        \"relativeHumidity\"\n    ]\n} "
 						},
 						"url": {
-							"raw": "http://{{context-provider}}/proxy/random/number/temperature,relativeHumidity/queryContext",
+							"raw": "http://{{context-provider}}/proxy/v1/random/weatherConditions/queryContext",
 							"protocol": "http",
 							"host": [
 								"{{context-provider}}"
 							],
 							"path": [
 								"proxy",
+								"v1",
 								"random",
-								"number",
-								"temperature,relativeHumidity",
+								"weatherConditions",
 								"queryContext"
 							]
 						},
 						"description": "It is possible for the Orion Context Broker to make a request for multiple data values. This example uses the NGSI v1 `queryContext` endpoint to request  `temperature` and `relativeHumidity` readings from the Random Data Generator Context Provider. The requested attributes are found within the `attributes` array of the POST body.\n\n\nThe response will return a object with values for both `temperature` and `relativeHumidity`\n\nThe Orion Context Broker will make similar requests to this `queryContext` endpoint once a context provider has been registered."
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieving Live Weather Values",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"entities\": [\n        {\n            \"type\": \"Store\",\n            \"isPattern\": \"false\",\n            \"id\": \"urn:ngsi-ld:Store:001\"\n        }\n    ],\n    \"attributes\": [\n        \"temperature\",\n        \"relativeHumidity\"\n    ]\n} "
+						},
+						"url": {
+							"raw": "http://{{context-provider}}/proxy/v1/weather/weatherConditions/queryContext",
+							"protocol": "http",
+							"host": [
+								"{{context-provider}}"
+							],
+							"path": [
+								"proxy",
+								"v1",
+								"weather",
+								"weatherConditions",
+								"queryContext"
+							]
+						},
+						"description": "This example uses the NGSI v1 queryContext endpoint to request temperature and relativeHumidity readings from the Weather API Context Provider. The requested attributes are found within the attributes array of the POST body.\n\nThe Orion Context Broker will make similar requests to this queryContext endpoint once a context provider has been registered."
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieving Live Tweets",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"entities\": [\n        {\n            \"type\": \"Store\",\n            \"isPattern\": \"false\",\n            \"id\": \"urn:ngsi-ld:Store:001\"\n        }\n    ],\n    \"attributes\": [\n        \"tweets\"\n    ]\n} "
+						},
+						"url": {
+							"raw": "http://{{context-provider}}/proxy/v1/twitter/tweets/queryContext",
+							"protocol": "http",
+							"host": [
+								"{{context-provider}}"
+							],
+							"path": [
+								"proxy",
+								"v1",
+								"twitter",
+								"tweets",
+								"queryContext"
+							]
+						},
+						"description": "This example uses the NGSI v1 queryContext endpoint to request tweets from the Twitter API Context Provider. The requested attributes are found within the attributes array of the POST body.\n\nThe Orion Context Broker will make similar requests to this queryContext endpoint once a context provider has been registered."
 					},
 					"response": []
 				}
@@ -230,7 +290,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"description\": \"Relative Humidity Context Source\",\n  \"dataProvided\": {\n    \"entities\": [\n      {\n        \"id\": \"urn:ngsi-ld:Store:001\",\n        \"type\": \"Store\"\n      }\n    ],\n    \"attrs\": [\n      \"temperature\",\n      \"relativeHumidity\"\n    ]\n  },\n  \"provider\": {\n    \"http\": {\n      \"url\": \"http://context-provider:3000/proxy/random/number/temperature,relativeHumidity\"\n    },\n     \"legacyForwarding\": true\n  }\n}"
+							"raw": "{\n  \"description\": \"Random Weather Conditions\",\n  \"dataProvided\": {\n    \"entities\": [\n      {\n        \"id\": \"urn:ngsi-ld:Store:001\",\n        \"type\": \"Store\"\n      }\n    ],\n    \"attrs\": [\n      \"temperature\",\n      \"relativeHumidity\"\n    ]\n  },\n  \"provider\": {\n    \"http\": {\n      \"url\": \"http://context-provider:3000/proxy/v1/random/weatherConditions\"\n    },\n     \"legacyForwarding\": true\n  }\n}"
 						},
 						"url": {
 							"raw": "http://{{orion}}/v2/registrations",
@@ -257,7 +317,7 @@
 								}
 							]
 						},
-						"description": "This example registers the Random Data Context Provider with the Orion Context Broker.\n\nThe body of the request states that: *\"The URL* `http://context-provider:3000/proxy/random/number/temperature,relativeHumidity` *is capable of providing* `relativeHumidity`  and `temperature` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*\"*\n\nThe values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion merely holds the registration information about which context providers can offer context data.\n\nThe presence of the flag `\"legacyForwarding\": true` indicates that the registered context provider offers an NGSI v1 interface - therefore Orion  will make POST request for data on `http://context-provider:3000/proxy/random/number/queryContext` using the NGSI v1 format for the body, and expect to receive data in the NGSI v1 format in return.\n\nThis request will return with a **201 - Created** response code. The `Location` Header of the response contains a path to the registration record held in Orion.\n\n>*Note:* if you have registered with the Weather API, you can retrieve live values for `temperature` and `relativeHumidity` in Berlin by placing the following `url` in the `provider`:\n>\n> * `http://context-provider:3000/proxy/weather/number/temperature:temp_c,relativeHumidity:relative_humidity/Germany%2FBerlin`\n>"
+						"description": "This example registers the Random Data Context Provider with the Orion Context Broker.\n\nThe body of the request states that: *\"The URL* `http://context-provider:3000/proxy/random/weatherConditions` *is capable of providing* `relativeHumidity`  and `temperature` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*\"*\n\nThe values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion merely holds the registration information about which context providers can offer context data.\n\nThe presence of the flag `\"legacyForwarding\": true` indicates that the registered context provider offers an NGSI v1 interface - therefore Orion  will make POST request for data on `http://context-provider:3000/proxy/random/weatherConditions/queryContext` using the NGSI v1 format for the body, and expect to receive data in the NGSI v1 format in return.\n\nThis request will return with a **201 - Created** response code. The `Location` Header of the response contains a path to the registration record held in Orion.\n\n>*Note:* if you have registered with the Weather API, you can retrieve live values for `temperature` and `relativeHumidity` in Berlin by placing the following `url` in the `provider`:\n>\n> * `http://context-provider:3000/proxy/weather/weatherConditions`\n>"
 					},
 					"response": []
 				},
@@ -486,14 +546,14 @@
 	],
 	"variable": [
 		{
-			"id": "091e759b-e8e6-4e93-b2af-dc7746d01731",
+			"id": "b7025640-fb54-4ebd-8113-8622da5e8370",
 			"key": "orion",
 			"value": "localhost:1026",
 			"type": "string",
 			"description": ""
 		},
 		{
-			"id": "51e59b64-4971-45fd-9d51-5ff70f9fd401",
+			"id": "4664e88c-0b69-4785-9425-556e42042dd2",
 			"key": "context-provider",
 			"value": "localhost:3000",
 			"type": "string",
