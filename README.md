@@ -88,7 +88,7 @@ Within our simple stock management system, our **Store** entity currently return
 We will augment this with additional real-time context data from the following free publicly available data sources:
 
 * The temperature and relative humidity from the [Weather Underground API](https://www.wunderground.com/weather/api/d/docs?MR=1)
-* Recent social media tweets regarding the store from the [Twitter API](https://developer.twitter.com/](https://developer.twitter.com/)
+* Recent social media tweets regarding the store from the [Twitter API](https://developer.twitter.com/)
 
 The relationship between our entities is defined as shown:
 
@@ -137,7 +137,7 @@ as part of Docker for Windows and  Docker for Mac, however Linux users will need
 
 ## Cygwin 
 
-We will start up our services using a simple bash script. Windows users should download [cygwin](www.cygwin.com) to provide a command line functionality similar to a Linux distribution on Windows. 
+We will start up our services using a simple bash script. Windows users should download [cygwin](http://www.cygwin.com/) to provide a command line functionality similar to a Linux distribution on Windows. 
 
 ## Context Provider NGSI proxy
 
