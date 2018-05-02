@@ -122,7 +122,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 <A name="cygwin"></A>
 ## Cygwin 
 
-シンプルな Bash スクリプトを使用してサービスを開始します。Windows ユーザは [cygwin](www.cygwin.com) をダウンロードして、Windows の Linux ディストリビューションに似たコマンドライン機能を提供する必要があります。
+シンプルな Bash スクリプトを使用してサービスを開始します。Windows ユーザは [cygwin](http://www.cygwin.com/) をダウンロードして、Windows の Linux ディストリビューションに似たコマンドライン機能を提供する必要があります。
 
 <A name="context-provider-ngsi-proxy"></A>
 ## コンテキスト・プロバイダ NGSI プロキシ
