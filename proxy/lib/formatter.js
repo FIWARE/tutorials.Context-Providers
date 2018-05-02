@@ -42,7 +42,7 @@ function parseMapping(input) {
 }
 
 //
-// Formatting function for an NSGI v1 response to a context query.
+// Formatting function for an NGSI v1 response to a context query.
 //
 function formatAsV1Response(req, inputData, attributeValueCallback) {
 	const mappedAttributes = parseMapping(req.params.mapping);

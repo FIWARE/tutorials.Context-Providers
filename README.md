@@ -71,7 +71,7 @@ need to be retrieved whenever the entity context is requested.
 
 Smart solutions are designed to react on the current state of the real-world. They are "aware" since they rely on dynamic data readings from 
 external sources (such social media, IoT sensors, user inputs). The FIWARE platform makes the gathering and presentation of real-time 
-context data transparent, since whenever an [NSGI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) request is made to the Orion Context
+context data transparent, since whenever an [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) request is made to the Orion Context
 Broker it will always return the latest context by combining the data held within its database along with real-time data readings from 
 any registered external context providers.
 
@@ -110,9 +110,9 @@ Therefore, the architecture will consist of three elements:
 * The Orion Context Broker server which will receive requests using [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/)
 * The underlying MongoDB database associated to the Orion Context Broker server
 * The Context Provider NGSI proxy which will will:
-  + receive requests using [NSGI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json)
+  + receive requests using [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json)
   + makes requests to publicly available data sources using their own APIs in a proprietory format 
-  + returns context data back to the Orion Context Broker in [NSGI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) format.
+  + returns context data back to the Orion Context Broker in [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) format.
 
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run from exposed ports. 
 
