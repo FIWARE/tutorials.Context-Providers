@@ -32,9 +32,9 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
     + [Retrieving Multiple Attribute Values](#retrieving-multiple-attribute-values)
   * [Context Provider Registration Actions](#context-provider-registration-actions)
     + [Registering a new Context Provider](#registering-a-new-context-provider)
-    + [Read a registered content provider](#read-a-registered-content-provider)
-    + [List all registered content providers](#list-all-registered-content-providers)
-    + [Remove a registered content provider](#remove-a-registered-content-provider)
+    + [Read a registered Context Provider](#read-a-registered-context-provider)
+    + [List all registered Context Providers](#list-all-registered-context-providers)
+    + [Remove a registered Context Provider](#remove-a-registered-context-provider)
 
 # Context Data and Context Providers
 
@@ -628,7 +628,7 @@ curl -X GET \
 ```
 
 
-### Read a registered content provider
+### Read a registered Context Provider
 
 This example reads the registration data with the id 5addeffd93e53f86d8264521 from the context.
 
@@ -640,7 +640,7 @@ curl -X DELETE \
 ```
 
 
-### List all registered content providers
+### List all registered Context Providers
 
 This example lists all registered context providers
 
@@ -685,7 +685,7 @@ curl -X GET \
 ```
 
 
-### Remove a registered content provider
+### Remove a registered Context Provider
 
 Registrations can be deleted by making a DELETE request to the `/v2/registrations/<entity>` endpoint.
 
