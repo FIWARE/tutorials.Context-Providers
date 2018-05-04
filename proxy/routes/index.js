@@ -1,44 +1,52 @@
 const express = require('express');
 const router = express.Router();
-const debug = require('debug')('proxy:server');
 const monitor = require('../lib/monitoring');
 const Store = require('../controllers/store');
 const _ = require('lodash');
 
+// Error handler for async functions 
 function catchErrors(fn) {
 	return (req, res, next) => {
 		return fn(req, res, next).catch(next);
 	};
 }
 
-/* GET home page. */
+// If an subscription is recieved emit socket io events
+// using the attribute values from the data received to define
+// who to send the event too.
+function broadcastEvents(req, item, types) {
+	const message = req.params.type + ' received';
+	_.forEach(types, type => {
+		if (item[type]) {
+			monitor(item[type], message, req);
+		}
+	});
+}
+
+
+// Render the home page.
 router.get('/', function(req, res) {
 	res.render('index', { title: 'FIWARE Tutorial' });
 });
 
-// eslint-disable-next-line no-unused-vars
+// Render the monitoring page
 router.get('/app/monitor', function(req, res) {
 	res.render('monitor', { title: 'Event Monitor' });
 });
 
-router.get('/app/store/:storeId', catchErrors(Store.readContextData), Store.displayStore);
-router.get('/app/store/:storeId/till', catchErrors(Store.readContextData), Store.displayTillInfo);
+// Render a store with products and warehouse notifications
+router.get('/app/store/:storeId', Store.displayStore);
+router.get('/app/store/:storeId/till', Store.displayTillInfo);
 router.get('/app/store/:storeId/warehouse', Store.displayWarehouseInfo);
+// Buy something.
 router.post('/app/inventory/:inventoryId', catchErrors(Store.buyItem));
 
+// Whenever a subscription is received, display it on the monitor
+// and notify any interested parties using Socket.io
 router.post('/subscription/:type', (req, res) => {
 	monitor('notify', req.params.type + ' received', req, req.body);
 	_.forEach(req.body.data, item => {
-		if (item.refStore) {
-			debug(req.params.type + ' received');
-			monitor(item.refStore, req.params.type + ' received', req);
-		}
-		if (item.refProduct) {
-			monitor(item.refProduct, req.params.type + ' received', req);
-		}
-		if (item.refShelf) {
-			monitor(item.refShelf, req.params.type + ' received', req);
-		}
+		broadcastEvents(req, item, ['refStore', 'refProduct', 'refShelf', 'type']);
 	});
 	res.status(204).send();
 });

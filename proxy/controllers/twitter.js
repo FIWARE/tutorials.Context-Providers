@@ -1,5 +1,5 @@
 //
-// This proxies responses from the Twitter API.
+// This controller proxies responses from the Twitter API.
 //
 // For more information see: https://developer.twitter.com/
 //

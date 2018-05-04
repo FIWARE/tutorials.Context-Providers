@@ -1,5 +1,5 @@
 //
-// This proxies responses from the Weather Underground API.
+// This controller proxies responses from the Weather Underground API.
 //
 // For more information see: https://www.wunderground.com/weather/api/d/docs?MR=1
 //

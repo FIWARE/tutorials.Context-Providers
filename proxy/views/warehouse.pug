@@ -11,6 +11,7 @@ block content
         var socket = io();
         store = $('#notifications').data("id");
         socket.on( store, function(msg){
+            // If we receive a store notification, list it on screen
             $('#notifications').append($('<li>').text(msg));
             if($('#notifications li').size() > 5){
                 $('#notifications li').first().remove();

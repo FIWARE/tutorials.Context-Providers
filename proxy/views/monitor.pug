@@ -27,6 +27,12 @@ block content
   script.
     $(function () {
         var socket = io();
+        socket.on('NGSI', function(msg){
+            $('#messages').append($('<li>').text(msg));
+            if($('#messages li').size() > 5){
+                $('#messages li').first().remove();
+            }
+        });
         socket.on('health', function(msg){
             $('#messages').append($('<li>').text(msg));
             if($('#messages li').size() > 5){

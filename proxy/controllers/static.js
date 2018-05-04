@@ -1,5 +1,5 @@
 //
-// This proxy responds with static data.
+// This controlller is a proxy for the Static API which responds with random data.
 //
 
 const debug = require('debug')('proxy:server');

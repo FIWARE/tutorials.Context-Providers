@@ -40,7 +40,7 @@ router.post(
 		req.params.queryString = 'Germany/Berlin';
 		next();
 	},
-	WeatherNGSIProxy.queryContext
+	StaticNGSIProxy.queryContext
 );
 
 // Convenience endpoints for humidity readings
@@ -72,7 +72,7 @@ router.post(
 		req.params.queryString = 'Germany/Berlin';
 		next();
 	},
-	WeatherNGSIProxy.queryContext
+	StaticNGSIProxy.queryContext
 );
 
 // Convenience endpoints for weather conditions readings
@@ -104,7 +104,7 @@ router.post(
 		req.params.queryString = 'Germany/Berlin';
 		next();
 	},
-	WeatherNGSIProxy.queryContext
+	StaticNGSIProxy.queryContext
 );
 
 // Convenience endpoints for tweets readings

@@ -1,5 +1,5 @@
 //
-// This proxy responds with random data.
+// This controlller is a proxy for the Random API which responds with random data.
 //
 
 const debug = require('debug')('proxy:server');
