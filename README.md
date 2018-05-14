@@ -95,10 +95,7 @@ We will augment this with additional real-time context data from the following f
 
 The relationship between our entities is defined as shown:
 
-![](https://fiware.github.io/tutorials.Context-Providers/img/entities.svg)
-
-The items highlighted in blue are to be provided by the external context providers. 
-
+![](https://fiware.github.io/tutorials.Context-Providers/img/entities.png)
 
 # Architecture
 

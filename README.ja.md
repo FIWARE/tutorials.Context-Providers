@@ -83,7 +83,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 エンティティ間のリレーションシップは、次のように定義されます :
 
-![](https://fiware.github.io/tutorials.Context-Providers/img/entities.svg)
+![](https://fiware.github.io/tutorials.Context-Providers/img/entities.png)
 
 青色で強調表示されている項目は、外部コンテキスト・プロバイダによって提供されます。
 
