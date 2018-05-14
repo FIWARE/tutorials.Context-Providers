@@ -5,7 +5,6 @@
 
 
 This tutorial teaches FIWARE users about context data and context providers.
-
 The tutorial builds on the **Store** entity created in the previous [stock management example](https://github.com/Fiware/tutorials.CRUD-Operations/) and enables a user to 
 retrieve data about a store which is not held directly within the Orion Context Broker.
 
