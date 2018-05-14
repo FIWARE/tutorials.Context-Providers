@@ -25,7 +25,16 @@ Store : address
 Store : location 
 Store : temperature 
 Store : relativeHumidity 
-Store : tweets 
+Store : tweets
+
+note right of Store #PowderBlue
+  <size:10><b>Weather API</b> supplies</size>
+  * <size:10>temperature</size>
+  * <size:10>relativeHumidity</size>
+
+  <size:10><b>Twitter API</b> supplies</size>
+  * <size:10>tweets</size>
+end note 
 
 object Shelf
 
