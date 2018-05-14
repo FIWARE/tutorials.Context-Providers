@@ -1,0 +1,41 @@
+@startuml
+object Product
+
+Product : id 
+Product : name 
+Product : price 
+Product : size 
+
+
+object InventoryItem
+
+InventoryItem : id 
+InventoryItem : refProduct 
+InventoryItem : refStore 
+InventoryItem : refShelf 
+InventoryItem : stockCount 
+InventoryItem : shelfCount 
+
+
+object Store
+
+Store : id 
+Store : name 
+Store : address 
+Store : location 
+Store : temperature 
+Store : relativeHumidity 
+Store : tweets 
+
+object Shelf
+
+Shelf : id 
+Shelf : refStore 
+Shelf : location 
+Shelf : maxCapacity
+
+Product "1 " o-- " *" InventoryItem  : listed in >
+Store " 1  " o-- " *  " InventoryItem :  sells >
+Store "1" *-- "*" Shelf : contains >
+InventoryItem "*" -o " 1" Shelf : < holds
+@enduml
