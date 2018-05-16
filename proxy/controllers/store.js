@@ -25,7 +25,7 @@ defaultClient.basePath = process.env.CONTEXT_BROKER || 'http://localhost:1026/v2
 //     'http://{{orion}}/v2/entities/?type=Store&options=keyValues'
 //
 function displayStore(req, res) {
-	monitor('NGSI', 'retrieveEntity ' + req.params.storeId, req);
+	monitor('NGSI', 'retrieveEntity ' + req.params.storeId);
 	retrieveEntity(
 		req.params.storeId, { options: 'keyValues', type: 'Store' })
 	.then(store => {
@@ -49,8 +49,8 @@ function displayStore(req, res) {
 //     'http://{{orion}}/v2/entities/?type=InventoryItem&options=keyValues&q=refStore==<entity-id>'
 //
 function displayTillInfo(req, res) {
-	monitor('NGSI', 'listEntities type=Product', req);
-	monitor('NGSI', 'listEntities type=InventoryItem refStore=' + req.params.storeId, req);
+	monitor('NGSI', 'listEntities type=Product');
+	monitor('NGSI', 'listEntities type=InventoryItem refStore=' + req.params.storeId);
 	Promise.all([ 
 		listEntities({
 		options: 'keyValues',
@@ -88,14 +88,14 @@ function displayTillInfo(req, res) {
 // There is no error handling on this function, it has been
 // left to a function on the router.
 async function buyItem(req, res) {
-	monitor('NGSI', 'retrieveEntity ' + req.params.inventoryId, req);
+	monitor('NGSI', 'retrieveEntity ' + req.params.inventoryId);
 	const inventory = await retrieveEntity(req.params.inventoryId, {
 		options: 'keyValues',
 		type: 'InventoryItem',
 	});
 	const count = inventory.shelfCount - 1;
 
-	monitor('NGSI', 'updateExistingEntityAttributes ' + req.params.inventoryId, req, { 
+	monitor('NGSI', 'updateExistingEntityAttributes ' + req.params.inventoryId,  { 
 		shelfCount: { type: 'Integer', value: count }
 	});
 	await updateExistingEntityAttributes(

@@ -19,6 +19,7 @@
     "moment": "^2.22.1",
     "morgan": "~1.9.0",
     "ngsi_v2": "^0.1.0",
+    "node-cache": "^4.2.0",
     "pug": "2.0.3",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",

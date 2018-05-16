@@ -18,7 +18,7 @@ const LOREM_IPSUM_WORD_BANK = LOREM_IPSUM.split(' ');
 //
 function healthCheck(req, res) {
 	debug('Random API is available - responding with some random values');
-	monitor('health', 'Random API is healthy', req);
+	monitor('health', 'Random API is healthy');
 	res.status(200).send({
 		array: randomValueForType('array'),
 		boolean: randomValueForType('boolean'),
@@ -37,7 +37,7 @@ function healthCheck(req, res) {
 // which change with each request.
 //
 function queryContext(req, res) {
-	monitor('queryContext', 'Data requested from Random API', req, req.body);
+	monitor('queryContext', 'Data requested from Random API', req.body);
 	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
 		return randomValueForType(type);
 	});

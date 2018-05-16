@@ -5,23 +5,24 @@
  */
 
 const app = require('../app');
+const iot = require('../iot');
 const debug = require('debug')('proxy:server');
 const http = require('http');
 
 /**
- * Get port from environment and store in Express.
+ * Get ports from environment and store in Express.
  */
 
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
- * Create HTTP server.
+ * Create HTTP server for app
  */
 
 const server = http.createServer(app);
-const io = require('socket.io')(server);
-app.set('io', io);
+global.SOCKET_IO = require('socket.io')(server);
+//app.set('io', io);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -30,6 +31,21 @@ app.set('io', io);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+
+/**
+ * Create HTTP server for iot devices
+ */
+const iotPort = normalizePort(process.env.IOT_DEVICES_PORT || '7896');
+iot.set('port', iotPort);
+//iot.set('io', io);
+
+const iotServer = http.createServer(iot);
+iotServer.listen(iotPort);
+iotServer.on('error', onError);
+iotServer.on('listening', onListening);
+
+
 
 /**
  * Normalize a port into a number, string, or false.

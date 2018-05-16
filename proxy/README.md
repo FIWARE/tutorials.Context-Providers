@@ -84,3 +84,17 @@ All Keys and Secrets must be passed in using Environment variables. The followin
 * `WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>`
 * `TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>`
 * `TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>`
+
+
+
+# License
+
+MIT © 2018 FIWARE Foundation e.V.
+
+See the LICENSE file in the root of this project for license details.
+
+The Program includes additional icons downloaded from www.flaticon.com which were obtained under license:
+
+* Smashicons - https://www.flaticon.com/authors/smashicons - CC 3.0 BY
+* Those Icons - https://www.flaticon.com/authors/those-icons - CC 3.0 BY
+* Freepik - http://www.freepik.com/ - CC 3.0 BY

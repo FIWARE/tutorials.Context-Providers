@@ -11,7 +11,7 @@ const monitor = require('../lib/monitoring');
 //
 function healthCheck(req, res) {
 	debug('Static API is available - responding with some static values');
-	monitor('health', 'Static API is healthy', req);
+	monitor('health', 'Static API is healthy');
 	res.status(200).send({
 		array: staticValueForType('array'),
 		boolean: staticValueForType('boolean'),
@@ -29,7 +29,7 @@ function healthCheck(req, res) {
 // For the static content provider, the response is in the form of static data.
 //
 function queryContext(req, res) {
-	monitor('queryContext', 'Data requested from Static API', req, req.body);
+	monitor('queryContext', 'Data requested from Static API', req.body);
 	const response = Formatter.formatAsV1Response(req, null, (name, type) => {
 		return staticValueForType(type);
 	});

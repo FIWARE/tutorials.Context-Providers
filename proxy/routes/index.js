@@ -18,7 +18,7 @@ function broadcastEvents(req, item, types) {
 	const message = req.params.type + ' received';
 	_.forEach(types, type => {
 		if (item[type]) {
-			monitor(item[type], message, req);
+			monitor(item[type], message);
 		}
 	});
 }
@@ -30,6 +30,10 @@ router.get('/', function(req, res) {
 });
 
 // Render the monitoring page
+router.get('/device/monitor', function(req, res) {
+	res.render('device-monitor', { title: 'UltraLight IoT Devices' });
+});
+
 router.get('/app/monitor', function(req, res) {
 	res.render('monitor', { title: 'Event Monitor' });
 });
