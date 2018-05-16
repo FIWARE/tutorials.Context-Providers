@@ -35,10 +35,14 @@ services:
         - default
     expose:
         - "3000"
+        - "7896"
     ports:
         - "3000:3000"
+        - "7896:7896"
     environment:
         - "DEBUG=proxy:*"
+        - "PORT=3000"
+        - "IOT_DEVICES_PORT=7896"
         - "CONTEXT_BROKER=http://orion:1026/v2"
         - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
