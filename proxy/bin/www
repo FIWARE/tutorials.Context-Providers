@@ -5,7 +5,7 @@
  */
 
 const app = require('../app');
-const iot = require('../iot');
+
 const debug = require('debug')('proxy:server');
 const http = require('http');
 
@@ -22,7 +22,6 @@ app.set('port', port);
 
 const server = http.createServer(app);
 global.SOCKET_IO = require('socket.io')(server);
-//app.set('io', io);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -36,6 +35,7 @@ server.on('listening', onListening);
 /**
  * Create HTTP server for iot devices
  */
+const iot = require('../iot');
 const iotPort = normalizePort(process.env.IOT_DEVICES_PORT || '7896');
 iot.set('port', iotPort);
 //iot.set('io', io);

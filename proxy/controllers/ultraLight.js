@@ -18,104 +18,188 @@
 const NodeCache = require( "node-cache" );
 const myCache = new NodeCache();
 const _ = require('lodash');
-const createError = require('http-errors');
+const monitor = require('../lib/monitoring');
+const http = require('http');
 
-//
-// Check to see if the  Device ID parameter has been sent,
-// and the device is one of the 16 devices registered by default
-//
-function preprocess(req, res, next){
-	res.locals.deviceId = req.query.i;
-	if(!res.locals.deviceId){
-		return res.status(422).send(new createError.UnprocessableEntity());
-	} 
-	if(_.indexOf(myCache.keys(),res.locals.deviceId) === -1){
-		return res.status(404).send(new createError.NotFound());
+// Connect to an IoT Agent and use fallback values if necessary
+const API_KEY = process.env.IOT_API_KEY || '1234';
+const IOT_AGENT_OPTIONS = {
+  host: process.env.IOT_AGENT_HOST || 'localhost',
+  port: process.env.IOT_AGENT_PORT || 4041
+};
+
+// A series of constants used by our se of devices
+const OK = ' OK';
+const NOT_OK = ' NOT OK';
+const DOOR_LOCKED = 's|LOCKED';
+const DOOR_OPEN = 's|OPEN';
+const DOOR_CLOSED = 's|CLOSED'; 
+
+const BELL_OFF = 's|OFF';
+const BELL_ON = 's|ON';
+
+const LAMP_ON = 's|ON|l|2000';
+const LAMP_OFF = 's|OFF|l|0';
+
+const INITIAL_COUNT = 'c|0';
+
+
+// The bell will respond to the "ring" command.
+// this will briefly set the bell to on.
+// The bell  is not a sensor - it will not report state northbound
+function  bellCommand(req, res) {
+	const keyValuePairs = req.body.split('|') || [''];
+	const command =   getCommand (keyValuePairs[0]);
+	const deviceId = 'bell' + req.params.id;
+	const result =  keyValuePairs[0] + '| ' + command;
+		
+	// Check for a valid device and command
+	if(_.indexOf(myCache.keys(), deviceId) === -1 ||
+		_.indexOf(['ring'], command) === -1 ){
+		return  res.status(422).send(result + NOT_OK);
 	}
-	return next();
+
+	// Update device state
+	if (command === 'ring'){
+		setDeviceState( deviceId, BELL_ON, false);
+		SOCKET_IO.emit(deviceId, BELL_ON);
+	}
+
+	return res.status(200).send(result + OK);	
 }
 
-// A device can report new measures to the IoT Platform using an HTTP GET request 
-// to the /iot/d path.
-// Payloads for GET requests should not contain multiple measure groups
-function processGetRequest(req, res) {
-	const state = updateSensorState(res, req, req.query.d);
-	return res.status(200).send(state);	
+// The door responds to "open", "close", "lock" and "unlock" commands
+// Each command alters the state of the door. When the door is unlocked
+// it can be opened and shut by external events.
+function doorCommand(req, res) {
+	const keyValuePairs = req.body.split('|') || [''];
+	const command = getCommand (keyValuePairs[0]);
+	const deviceId = 'door' + req.params.id;
+	const result = keyValuePairs[0] + '| ' + command;
+
+	// Check for a valid device and command
+	if(_.indexOf(myCache.keys(), deviceId ) === -1 ||
+		_.indexOf(['open', 'close', 'lock', 'unlock'], command) === -1 ){
+		return  res.status(422).send(result + NOT_OK);
+	}
+
+	// Update device state
+	if (command === 'open'){
+		setDeviceState( deviceId, DOOR_OPEN);
+	} else if (command === 'close' || command === 'unlock'){
+		setDeviceState( deviceId, DOOR_CLOSED);
+	} else if (command === 'lock'){
+		setDeviceState( deviceId, DOOR_LOCKED);
+	} 
+	return res.status(200).send(result + OK);	
 }
 
-// Another way of reporting measures is to do it using a POST request. 
-// In this case, the payload is passed along as the request payload. 
-// The device ID query parameter is still mandatory
-function processPostRequest(req, res) {
-	const state = updateSensorState(res, req, req.body)
-	return res.status(200).send(state);	
+// The lamp can be "on" or "off" - it also registers luminocity.
+// It will slowly dim as time passes (provided no movement is detected)
+function lampCommand(req, res) {
+	const keyValuePairs = req.body.split('|') || [''];
+	const command =   getCommand (keyValuePairs[0]);
+	const deviceId = 'lamp' + req.params.id;
+	const result =  keyValuePairs[0] + '| ' + command;
+
+	// Check for a valid device and command
+	if(_.indexOf(myCache.keys(), deviceId) === -1 ||
+		_.indexOf(['on', 'off'], command) === -1 ){
+		return  res.status(422).send(result + NOT_OK);
+	}
+
+	// Update device state
+	if (command === 'on'){
+		setDeviceState( deviceId, LAMP_ON);
+	}
+	if (command === 'off'){
+		setDeviceState( deviceId, LAMP_OFF);
+	}
+	return res.status(200).send(result + OK);	
 }
 
-// Set up 16 sensors, a door, bell, motion sensor and lamp for each of 4 locations.
+//
+// Splits the deviceId from the command sent.
+//
+function getCommand (string){
+	const command =  string.split('@');
+	if (command.length === 1){
+		command.push('');
+	}
+	return command[1];
+}
+
+// Set up 16 IoT devices, a door, bell, motion sensor and lamp for each of 4 locations.
 //
 // The door can be OPEN CLOSED or LOCKED
-// The bell can be ON or OFF
+// The bell can be ON or OFF - it does not report state.
 // The motion sensor counts the number of people passing by
 // The lamp can be ON or OFF. This also registers luminocity.
 // It will slowly dim as time passes (provided no movement is detected)
 function initSensorState (){
-	myCache.set( 'door001', 's|LOCKED');
-	myCache.set( 'door002', 's|LOCKED');
-	myCache.set( 'door003', 's|LOCKED');
-	myCache.set( 'door004', 's|LOCKED');
+	setDeviceState( 'door001', DOOR_LOCKED);
+	setDeviceState( 'door002', DOOR_LOCKED);
+	setDeviceState( 'door003', DOOR_LOCKED);
+	setDeviceState( 'door004', DOOR_LOCKED);
 
-	myCache.set( 'bell001', 's|OFF');
-	myCache.set( 'bell002', 's|OFF');
-	myCache.set( 'bell003', 's|OFF');
-	myCache.set( 'bell004', 's|OFF');
+	setDeviceState( 'bell001', BELL_OFF, false);
+	setDeviceState( 'bell002', BELL_OFF, false);
+	setDeviceState( 'bell003', BELL_OFF, false);
+	setDeviceState( 'bell004', BELL_OFF, false);
 
-	myCache.set( 'lamp001', 's|OFF,l|0');
-	myCache.set( 'lamp002', 's|OFF,l|0');
-	myCache.set( 'lamp003', 's|OFF,l|0');
-	myCache.set( 'lamp004', 's|OFF,l|0');
+	setDeviceState( 'lamp001', LAMP_OFF);
+	setDeviceState( 'lamp002', LAMP_OFF);
+	setDeviceState( 'lamp003', LAMP_OFF);
+	setDeviceState( 'lamp004', LAMP_OFF);
 
-	myCache.set( 'motion001', 'c|0');
-	myCache.set( 'motion002', 'c|0');
-	myCache.set( 'motion003', 'c|0');
-	myCache.set( 'motion004', 'c|0');
-}
-
-// Amend the cache value holding the state of the device if the payload
-// has been set.
-function updateSensorState(res, req, payload){
-	const deviceId = res.locals.deviceId;
-	if(payload){
-		myCache.set( deviceId, payload);
-	}
-	const state = myCache.get(deviceId);
-	SOCKET_IO.emit(deviceId, state);
-	return state;
+	setDeviceState( 'motion001', INITIAL_COUNT);
+	setDeviceState( 'motion002', INITIAL_COUNT);
+	setDeviceState( 'motion003', INITIAL_COUNT);
+	setDeviceState( 'motion004', INITIAL_COUNT);
 }
 
 //
-// Transformation function from Ultralight Protocol to a state object
-// Ultralight is a series of comma separated key-value pairs.
+// Transformation function from Ultralight Protocol to an object
+// Ultralight is a series of pipe separated key-value pairs.
 // Each key and value is in turn separated by a pipe character
 //
-// e.g. s|ON,l|1000 becomes
+// e.g. s|ON|l|1000 becomes
 // { s: 'ON', l: '1000'}
 //
-function toStateObject (ultraLight){
+function getDeviceState(deviceId){
+	const ultraLight = myCache.get(deviceId);
 	const obj = {};
-	const keyValuePairs = ultraLight.split(',')
-	_.forEach(keyValuePairs, function(value) {
-		const splitArr = value.split('|');
-
-		if (splitArr.length === 2){
-			obj[splitArr[0]] = splitArr[1];
-		}
-
-	});
+	const keyValuePairs = ultraLight.split('|')
+	for (let i = 0; i < keyValuePairs.length; i = i + 2) {
+		obj[keyValuePairs[i]] = keyValuePairs[i+ 1];
+	}
 	return obj;
 }
+//
+// Sets the device state in the in-memory cache. If the device is a sensor
+// it also reports (and attempts to send) the northbound traffic to the IoT agent.
+// The state of the dummy device is also sent to the browser for display
+//
+function setDeviceState(deviceId, state, isSensor = true){
+	const previousState = myCache.get(deviceId);
+	myCache.set(deviceId, state);
+	
+	if ( isSensor && (state !== previousState) ){
+		IOT_AGENT_OPTIONS.path = '/iot/d?i=' + deviceId + '&k=' + API_KEY + '&d=' + state;
+		const northboundRequest = http.request(IOT_AGENT_OPTIONS);
+		northboundRequest.on('error', () => {
+		    // Silently handle error in case the IOT_AGENT is not running
+		});
+		northboundRequest.end();
+		monitor( 'northbound' , IOT_AGENT_OPTIONS.path);
+	}
+	
+	SOCKET_IO.emit(deviceId, state);
+}
+
 
 // Transformation function from a state object to the Ultralight Protocol
-// Ultralight is a series of comma separated key-value pairs.
+// Ultralight is a series of pipe separated key-value pairs.
 // Each key and value is in turn separated by a pipe character
 //
 // e.g. s|ON,l|1000
@@ -124,7 +208,7 @@ function toUltraLight (object){
 	_.forEach(object, function(value, key) {
 		strArray.push(key + '|' + value);
 	});
-	return strArray.join (',');
+	return strArray.join ('|');
 }
 
 // Return the state of the door with the same number as the current element
@@ -132,8 +216,16 @@ function toUltraLight (object){
 // both the motion sensor will not increment an the smart lamp will slowly
 // decrease
 function getDoorState (deviceId, type){
-	const door = toStateObject(myCache.get(deviceId.replace(type, 'door')));
+	const door = getDeviceState(deviceId.replace(type, 'door'));
 	return  door.s || 'LOCKED';
+}
+
+// Return the state of the lamp with the same number as the current element
+// this is because fewer people will enter the building if the lamp is OFF, 
+// and therefore the motion sensor will increment more slowly
+function getLampState (deviceId, type){
+	const lamp = getDeviceState(deviceId.replace(type, 'lamp'));
+	return  lamp.s || 'OFF';
 }
 
 // Pick a random number between 1 and 10
@@ -144,6 +236,10 @@ function getRandom (){
 // Initialize the array of sensors and periodically update them.
 initSensorState ();
 let isRunning = false;
+
+
+// Every few seconds, update the state of the dummy devices in a 
+// semi-random fashion. 
 setInterval(function(){
     if(!isRunning){
         isRunning = true;
@@ -151,21 +247,25 @@ setInterval(function(){
         const deviceIds = myCache.keys();
 
 		_.forEach(deviceIds, function(deviceId) {
-			const state = toStateObject(myCache.get(deviceId));
+			const state = getDeviceState(deviceId);
+			let isSensor = true;
 
 			switch (deviceId.replace(/\d/g, '')){
 				case "door":
 					//  The door is OPEN or CLOSED or LOCKED,
 					if(state.s !== 'LOCKED'){
-						// Randomly open and close the door if not locked
-						state.s = (getRandom() > 4) ? 'OPEN' : 'CLOSED';
+						// Randomly open and close the door if not locked.
+						// lower the rate if the lamp is off.
+						const rate = (getLampState (deviceId, 'door') === 'ON') ? 4 : 7;
+						state.s = (getRandom() > rate) ? 'OPEN' : 'CLOSED';
 					}
 					break;
 				case "bell":
 					// ON or OFF - Switch off the bell if it is still ringing
 					if(state.s === 'ON'){
 						state.s = 'OFF';
-					}	
+					}
+					isSensor = false;	
 					break;				
 				case "motion":
 					// If the door is OPEN, randomly increment the count of the motion sensor
@@ -188,8 +288,7 @@ setInterval(function(){
 					break;	
 			}
 
-			myCache.set(deviceId, toUltraLight(state));
-			SOCKET_IO.emit(deviceId, toUltraLight(state));
+			setDeviceState(deviceId, toUltraLight(state), isSensor);
 		});
 		
        isRunning = false;
@@ -200,7 +299,7 @@ setInterval(function(){
 
 
 module.exports = {
-	preprocess,
-	processGetRequest,
-	processPostRequest,
+	bellCommand,
+	doorCommand,
+	lampCommand
 };
