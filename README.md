@@ -108,10 +108,10 @@ To request context data from external sources, we will now need to add a simple 
 
 Therefore, the architecture will consist of three elements:
 
-* The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)which will receive requests using [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/)
+* The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/)
 * The underlying [MongoDB](https://www.mongodb.com/) database :
   + Used by the Orion Context Broker to hold context data information such as data entities, subscriptions and registrations
-* The Context Provider NGSI proxy which will will:
+* The **Context Provider NGSI proxy** which will will:
   + receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
   + makes requests to publicly available data sources using their own APIs in a proprietory format 
   + returns context data back to the Orion Context Broker in [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
@@ -119,6 +119,46 @@ Therefore, the architecture will consist of three elements:
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run from exposed ports. 
 
 ![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.svg)
+
+The necessary configuration information for the **Context Provider NGSI proxy** can be seen in the services section the of the associated `docker-compose.yml`  file:
+
+```yaml
+  context-provider:
+    image: fiware/cp-web-app:latest
+    hostname: context-provider
+    container_name: context-provider
+    networks:
+        - default
+    expose:
+        - "3000"
+    ports:
+        - "3000:3000"
+    environment:
+        - "DEBUG=proxy:*"
+        - "PORT=3000" 
+        - "CONTEXT_BROKER=http://orion:1026/v2" 
+        - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
+        - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
+        - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
+```
+
+The `context-provider` container is driven by environment variables as shown:
+
+| Key |Value|Description|
+|-----|-----|-----------|
+|DEBUG|`proxy:*`| Debug flag used for logging |
+|PORT|`3000`|Port used by the content provider proxy and web-app for viewing data |
+|CONTEXT_BROKER|`http://orion:1026/v2`| URL of the context broker to  connect to update context|
+|WUNDERGROUND_KEY_ID|`<ADD_YOUR_KEY_ID>`| A consumer key used to obtain access to the Weather Underground API|
+|TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| A consumer key used to obtain access to the Twitter API|
+|TWITTER_CONSUMER_SECRET|`<ADD_YOUR_CONSUMER_SECRET>`| A user key used to obtain access to the Twitter API |
+
+The other `context-provider` container configuration values described in the YAML file are not used in this tutorial.
+
+
+The configuration information for MongoDB and the Orion Context Broker
+has been described in a [previous tutorial](https://github.com/Fiware/tutorials.Entity-Relationships/)
+
 
 # Prerequisites
 
