@@ -75,7 +75,7 @@ need to be retrieved whenever the entity context is requested.
 
 Smart solutions are designed to react on the current state of the real-world. They are "aware" since they rely on dynamic data readings from 
 external sources (such social media, IoT sensors, user inputs). The FIWARE platform makes the gathering and presentation of real-time 
-context data transparent, since whenever an [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) request is made to the Orion Context
+context data transparent, since whenever an [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) request is made to the Orion Context
 Broker it will always return the latest context by combining the data held within its database along with real-time data readings from 
 any registered external context providers.
 
@@ -100,7 +100,7 @@ The relationship between our entities is defined as shown:
 
 # Architecture
 
-This application will only make use of one FIWARE component - the [Orion Context Broker](https://catalogue.fiware.org/enablers/publishsubscribe-context-broker-orion-context-broker). Usage of the Orion Context Broker is sufficient for an application to qualify as *“Powered by FIWARE”*.
+This application will only make use of one FIWARE component - the [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/). Usage of the Orion Context Broker is sufficient for an application to qualify as *“Powered by FIWARE”*.
 
 Currently, the Orion Context Broker relies on open source [MongoDB](https://www.mongodb.com/) technology to keep persistence of the context data it holds. 
 To request context data from external sources, we will now need to add a simple Context Provider NGSI proxy.
@@ -108,12 +108,12 @@ To request context data from external sources, we will now need to add a simple 
 
 Therefore, the architecture will consist of three elements:
 
-* The Orion Context Broker server which will receive requests using [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/)
+* The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)which will receive requests using [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/)
 * The underlying MongoDB database associated to the Orion Context Broker server
 * The Context Provider NGSI proxy which will will:
-  + receive requests using [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json)
+  + receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
   + makes requests to publicly available data sources using their own APIs in a proprietory format 
-  + returns context data back to the Orion Context Broker in [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) format.
+  + returns context data back to the Orion Context Broker in [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
 
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run from exposed ports. 
 

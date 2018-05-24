@@ -65,7 +65,7 @@ FIWARE プラットフォーム内では、エンティティは、実世界に�
 
 この情報は常に変化しており、データベースに保持されている場合、データは常に古くなります。コンテキスト・データを最新に保ち、オンデマンドでシステムの現在の状態を取得できるようにするには、エンティティのコンテキストがリクエストされるたびに、これらの動的データ属性の新しい値を取得する必要があります。
 
-スマートなソリューションは、現実世界の現状に対応するように設計されています。ソーシャルメディア, IoTセンサー, ユーザ入力などの外部ソースからの動的なデータ読み取りに依存しているため、それらは "aware" (アウェア)です。FIWARE プラットフォームは、リアルタイム・コンテキスト・データの収集と提示を透過的にします。Orion Context Broker に対して [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) リクエストが行われるたびに、登録された外部コンテキスト・プロバイダからのリアルタイム・データ読み取りと一緒に、データベース内に保持されているデータを結合することによって常に最新のコンテキストを戻すからです。
+スマートなソリューションは、現実世界の現状に対応するように設計されています。ソーシャルメディア, IoTセンサー, ユーザ入力などの外部ソースからの動的なデータ読み取りに依存しているため、それらは "aware" (アウェア)です。FIWARE プラットフォームは、リアルタイム・コンテキスト・データの収集と提示を透過的にします。Orion Context Broker に対して [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) リクエストが行われるたびに、登録された外部コンテキスト・プロバイダからのリアルタイム・データ読み取りと一緒に、データベース内に保持されているデータを結合することによって常に最新のコンテキストを戻すからです。
 
 Orion Context Broker は、これらのリクエストを満たすために、まず次の2種類の情報を提供する必要があります :
 
@@ -100,9 +100,9 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 * [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/) を使用してリクエストを受信する Orion Context Broker サーバ
 * Orion Context Broker サーバに関連付けられている MongoDB データベース
 * コンテキスト・プロバイダ NGSI プロキシは次のようになります : 
-    + [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) を使用してリクエストを受信する
+    + [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する
     + 独自の API を独自のフォーマットで使用して、公開されているデータソースへのリクエストを行います
-    + [NGSI](https://swagger.lab.fiware.org/?url=https://raw.githubusercontent.com/Fiware/specifications/master/OpenAPI/ngsiv2/ngsiv2-openapi.json) 形式でコンテキスト・データを Orion Context Broker に返します
+    + [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) 形式でコンテキスト・データを Orion Context Broker に返します
 
 要素間のすべての対話は HTTP リクエストによって開始されるため、エンティティはコンテナ化され、公開されたポートから実行されます。
 
