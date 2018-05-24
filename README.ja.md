@@ -97,7 +97,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 したがって、アーキテクチャは3つの要素で構成されます :
 
-* [NGSI](http://fiware.github.io/specifications/ngsiv2/latest/) を使用してリクエストを受信する Orion Context Broker サーバ
+* [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する Orion Context Broker サーバ
 * Orion Context Broker サーバに関連付けられている MongoDB データベース
 * コンテキスト・プロバイダ NGSI プロキシは次のようになります : 
     + [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する
