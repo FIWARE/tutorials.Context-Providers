@@ -47,7 +47,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 > — Samuel Johnson (Boswell's Life of Johnson)
 
 
-Within the FIWARE platform, an entity represents the state of a physical or conceptural object which exists in the real world. 
+Within the FIWARE platform, an entity represents the state of a physical or conceptual object which exists in the real world. 
 For example, a **Store** is a real world bricks and mortar building.
 
 The context data of that entity defines the state of that real-world object at a given moment in time. 
@@ -79,7 +79,7 @@ context data transparent, since whenever an [NGSI](https://fiware.github.io/spec
 Broker it will always return the latest context by combining the data held within its database along with real-time data readings from 
 any registered external context providers.
 
-In order to be able to fulfil these requests, the Orion Context Broker, must first be supplied with two types of information:
+In order to be able to fulfill these requests, the Orion Context Broker, must first be supplied with two types of information:
 
 * The static context data held within Orion itself  (*Entities that Orion "knows" about*) 
 * Registered external context providers associated with existing entities (*Entities that Orion can "find information" about*) 
@@ -173,7 +173,7 @@ to different components isolated into their respective environments.
 
 **Docker Compose** is a tool for defining and running multi-container Docker applications. A 
 [YAML file](https://raw.githubusercontent.com/Fiware/tutorials.Entity-Relationships/master/docker-compose.yml) is used configure the required
-services for the application. This means all container sevices can be brought up in a single commmand. Docker Compose is installed by default 
+services for the application. This means all container services can be brought up in a single command. Docker Compose is installed by default 
 as part of Docker for Windows and  Docker for Mac, however Linux users will need to follow the instructions found 
 [here](https://docs.docker.com/compose/install/)
 
@@ -260,7 +260,7 @@ curl -X GET \
     "boolean": true,
     "number": 42,
     "structuredValue": null,
-    "text": "I never could get the hang of thursdays"
+    "text": "I never could get the hang of Thursdays"
 }
 ```
 
