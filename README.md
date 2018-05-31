@@ -118,7 +118,7 @@ Therefore, the architecture will consist of three elements:
 
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run from exposed ports. 
 
-![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.svg)
+![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.png)
 
 The necessary configuration information for the **Context Provider NGSI proxy** can be seen in the services section the of the associated `docker-compose.yml`  file:
 

@@ -106,7 +106,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 要素間のすべての対話は HTTP リクエストによって開始されるため、エンティティはコンテナ化され、公開されたポートから実行されます。
 
-![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.svg)
+![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.png)
 
 <A name="prerequisites"></A>
 # 前提条件
