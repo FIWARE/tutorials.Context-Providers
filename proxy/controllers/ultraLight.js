@@ -19,14 +19,14 @@ const NodeCache = require( "node-cache" );
 const myCache = new NodeCache();
 const _ = require('lodash');
 const monitor = require('../lib/monitoring');
-const http = require('http');
+const request = require("request");
+const debug = require('debug')('proxy:server');
 
 // Connect to an IoT Agent and use fallback values if necessary
-const API_KEY = process.env.IOT_API_KEY || '1234';
-const IOT_AGENT_OPTIONS = {
-  host: process.env.IOT_AGENT_HOST || 'localhost',
-  port: process.env.IOT_AGENT_PORT || 4041
-};
+const UL_API_KEY = process.env.DUMMY_DEVICES_API_KEY || '1234';
+const UL_HOST = process.env.IOTA_HTTP_HOST || 'localhost';
+const UL_PORT = process.env.IOTA_HTTP_PORT || 7896;
+const UL_URL = 'http://' + UL_HOST + ':' + UL_PORT + '/iot/d';
 
 // A series of constants used by our se of devices
 const OK = ' OK';
@@ -185,13 +185,22 @@ function setDeviceState(deviceId, state, isSensor = true){
 	myCache.set(deviceId, state);
 	
 	if ( isSensor && (state !== previousState) ){
-		IOT_AGENT_OPTIONS.path = '/iot/d?i=' + deviceId + '&k=' + API_KEY + '&d=' + state;
-		const northboundRequest = http.request(IOT_AGENT_OPTIONS);
-		northboundRequest.on('error', () => {
-		    // Silently handle error in case the IOT_AGENT is not running
+		
+
+		const options = { method: 'POST',
+		  url: UL_URL,
+		  qs: { k: UL_API_KEY, i: deviceId },
+		  headers: 
+		   { 'Content-Type': 'text/plain' },
+		  body: state };
+		 const debugText =  'POST ' + UL_URL + '?i=' + options.qs.i  + '&k=' + options.qs.k;
+
+		request(options,  (error) => {
+		  if (error){
+		  	debug( debugText +  " " + error.code)
+		  } 
 		});
-		northboundRequest.end();
-		monitor( 'northbound' , IOT_AGENT_OPTIONS.path);
+		monitor( 'northbound' ,  debugText + '  ' + state);
 	}
 	
 	SOCKET_IO.emit(deviceId, state);
@@ -233,8 +242,14 @@ function getRandom (){
 	return  Math.floor(Math.random() * 10) + 1;
 }
 
-// Initialize the array of sensors and periodically update them.
+
+
+
+setTimeout (() =>{
+	// Initialize the array of sensors and periodically update them.
 initSensorState ();
+
+
 let isRunning = false;
 
 
@@ -294,6 +309,9 @@ setInterval(function(){
        isRunning = false;
     }
 }, 3000);
+
+}, 
+	3000 );
 
 
 

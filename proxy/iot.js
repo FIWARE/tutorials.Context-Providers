@@ -1,6 +1,5 @@
 const createError = require('http-errors');
 const express = require('express');
-const bodyParser = require('body-parser');
 const Ultralight = require('./controllers/ultraLight');
 
 const iot = express();
@@ -13,10 +12,20 @@ ultraLightRouter.post('/iot/door:id', Ultralight.doorCommand);
 ultraLightRouter.post('/iot/lamp:id', Ultralight.lampCommand);
 // The motion sensor offers no commands, hence it does not need an endpoint.
 
-iot.use(express.json());
-iot.use(express.urlencoded({ extended: false }));
-// parse text/plain
-iot.use(bodyParser.text());
+
+// parse everything as a stream of text
+function rawBody(req, res, next) {
+  req.setEncoding('utf8');
+  req.body = '';
+  req.on('data', function(chunk) {
+    req.body += chunk;
+  });
+  req.on('end', function(){
+    next();
+  });
+}
+
+iot.use(rawBody);
 iot.use('/', ultraLightRouter);
 
 // catch 404 and forward to error handler

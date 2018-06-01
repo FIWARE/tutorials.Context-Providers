@@ -36,7 +36,7 @@ server.on('listening', onListening);
  * Create HTTP server for iot devices
  */
 const iot = require('../iot');
-const iotPort = normalizePort(process.env.IOT_DEVICES_PORT || '7896');
+const iotPort = normalizePort(process.env.DUMMY_DEVICES_PORT || '3001');
 iot.set('port', iotPort);
 //iot.set('io', io);
 
