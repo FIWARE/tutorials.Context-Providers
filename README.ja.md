@@ -3,9 +3,7 @@
 [![NGSI v1](https://img.shields.io/badge/NGSI-v1-ff69b4.svg)](https://forge.fi-ware.org/docman/view.php/7/3213/FI-WARE_NGSI_RESTful_binding_v1.0.zip)
 [![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](http://fiware.github.io/context.Orion/api/v2/stable/)
 
-このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロバイダについて説明しています。
-
-チュートリアルは、以前の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations/)で作成された **Store** エンティティをベースにしていて、ユーザは、Orion Context Broker 内で直接保持されていないストアに関するデータを取得できます。
+このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロバイダについて説明しています。チュートリアルは、以前の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations/)で作成された **Store** エンティティをベースにしていて、ユーザは、Orion Context Broker 内で直接保持されていないストアに関するデータを取得できます。
 
 このチュートリアルでは、[cUrl](https://ec.haxx.se/)  コマンドを使用していますが、[Postman documentation](http://fiware.github.io/tutorials.Context-Providers/)  も利用できます。
 
@@ -35,6 +33,7 @@
     + [登録されたコンテキスト・プロバイダの読み込み](#read-a-registered-content-provider)
     + [登録されているすべてのコンテキスト・プロバイダの一覧](#list-all-registered-content-providers)
     + [登録済みのコンテキスト・プロバイダの削除](#remove-a-registered-content-provider)
+- [次のステップ](#next-steps)
 
 <A name="context-data-and-context-providers"></A>
 # コンテキスト・データとコンテキスト・プロバイダ
@@ -85,8 +84,6 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 ![](https://fiware.github.io/tutorials.Context-Providers/img/entities.png)
 
-青色で強調表示されている項目は、外部コンテキスト・プロバイダによって提供されます。
-
 
 <A name="architecture"></A>
 # アーキテクチャ
@@ -97,9 +94,10 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 したがって、アーキテクチャは3つの要素で構成されます :
 
-* [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する Orion Context Broker サーバ
-* Orion Context Broker サーバに関連付けられている MongoDB データベース
-* コンテキスト・プロバイダ NGSI プロキシは次のようになります : 
+* [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)
+* バックエンドの [MongoDB](https://www.mongodb.com/) データベース
+  + Orion Context Broker が、データ・エンティティなどのコンテキスト・データ情報、サブスクリプション、登録などを保持するために使用します
+* **コンテキスト・プロバイダ NGSI proxy** は次のようになります : 
     + [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する
     + 独自の API を独自のフォーマットで使用して、公開されているデータソースへのリクエストを行います
     + [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) 形式でコンテキスト・データを Orion Context Broker に返します
@@ -107,6 +105,44 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 要素間のすべての対話は HTTP リクエストによって開始されるため、エンティティはコンテナ化され、公開されたポートから実行されます。
 
 ![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.png)
+
+**コンテキスト・プロバイダ NGSI proxy** に必要な設定情報は、関連する `docker-compose.yml` ファイルの services セクションにあります:
+
+```yaml
+  context-provider:
+    image: fiware/cp-web-app:latest
+    hostname: context-provider
+    container_name: context-provider
+    networks:
+        - default
+    expose:
+        - "3000"
+    ports:
+        - "3000:3000"
+    environment:
+        - "DEBUG=proxy:*"
+        - "PORT=3000" 
+        - "CONTEXT_BROKER=http://orion:1026/v2" 
+        - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
+        - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
+        - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
+```
+
+`context-provider` コンテナは以下のように環境変数によってドライブされます:
+
+| Key |Value|Description|
+|-----|-----|-----------|
+|DEBUG|`proxy:*`| ロギングに使用されるデバッグフラグです |
+|PORT|`3000`| データを表示するためにコンテキスト・プロバイダ NGSI proxy と Web アプリケーションで使用されるポート|
+|CONTEXT_BROKER|`http://orion:1026/v2`| コンテキストを更新するために接続する Context Broker の URL |
+|WUNDERGROUND_KEY_ID|`<ADD_YOUR_KEY_ID>`| Weather Underground API へのアクセスを得るために使用されるコンシューマ・キー |
+|TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| Twitter API へのアクセスを得るために使用されるコンシューマ・キー|
+|TWITTER_CONSUMER_SECRET|`<ADD_YOUR_CONSUMER_SECRET>`| Twitter API へのアクセスを得るために使用されるユーザ・キー |
+
+このチュートリアルでは、YAML ファイルに記述されている他の `context-provider` コンテナの設定値は使用していません。
+
+
+MongoDB と Orion Context Broker の設定情報については、[以前のチュートリアル](https://github.com/Fiware/tutorials.Entity-Relationships/)で説明しました。
 
 <A name="prerequisites"></A>
 # 前提条件
@@ -196,7 +232,7 @@ curl -X GET \
     "boolean": true,
     "number": 42,
     "structuredValue": null,
-    "text": "I never could get the hang of thursdays"
+    "text": "I never could get the hang of Thursdays"
 }
 ```
 
@@ -672,7 +708,7 @@ curl -X DELETE \
 <a name="next-steps"></a>
 # 次のステップ
 
-アドバンス機能を追加するアプリをもっと複雑にする方法を知りたいですか？ このシリーズの他のチュートリアルを読むことで、学ぶことができます。
+高度な機能を追加することで、アプリケーションに複雑さを加える方法を知りたいですか？このシリーズの他のチュートリアルを読むことで見つけることができます:
 
 &nbsp; 101. [Getting Started](https://github.com/Fiware/tutorials.Getting-Started)<br/>
 &nbsp; 102. [Entity Relationships](https://github.com/Fiware/tutorials.Entity-Relationships/)<br/>
