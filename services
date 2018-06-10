@@ -19,8 +19,11 @@ case "${command}" in
         echo "usage: services [start|stop]"
         ;;
     "start")
-		echo "starting containers"
-		docker-compose -p fiware up -d
+		echo -e "Starting three containers  \033[1;34mOrion\033[0m, \033[1;30mContext-Provider\033[0m and a \033[1;30mMongoDB\033[0m database."
+		echo -e "\033[1;34mOrion\033[0m is the context broker"
+		echo -e "\033[1;30mContext-Provider\033[0m is used as a proxy to other web services"
+		echo ""
+		docker-compose -p fiware up -d --remove-orphans
 		sleep 2
 		echo "loading data"
 		./import-data
