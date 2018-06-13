@@ -69,7 +69,7 @@ There is however another class of context data about the **Store** entity which 
 * The current relative humidity at the store location
 * Recent social media tweets regarding the store 
 
-This information is always changing, and if it were held in a database, the data would always be out-of-date. To keep the context
+This information is always changing, and if it were statically held in a database, the data would always be out-of-date. To keep the context
 data fresh, and to be able to retrieve the current state of the system on demand, new values for these dynamic data attributes will 
 need to be retrieved whenever the entity context is requested.
 
@@ -677,7 +677,7 @@ This example reads the registration data with the id 5addeffd93e53f86d8264521 fr
 Registration data can be obtained by making a GET request to the `/v2/registrations/<entity>` endpoint.
 
 ```console
-curl -X DELETE \
+curl -X GET \
   'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
 ```
 
