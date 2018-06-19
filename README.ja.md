@@ -407,7 +407,7 @@ Orion Context Broker は、コンテキスト・プロバイダが登録され�
 #### リクエスト :
 
 ```console
-curl -X POST \
+curl -iX POST \
   'http://localhost:3000/proxy/v1/static/temperature/queryContext' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -461,7 +461,7 @@ Orion Context Broker が複数のデータ値をリクエストすることは�
 #### リクエスト :
 
 ```console
-curl -X POST \
+curl -iX POST \
   'http://{{context-provider}}/proxy/v1/random/weatherConditions' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
@@ -544,7 +544,7 @@ curl -X POST \
 #### リクエスト :
 
 ```console
-curl -X POST \
+curl -iX POST \
   'http://localhost:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -701,7 +701,7 @@ curl -X GET \
 登録は、`/v2/registrations/<entity>`エンドポイントに DELETE リクエストを行うことによって削除できます。
 
 ```console
-curl -X DELETE \
+curl -iX DELETE \
   'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
 ```
 

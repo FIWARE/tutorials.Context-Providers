@@ -437,7 +437,7 @@ The Orion Context Broker will make similar requests to this `queryContext` endpo
 #### Request:
 
 ```console
-curl -X POST \
+curl -iX POST \
   'http://localhost:3000/proxy/static/temperature/queryContext' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -493,7 +493,7 @@ It is possible for the Orion Context Broker to make a request for multiple data 
 #### Request:
 
 ```console
-curl -X POST \
+curl -iX POST \
   'http://localhost:3000/proxy/v1/random/weatherConditions/queryContext' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
@@ -575,7 +575,7 @@ This request will return with a **201 - Created** response code. The `Location` 
 #### Request:
 
 ```console
-curl -X POST \
+curl -iX POST \
   'http://localhost:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -732,7 +732,7 @@ curl -X GET \
 Registrations can be deleted by making a DELETE request to the `/v2/registrations/<entity>` endpoint.
 
 ```console
-curl -X DELETE \
+curl -iX DELETE \
   'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
 ```
 
