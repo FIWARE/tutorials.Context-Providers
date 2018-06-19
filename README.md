@@ -422,7 +422,8 @@ docker network ls
 Then run the following curl command including the `--network` parameter:
 
 ```console
-docker run --network fiware_default --rm appropriate/curl -X GET http://context-provider:3000/health/random
+docker run --network fiware_default --rm appropriate/curl \
+  -X GET 'http://context-provider:3000/health/random'
 ```
 
 As you can see, within the network, the host name of the Context Provider is `context-provider`.
