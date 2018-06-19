@@ -608,7 +608,7 @@ Once a Context Provider has been registered, the new context data will be includ
 
 ```console
 curl -X GET \
-  'http://localhost:1026/v2/entities/urn:ngsi-ld:Store:001
+  'http://localhost:1026/v2/entities/urn:ngsi-ld:Store:001?type=Store'
 ```
 
 #### Response:
