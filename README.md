@@ -208,9 +208,12 @@ If you do not wish to sign-up for an API key, you can use data from the random d
 
 # Start Up
 
-All services can be initialised from the command line by running the bash script provided within the repository:
+All services can be initialised from the command line by running the bash script provided within the repository. Please clone the repository and create the necessary images by running the commands as shown:
 
 ```console
+git clone git@github.com:Fiware/tutorials.Context-Providers.git
+cd tutorials.Context-Providers
+
 ./services create; ./services start;
 ```
 
