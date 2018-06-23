@@ -190,9 +190,12 @@ API キーにサインアップしたくない場合は、代わりにランダ�
 <A name="start-up"></A>
 # 起動
 
-リポジトリ内で提供される bash スクリプトを実行すると、コマンドラインからすべてのサービスを初期化できます :
+リポジトリ内で提供される bash スクリプトを実行すると、コマンドラインからすべてのサービスを初期化できます。リポジトリを複製し、以下のコマンドを実行して必要なイメージを作成してください :
 
 ```console
+git clone git@github.com:Fiware/tutorials.Context-Providers.git
+cd tutorials.Context-Providers
+
 ./services create; ./services start;
 ```
 
@@ -214,7 +217,7 @@ nodejs proxy アプリケーションは、4つのコンテキスト・プロバ
 
 エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値を返すことを示しています。各リクエストは同じデータを返します。
 
-#### リクエスト :
+#### :one: リクエスト :
 
 ```console
 curl -X GET \
@@ -243,7 +246,7 @@ curl -X GET \
 
 エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値を返すことを示しています。各リクエストはランダムなダミー・データを返します。
 
-#### リクエスト :
+#### :two: リクエスト :
 
 ```console
 curl -X GET \
@@ -277,7 +280,7 @@ Twitter API は OAuth2 を使用します :
 * Twitter API のコンシューマ・キーとコンシューマ・シークレットを取得するには、<https://apps.twitter.com/app/new> からTwitter でアプリを作成する必要があります。その後、コンシューマ・キーとコンシューマ・シークレットを含むページに移動します
 * 詳細は <https://developer.twitter.com/> を参照してください。
 
-#### リクエスト :
+#### :three: リクエスト :
 
 ```console
 curl -X GET \
@@ -332,7 +335,7 @@ curl -X GET \
 
 エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値を返すことを示しています。各リクエストは同じデータを返します。
 
-#### リクエスト :
+#### :four: リクエスト :
 
 ```console
 curl -X GET \
@@ -405,7 +408,7 @@ docker run --network fiware_default --rm appropriate/curl \
 
 Orion Context Broker は、コンテキスト・プロバイダが登録されると、この `queryContext` エンドポイントに同様のリクエストを行います。
 
-#### リクエスト :
+#### :five: リクエスト :
 
 ```console
 curl -iX POST \
@@ -459,7 +462,7 @@ curl -iX POST \
 
 Orion Context Broker が複数のデータ値をリクエストすることは可能です。この例では、NGSI v1 `queryContext` エンドポイントを使用して、ランダム・データ・ジェネレータのコンテキスト・プロバイダから`temperature`と `relativeHumidity` の読み取りをリクエストします。リクエストされた属性は、POST ボディの `attributes` 配列内にあります。
 
-#### リクエスト :
+#### :six: リクエスト :
 
 ```console
 curl -iX POST \
@@ -542,7 +545,7 @@ curl -iX POST \
 
 このリクエストは、**201 - Created** レスポンス・コードとともに返されます。レスポンスの `Location` ヘッダには、Orion で保持されている登録レコードへのパスが含まれています :
 
-#### リクエスト :
+#### :seven: リクエスト :
 
 ```console
 curl -iX POST \
@@ -573,11 +576,11 @@ curl -iX POST \
 
 コンテキスト・プロバイダが登録されると、`/entities/<entity-id>` エンドポイントを使用して、**Store** エンティティのコンテキスト `urn:ngsi-ld:Store:001` がリクエストされた場合、新しいコンテキスト・データがインクルードされます :
 
-#### リクエスト :
+#### :eight: リクエスト :
 
 ```console
 curl -X GET \
-  'http://localhost:1026/v2/entities/urn:ngsi-ld:Store:001
+  'http://localhost:1026/v2/entities/urn:ngsi-ld:Store:001?type=Store'
 ```
 
 #### レスポンス :
@@ -626,7 +629,7 @@ curl -X GET \
 
 同様に、単一の属性は、 `/entities/<entity-id>/attrs/<attribute>` にリクエストすることで取得できます。
 
-#### リクエスト :
+#### :nine: リクエスト :
 
 ```console
 curl -X GET \
@@ -646,6 +649,9 @@ curl -X GET \
 
 登録データは、`/v2/registrations/<entity>` エンドポイントに GET リクエストを行うことで取得できます。
 
+#### :one::zero: リクエスト :
+
+
 ```console
 curl -X GET \
   'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
@@ -658,7 +664,7 @@ curl -X GET \
 
 指定されたエンティティ・タイプの完全なコンテキスト・データは、`/v2/registrations/` エンドポイントに GET リクエストを行うことで取得できます。
 
-#### リクエスト :
+#### :one::one: リクエスト :
 
 ```console
 curl -X GET \
@@ -709,7 +715,7 @@ curl -iX DELETE \
 <a name="next-steps"></a>
 # 次のステップ
 
-高度な機能を追加することで、アプリケーションに複雑さを加える方法を知りたいですか？このシリーズの他のチュートリアルを読むことで見つけることができます:
+高度な機能を追加することで、アプリケーションに複雑さを加える方法を知りたいですか？このシリーズの他のチュートリアルを読むことで見つけることができます :
 
 &nbsp; 101. [Getting Started](https://github.com/Fiware/tutorials.Getting-Started)<br/>
 &nbsp; 102. [Entity Relationships](https://github.com/Fiware/tutorials.Entity-Relationships)<br/>
