@@ -133,7 +133,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 | Key |Value|Description|
 |-----|-----|-----------|
 |DEBUG|`proxy:*`| ロギングに使用されるデバッグフラグです |
-|PORT|`3000`| データを表示するためにコンテキスト・プロバイダ NGSI proxy と Web アプリケーションで使用されるポート|
+|WEB_APP_PORT|`3000`| データを表示するためにコンテキスト・プロバイダ NGSI proxy と Web アプリケーションで使用されるポート|
 |CONTEXT_BROKER|`http://orion:1026/v2`| コンテキストを更新するために接続する Context Broker の URL |
 |WUNDERGROUND_KEY_ID|`<ADD_YOUR_KEY_ID>`| Weather Underground API へのアクセスを得るために使用されるコンシューマ・キー |
 |TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| Twitter API へのアクセスを得るために使用されるコンシューマ・キー|

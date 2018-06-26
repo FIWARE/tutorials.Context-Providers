@@ -147,7 +147,7 @@ The `context-provider` container is driven by environment variables as shown:
 | Key |Value|Description|
 |-----|-----|-----------|
 |DEBUG|`proxy:*`| Debug flag used for logging |
-|PORT|`3000`|Port used by the Context Provider NGSI proxy and web-app for viewing data |
+|WEB_APP_PORT|`3000`|Port used by the Context Provider NGSI proxy and web-app for viewing data |
 |CONTEXT_BROKER|`http://orion:1026/v2`| URL of the context broker to  connect to update context|
 |WUNDERGROUND_KEY_ID|`<ADD_YOUR_KEY_ID>`| A consumer key used to obtain access to the Weather Underground API|
 |TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| A consumer key used to obtain access to the Twitter API|
