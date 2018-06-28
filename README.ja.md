@@ -123,7 +123,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
         - "DEBUG=proxy:*"
         - "PORT=3000" 
         - "CONTEXT_BROKER=http://orion:1026/v2" 
-        - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
+        - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
 ```
@@ -135,7 +135,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 |DEBUG|`proxy:*`| ロギングに使用されるデバッグフラグです |
 |WEB_APP_PORT|`3000`| データを表示するためにコンテキスト・プロバイダ NGSI proxy と Web アプリケーションで使用されるポート|
 |CONTEXT_BROKER|`http://orion:1026/v2`| コンテキストを更新するために接続する Context Broker の URL |
-|WUNDERGROUND_KEY_ID|`<ADD_YOUR_KEY_ID>`| Weather Underground API へのアクセスを得るために使用されるコンシューマ・キー |
+|OPENWEATHERMAP_KEY_ID|`<ADD_YOUR_KEY_ID>`| Weather Underground API へのアクセスを得るために使用されるコンシューマ・キー |
 |TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| Twitter API へのアクセスを得るために使用されるコンシューマ・キー|
 |TWITTER_CONSUMER_SECRET|`<ADD_YOUR_CONSUMER_SECRET>`| Twitter API へのアクセスを得るために使用されるユーザ・キー |
 
@@ -179,7 +179,7 @@ MongoDB と Orion Context Broker の設定情報については、[以前のチ�
     environment:
         - "DEBUG=proxy:*"
         - "CONTEXT_BROKER=http://orion:1026/v2"
-        - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
+        - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
 ```
@@ -348,32 +348,30 @@ curl -X GET \
 
 ```json
 {
-    "response": {
-        "version": "0.1",
-        "termsofService": "http://www.wunderground.com/weather/api/d/terms.html",
-        "features": {
-            "conditions": 1
-        }
-    },
-    "current_observation": {
-        "image": {
-            ... ETC
-        },
-        "display_location": {
-            "full": "Berlin, Germany",
-            ... ETC
-        },
-        "observation_location": {
-            ... ETC
-        },
-        ... ETC
-        "temp_f": 71.4,
-        "temp_c": 21.9,
-        "relative_humidity": "65%",
-        "wind_string": "From the SW at 2.5 MPH Gusting to 5.6 MPH",
-        "wind_dir": "SW",
-        ... ETC
+  "coord": {
+    "lon": 13.39,
+    "lat": 52.52
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "clear sky",
+      "icon": "01d"
     }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 299.64,
+    "pressure": 1019,
+    "humidity": 36,
+    "temp_min": 299.15,
+    "temp_max": 300.15
+  },
+  ...ETC
+  "id": 2950159,
+  "name": "Berlin",
+  "cod": 200
 }
 ```
 

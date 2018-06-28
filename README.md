@@ -137,7 +137,7 @@ The necessary configuration information for the **Context Provider NGSI proxy** 
         - "DEBUG=proxy:*"
         - "PORT=3000" 
         - "CONTEXT_BROKER=http://orion:1026/v2" 
-        - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
+        - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
 ```
@@ -149,7 +149,7 @@ The `context-provider` container is driven by environment variables as shown:
 |DEBUG|`proxy:*`| Debug flag used for logging |
 |WEB_APP_PORT|`3000`|Port used by the Context Provider NGSI proxy and web-app for viewing data |
 |CONTEXT_BROKER|`http://orion:1026/v2`| URL of the context broker to  connect to update context|
-|WUNDERGROUND_KEY_ID|`<ADD_YOUR_KEY_ID>`| A consumer key used to obtain access to the Weather Underground API|
+|OPENWEATHERMAP_KEY_ID|`<ADD_YOUR_KEY_ID>`| A consumer key used to obtain access to the Open Weather Map API|
 |TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| A consumer key used to obtain access to the Twitter API|
 |TWITTER_CONSUMER_SECRET|`<ADD_YOUR_CONSUMER_SECRET>`| A user key used to obtain access to the Twitter API |
 
@@ -198,7 +198,7 @@ Replace the placeholders in `docker-compose.yml` in the root of the repository w
     environment:
         - "DEBUG=proxy:*"
         - "CONTEXT_BROKER=http://orion:1026/v2"
-        - "WUNDERGROUND_KEY_ID=<ADD_YOUR_KEY_ID>"
+        - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
 ```
@@ -379,32 +379,30 @@ The response will contain a data about the current weather in Berlin. The full r
 
 ```json
 {
-    "response": {
-        "version": "0.1",
-        "termsofService": "http://www.wunderground.com/weather/api/d/terms.html",
-        "features": {
-            "conditions": 1
-        }
-    },
-    "current_observation": {
-        "image": {
-            ... ETC
-        },
-        "display_location": {
-            "full": "Berlin, Germany",
-            ... ETC
-        },
-        "observation_location": {
-            ... ETC
-        },
-        ... ETC
-        "temp_f": 71.4,
-        "temp_c": 21.9,
-        "relative_humidity": "65%",
-        "wind_string": "From the SW at 2.5 MPH Gusting to 5.6 MPH",
-        "wind_dir": "SW",
-        ... ETC
+  "coord": {
+    "lon": 13.39,
+    "lat": 52.52
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "clear sky",
+      "icon": "01d"
     }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 299.64,
+    "pressure": 1019,
+    "humidity": 36,
+    "temp_min": 299.15,
+    "temp_max": 300.15
+  },
+  ...ETC
+  "id": 2950159,
+  "name": "Berlin",
+  "cod": 200
 }
 ```
 
