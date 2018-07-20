@@ -24,9 +24,9 @@ case "${command}" in
 		echo -e "\033[1;30mContext-Provider\033[0m is used as a proxy to other web services"
 		echo ""
 		docker-compose --log-level ERROR -p fiware up -d --remove-orphans
-		sleep 2
 		echo "loading data"
 		./import-data
+		echo "Now open http://localhost:3000/app/monitor"
 		;;
 	"stop")
 		echo "stopping containers"
