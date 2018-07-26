@@ -27,7 +27,7 @@
     + [スタティック・データのコンテキスト・プロバイダ (ヘルスチェック)](#static-data-context-provider-health-check)
     + [ランダムデータのコンテキスト・プロバイダ (ヘルスチェック)](#random-data-context-provider-health-check)
     + [Twitter API のコンテキスト・プロバイダ (ヘルスチェック)](#twitter-api-context-provider-health-check)
-    + [Weather API　のコンテキスト・プロバイダ (ヘルスチェック)](#weather-api-context-provider-health-check)
+    + [Weather API のコンテキスト・プロバイダ (ヘルスチェック)](#weather-api-context-provider-health-check)
   * [NGSI v1 QueryContext エンドポイントへのアクセス](#accessing-the-ngsi-v1-querycontext-endpoint)
     + [単一の属性値の取得](#retrieving-a-single-attribute-value)
     + [複数の属性値の取得](#retrieving-multiple-attribute-values)
@@ -78,7 +78,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 ## 在庫管理システム内のエンティティ
 
 
-私たちの簡単な在庫管理システムで、**Store** エンティティは、`id`, `name`, ` address` および `location` 属性を返します。我々は、以下の無料で公開されているのデータソースからのリアルタイムのコンテキスト・データを追加してこれを補強します : 
+私たちの簡単な在庫管理システムで、**Store** エンティティは、`id`, `name`, ` address` および `location` 属性を返します。我々は、以下の無料で公開されているのデータソースからのリアルタイムのコンテキスト・データを追加してこれを補強します :
 
 * [Weather Underground API](https://www.wunderground.com/weather/api/d/docs?MR=1) の温度と相対湿度
 * [Twitter API](https://developer.twitter.com/) のストアに関する最近のソーシャルメディアのツイート
@@ -100,7 +100,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 * [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)
 * バックエンドの [MongoDB](https://www.mongodb.com/) データベース
   + Orion Context Broker が、データ・エンティティなどのコンテキスト・データ情報、サブスクリプション、登録などを保持するために使用します
-* **コンテキスト・プロバイダ NGSI proxy** は次のようになります : 
+* **コンテキスト・プロバイダ NGSI proxy** は次のようになります :
     + [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信する
     + 独自の API を独自のフォーマットで使用して、公開されているデータソースへのリクエストを行います
     + [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) 形式でコンテキスト・データを Orion Context Broker に返します
@@ -124,8 +124,8 @@ Orion Context Broker は、これらのリクエストを満たすために、�
         - "3000:3000"
     environment:
         - "DEBUG=proxy:*"
-        - "PORT=3000" 
-        - "CONTEXT_BROKER=http://orion:1026/v2" 
+        - "PORT=3000"
+        - "CONTEXT_BROKER=http://orion:1026/v2"
         - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
@@ -161,8 +161,17 @@ MongoDB と Orion Context Broker の設定情報については、[以前のチ�
 
 **Docker Compose** は、マルチコンテナ Docker アプリケーションを定義して実行するためのツールです。[YAML file](https://raw.githubusercontent.com/Fiware/tutorials.Getting-Started/master/docker-compose.yml) ファイルは、アプリケーションのために必要なサービスを構成するために使用します。つまり、すべてのコンテナ・サービスは1つのコマンドで呼び出すことができます。Docker Compose は、デフォルトで Docker for Windows と Docker for Mac の一部としてインストールされますが、Linux ユーザは[ここ](https://docs.docker.com/compose/install/)に記載されている手順に従う必要があります。
 
+次のコマンドを使用して、現在の **Docker** バージョンと **Docker Compose** バージョンを確認できます :
+
+```console
+docker-compose -v
+docker version
+```
+
+Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用していることを確認し、必要に応じてアップグレードしてください。
+
 <A name="cygwin"></A>
-## Cygwin 
+## Cygwin
 
 シンプルな Bash スクリプトを使用してサービスを開始します。Windows ユーザは [cygwin](http://www.cygwin.com/) をダウンロードして、Windows の Linux ディストリビューションに似たコマンドライン機能を提供する必要があります。
 
@@ -279,7 +288,7 @@ curl -X GET \
 
 プロキシが Twitter API に接続するように正しく設定されている場合は、一連のツイートが返されます。
 
-Twitter API は OAuth2 を使用します : 
+Twitter API は OAuth2 を使用します :
 * Twitter API のコンシューマ・キーとコンシューマ・シークレットを取得するには、<https://apps.twitter.com/app/new> からTwitter でアプリを作成する必要があります。その後、コンシューマ・キーとコンシューマ・シークレットを含むページに移動します
 * 詳細は <https://developer.twitter.com/> を参照してください。
 
@@ -539,7 +548,7 @@ curl -iX POST \
 
 `"legacyForwarding": true` フラグがあると、登録されたコンテキスト・プロバイダが NGSI v1 インターフェイスを提供していることを示します。したがって、Orion は、`http://context-provider:3000/proxy/v1/random/weatherConditions/queryContext` 形式のデータを POST でリクエストし、NGSI v1 形式のデータを受け取ります。
 
->*注* : Weather API に登録している場合、`provider` の中に 次の `url` を置くことで、Berlin の `temperature` と　`relativeHumidity` のライブ値を取得することができます : 
+>*注* : Weather API に登録している場合、`provider` の中に 次の `url` を置くことで、Berlin の `temperature` と `relativeHumidity` のライブ値を取得することができます :
 >
 > * `http://context-provider:3000/proxy/v1/weather/weatherConditions`
 >
