@@ -1,4 +1,11 @@
 @startuml
+
+skinparam object {
+  BackgroundColor #f5f5f5
+  ArrowColor #4c4c4c
+  BorderColor #233c68
+}
+
 object Product
 
 Product : id 
@@ -43,8 +50,10 @@ Shelf : refStore
 Shelf : location 
 Shelf : maxCapacity
 
-Product "1 " o-- " *" InventoryItem  : listed in >
-Store " 1  " o-- " *  " InventoryItem :  sells >
 Store "1" *-- "*" Shelf : contains >
 InventoryItem "*" -o " 1" Shelf : < holds
+
+Product "0..*" - "0..*" Store
+(Product, Store) .. InventoryItem
+
 @enduml
