@@ -123,7 +123,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
     ports:
         - "3000:3000"
     environment:
-        - "DEBUG=proxy:*"
+        - "DEBUG=tutorial:*"
         - "PORT=3000"
         - "CONTEXT_BROKER=http://orion:1026/v2"
         - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
@@ -135,7 +135,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 | Key |Value|Description|
 |-----|-----|-----------|
-|DEBUG|`proxy:*`| ロギングに使用されるデバッグフラグです |
+|DEBUG|`tutorial:*`| ロギングに使用されるデバッグフラグです |
 |WEB_APP_PORT|`3000`| データを表示するためにコンテキスト・プロバイダ NGSI proxy と Web アプリケーションで使用されるポート|
 |CONTEXT_BROKER|`http://orion:1026/v2`| コンテキストを更新するために接続する Context Broker の URL |
 |OPENWEATHERMAP_KEY_ID|`<ADD_YOUR_KEY_ID>`| Weather Underground API へのアクセスを得るために使用されるコンシューマ・キー |
@@ -189,7 +189,7 @@ Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用して
 
 ```yaml
     environment:
-        - "DEBUG=proxy:*"
+        - "DEBUG=tutorial:*"
         - "CONTEXT_BROKER=http://orion:1026/v2"
         - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
         - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
