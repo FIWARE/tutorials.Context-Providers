@@ -28,12 +28,18 @@ services:
       - "1026:1026"
     command: -dbhost mongo-db -logLevel DEBUG
 
-  context-provider:
+  tutorial:
     image: fiware/tutorials.context-provider
     hostname: context-provider
-    container_name: context-provider
+    container_name: fiware-tutorial
+    depends_on:
+      - orion
     networks:
-      - default
+      default:
+        aliases:
+          - iot-sensors
+          - context-provider
+          - tutorial
     expose:
       - "3000"
       - "3001"

@@ -7,6 +7,13 @@
 
 set -e
 
+loadData () {
+	printf "Loading context data "
+	./import-data
+	echo -e " \033[1;32mdone\033[0m"
+	echo ""
+}
+
 if (( $# != 1 )); then
     echo "Illegal number of parameters"
     echo "usage: services [create|start|stop]"
@@ -19,14 +26,12 @@ case "${command}" in
         echo "usage: services [create|start|stop]"
         ;;
     "start")
-		echo -e "Starting three containers  \033[1;34mOrion\033[0m, \033[1;30mContext-Provider\033[0m and a \033[1;30mMongoDB\033[0m database."
+		echo -e "Starting three containers  \033[1;34mOrion\033[0m, \033[1;30mTutorial\033[0m and a \033[1;30mMongoDB\033[0m database."
 		echo -e "- \033[1;34mOrion\033[0m is the context broker"
-		echo -e "- \033[1;30mContext-Provider\033[0m is used as a proxy to other web services"
+		echo -e "- \033[1;30mTutorial\033[0m is used as a content provider proxying other web services"
 		echo ""
 		docker-compose --log-level ERROR -p fiware up -d --remove-orphans
-		echo "loading data"
-		./import-data
-		echo ""
+		loadData
 		echo -e "Now open \033[4mhttp://localhost:3000/app/monitor\033[0m"
 		;;
 	"stop")
@@ -38,8 +43,8 @@ case "${command}" in
 		docker pull mongo:3.6
 		echo "Obtaining Latest Orion Image"
 		docker pull fiware/orion
-		echo "recreate Context Provider proxy"
-		docker build -t fiware/cp-web-app ./proxy
+		echo "Obtaining Tutorial Application"
+		docker pull fiware/tutorials.context-provider
 		;;
 	*)
 		echo "Command not Found."
