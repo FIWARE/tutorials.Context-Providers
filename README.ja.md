@@ -112,10 +112,10 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 **コンテキスト・プロバイダ NGSI proxy** に必要な設定情報は、関連する `docker-compose.yml` ファイルの services セクションにあります:
 
 ```yaml
-  context-provider:
+  tutorial:
     image: fiware/tutorials.context-provider
     hostname: context-provider
-    container_name: context-provider
+    container_name: fiware-tutorial
     networks:
         - default
     expose:
@@ -131,7 +131,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
         - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
 ```
 
-`context-provider` コンテナは以下のように環境変数によってドライブされます:
+`tutorial` コンテナは以下のように環境変数によってドライブされます:
 
 | Key |Value|Description|
 |-----|-----|-----------|
@@ -142,7 +142,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 |TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| Twitter API へのアクセスを得るために使用されるコンシューマ・キー|
 |TWITTER_CONSUMER_SECRET|`<ADD_YOUR_CONSUMER_SECRET>`| Twitter API へのアクセスを得るために使用されるユーザ・キー |
 
-このチュートリアルでは、YAML ファイルに記述されている他の `context-provider` コンテナの設定値は使用していません。
+このチュートリアルでは、YAML ファイルに記述されている他の `tutorial` コンテナの設定値は使用していません。
 
 
 MongoDB と Orion Context Broker の設定情報については、[以前のチュートリアル](https://github.com/Fiware/tutorials.Entity-Relationships/)で説明しました。
