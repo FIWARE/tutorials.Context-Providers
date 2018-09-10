@@ -80,7 +80,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 私たちの簡単な在庫管理システムで、**Store** エンティティは、`id`, `name`, ` address` および `location` 属性を返します。我々は、以下の無料で公開されているのデータソースからのリアルタイムのコンテキスト・データを追加してこれを補強します :
 
-* [Weather Underground API](https://www.wunderground.com/weather/api/d/docs?MR=1) の温度と相対湿度
+* [Open Weather Map API](https://openweathermap.org/api) の温度と相対湿度
 * [Twitter API](https://developer.twitter.com/) のストアに関する最近のソーシャルメディアのツイート
 
 エンティティ間のリレーションシップは、次のように定義されます :
@@ -138,7 +138,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 |DEBUG|`tutorial:*`| ロギングに使用されるデバッグフラグです |
 |WEB_APP_PORT|`3000`| データを表示するためにコンテキスト・プロバイダ NGSI proxy と Web アプリケーションで使用されるポート|
 |CONTEXT_BROKER|`http://orion:1026/v2`| コンテキストを更新するために接続する Context Broker の URL |
-|OPENWEATHERMAP_KEY_ID|`<ADD_YOUR_KEY_ID>`| Weather Underground API へのアクセスを得るために使用されるコンシューマ・キー |
+|OPENWEATHERMAP_KEY_ID|`<ADD_YOUR_KEY_ID>`| Open Weather Map API へのアクセスを得るために使用されるコンシューマ・キー |
 |TWITTER_CONSUMER_KEY|`<ADD_YOUR_CONSUMER_KEY>`| Twitter API へのアクセスを得るために使用されるコンシューマ・キー|
 |TWITTER_CONSUMER_SECRET|`<ADD_YOUR_CONSUMER_SECRET>`| Twitter API へのアクセスを得るために使用されるユーザ・キー |
 
@@ -178,11 +178,11 @@ Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用して
 <A name="context-provider-ngsi-proxy"></A>
 ## コンテキスト・プロバイダ NGSI プロキシ
 
-単純な [nodejs](https://nodejs.org/) [Express](https://expressjs.com/) アプリケーションが、リポジトリの一部としてバンドルされています。このアプリケーションは、4つの異なるコンテキスト・プロバイダに対してNGSI v1インターフェイスを提供します。Weather Underground API, Twitter Search API と 、2つのダミーデータのコンテキスト・プロバイダである、いつも同じデータを返すスタティック・データのプロバイダと、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
+単純な [nodejs](https://nodejs.org/) [Express](https://expressjs.com/) アプリケーションが、リポジトリの一部としてバンドルされています。このアプリケーションは、4つの異なるコンテキスト・プロバイダに対してNGSI v1インターフェイスを提供します。Open Weather Map API, Twitter Search API と 、2つのダミーデータのコンテキスト・プロバイダである、いつも同じデータを返すスタティック・データのプロバイダと、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
 
 プロキシ・エンドポイントに関する詳細は、[こちら](https://github.com/Fiware/tutorials.Context-Providers/blob/master/proxy/README.md)を参照してください。
 
-* Weather Underground API にアクセスするには、<https://www.wunderground.com/weather/api/> でキーを申請する必要があります
+* Open Weather Map API にアクセスするには、<https://openweathermap.org/api> でキーを申請する必要があります
 * Twitter Search API にアクセスするには、<https://apps.twitter.com/app/new> から Twitter でアプリを作成し 、コンシューマ・キーとコンシューマ・シークレットを取得する必要があります
 
 `docker-compose.yml` のリポジトリのルートにあるプレースホルダを、アプリケーション用に取得した値に置き換えます :
