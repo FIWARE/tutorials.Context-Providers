@@ -476,7 +476,7 @@ Orion Context Broker が複数のデータ値をリクエストすることは�
 
 ```console
 curl -iX POST \
-  'http://{{context-provider}}/proxy/v1/random/weatherConditions' \
+  'http://localhost:3000/proxy/v1/random/weatherConditions' \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: 2ae9e6d6-802b-4a62-a561-5c7739489fb3' \
