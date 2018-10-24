@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 [![NGSI v1](https://img.shields.io/badge/NGSI-v1-ff69b4.svg)](https://forge.fi-ware.org/docman/view.php/7/3213/FI-WARE_NGSI_RESTful_binding_v1.0.zip)
-[![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](http://fiware.github.io/context.Orion/api/v2/stable/)
+[![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](https://fiware-ges.github.io/core.Orion/api/v2/stable/)
 
 
 This tutorial teaches FIWARE users about context data and context providers.
@@ -116,7 +116,7 @@ Therefore, the architecture will consist of three elements:
   + Used by the Orion Context Broker to hold context data information such as data entities, subscriptions and registrations
 * The **Context Provider NGSI proxy** which will will:
   + receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
-  + makes requests to publicly available data sources using their own APIs in a proprietory format
+  + makes requests to publicly available data sources using their own APIs in a proprietary format
   + returns context data back to the Orion Context Broker in [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
 
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run from exposed ports.
@@ -191,16 +191,16 @@ Please ensure that you are using Docker version 18.03 or higher and Docker Compo
 
 ## Cygwin
 
-We will start up our services using a simple bash script. Windows users should download [cygwin](http://www.cygwin.com/) to provide a command line functionality similar to a Linux distribution on Windows.
+We will start up our services using a simple bash script. Windows users should download [cygwin](http://www.cygwin.com/) to provide a command-line functionality similar to a Linux distribution on Windows.
 
 ## Context Provider NGSI proxy
 
-A simple [nodejs](https://nodejs.org/) [Express](https://expressjs.com/) application has been bundled as part of the repository. The application offers an NGSI v1 interface for four different context providers - the Open Weather Map API, the Twitter Search API and two dummy data context providers - a static data provider (which always returns the same data) and a random data context provider (which will change every time it is invoked).
+A simple [Node.js](https://nodejs.org/) [Express](https://expressjs.com/) application has been bundled as part of the repository. The application offers an NGSI v1 interface for four different context providers - the Open Weather Map API, the Twitter Search API and two dummy data context providers - a static data provider (which always returns the same data) and a random data context provider (which will change every time it is invoked).
 
 More information about the proxy endpoints can be found [here](https://github.com/Fiware/tutorials.Context-Providers/blob/master/proxy/README.md)
 
-* In order to access the Open Weather Map API, you will need to sign up for a key at https://openweathermap.org/appid
-* In order to access the Twitter Search API, you will have to create an app in Twitter via  https://apps.twitter.com/app/new to obtain a
+* In order to access the Open Weather Map API, you will need to sign up for a key at `https://openweathermap.org/appid`
+* In order to access the Twitter Search API, you will have to create an app in Twitter via  `https://apps.twitter.com/app/new` to obtain a
 Consumer Key & Consumer Secret.
 
 
@@ -220,7 +220,7 @@ If you do not wish to sign-up for an API key, you can use data from the random d
 
 # Start Up
 
-All services can be initialised from the command line by running the bash script provided within the repository. Please clone the repository and create the necessary images by running the commands as shown:
+All services can be initialised from the command-line by running the bash script provided within the repository. Please clone the repository and create the necessary images by running the commands as shown:
 
 ```console
 git clone git@github.com:Fiware/tutorials.Context-Providers.git
@@ -247,7 +247,7 @@ This command will also import seed data from the previous [Stock Management exam
 
 ## Health Checks
 
-The nodejs proxy application offers a `health` endpoint for each of the four context providers. Making a request to the appropriate endpoint will check that the provider is running and external data can be received. The application runs on port `3000`.
+The Node.js proxy application offers a `health` endpoint for each of the four context providers. Making a request to the appropriate endpoint will check that the provider is running and external data can be received. The application runs on port `3000`.
 
 
 ### Static Data Context Provider (Health Check)
@@ -439,7 +439,7 @@ docker run --network fiware_default --rm appropriate/curl \
   -X GET 'http://context-provider:3000/health/random'
 ```
 
-As you can see, within the network, the host name of the Context Provider is `context-provider`.
+As you can see, within the network, the hostname of the Context Provider is `context-provider`.
 
 
 ### Retrieving a Single Attribute Value
@@ -686,7 +686,7 @@ curl -X GET \
 
 ### Read a registered Context Provider
 
-This example reads the registration data with the id 5addeffd93e53f86d8264521 from the context.
+This example reads the registration data with the ID 5addeffd93e53f86d8264521 from the context.
 
 Registration data can be obtained by making a GET request to the `/v2/registrations/<entity>` endpoint.
 

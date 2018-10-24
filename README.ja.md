@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 [![NGSI v1](https://img.shields.io/badge/NGSI-v1-ff69b4.svg)](https://forge.fi-ware.org/docman/view.php/7/3213/FI-WARE_NGSI_RESTful_binding_v1.0.zip)
-[![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](http://fiware.github.io/context.Orion/api/v2/stable/)
+[![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](https://fiware-ges.github.io/core.Orion/api/v2/stable/)
 
 このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロバイダについて説明しています。チュートリアルは、以前の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations/)で作成された **Store** エンティティをベースにしていて、ユーザは、Orion Context Broker 内で直接保持されていないストアに関するデータを取得できます。
 
@@ -80,7 +80,7 @@ Orion Context Broker は、これらのリクエストを満たすために、�
 
 私たちの簡単な在庫管理システムで、**Store** エンティティは、`id`, `name`, ` address` および `location` 属性を返します。我々は、以下の無料で公開されているのデータソースからのリアルタイムのコンテキスト・データを追加してこれを補強します :
 
-* [Open Weather Map API](https://openweathermap.org/api) の温度と相対湿度
+* [Open Weather Map API](`https://openweathermap.org/api`) の温度と相対湿度
 * [Twitter API](https://developer.twitter.com/) のストアに関する最近のソーシャルメディアのツイート
 
 エンティティ間のリレーションシップは、次のように定義されます :
@@ -182,7 +182,7 @@ Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用して
 
 プロキシ・エンドポイントに関する詳細は、[こちら](https://github.com/Fiware/tutorials.Context-Providers/blob/master/proxy/README.md)を参照してください。
 
-* Open Weather Map API にアクセスするには、<https://openweathermap.org/api> でキーを申請する必要があります
+* Open Weather Map API にアクセスするには、<`https://openweathermap.org/api`> でキーを申請する必要があります
 * Twitter Search API にアクセスするには、<https://apps.twitter.com/app/new> から Twitter でアプリを作成し 、コンシューマ・キーとコンシューマ・シークレットを取得する必要があります
 
 `docker-compose.yml` のリポジトリのルートにあるプレースホルダを、アプリケーション用に取得した値に置き換えます :
