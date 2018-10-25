@@ -10,7 +10,7 @@
 
 このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロバイダについて説明しています。チュートリアルは、以前の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations/)で作成された **Store** エンティティをベースにしていて、ユーザは、Orion Context Broker 内で直接保持されていないストアに関するデータを取得できます。
 
-このチュートリアルでは、[cUrl](https://ec.haxx.se/)  コマンドを使用していますが、[Postman documentation](http://fiware.github.io/tutorials.Context-Providers/)  も利用できます。
+このチュートリアルでは、[cUrl](https://ec.haxx.se/)  コマンドを使用していますが、[Postman documentation](https://fiware.github.io/tutorials.Context-Providers/)  も利用できます。
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/7c9bed4bd2ce5213a80b)
 
@@ -182,10 +182,10 @@ Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用して
 
 単純な [nodejs](https://nodejs.org/) [Express](https://expressjs.com/) アプリケーションが、リポジトリの一部としてバンドルされています。このアプリケーションは、4つの異なるコンテキスト・プロバイダに対してNGSI v1インターフェイスを提供します。Open Weather Map API, Twitter Search API と 、2つのダミーデータのコンテキスト・プロバイダである、いつも同じデータを返すスタティック・データのプロバイダと、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
 
-プロキシ・エンドポイントに関する詳細は、[こちら](https://github.com/Fiware/tutorials.Context-Providers/blob/master/proxy/README.md)を参照してください。
+プロキシ・エンドポイントに関する詳細は、[こちら](https://github.com/Fiware/tutorials.Step-by-Step/tree/master/docker/context-provider)を参照してください。
 
 * Open Weather Map API にアクセスするには、<`https://openweathermap.org/api`> でキーを申請する必要があります
-* Twitter Search API にアクセスするには、<https://apps.twitter.com/app/new> から Twitter でアプリを作成し 、コンシューマ・キーとコンシューマ・シークレットを取得する必要があります
+* Twitter Search API にアクセスするには、<https://developer.twitter.com/> から Twitter でアプリを作成し 、コンシューマ・キーとコンシューマ・シークレットを取得する必要があります
 
 `docker-compose.yml` のリポジトリのルートにあるプレースホルダを、アプリケーション用に取得した値に置き換えます :
 
@@ -291,7 +291,7 @@ curl -X GET \
 プロキシが Twitter API に接続するように正しく設定されている場合は、一連のツイートが返されます。
 
 Twitter API は OAuth2 を使用します :
-* Twitter API のコンシューマ・キーとコンシューマ・シークレットを取得するには、<https://apps.twitter.com/app/new> からTwitter でアプリを作成する必要があります。その後、コンシューマ・キーとコンシューマ・シークレットを含むページに移動します
+* Twitter API のコンシューマ・キーとコンシューマ・シークレットを取得するには、<https://developer.twitter.com/> からTwitter でアプリを作成する必要があります。その後、コンシューマ・キーとコンシューマ・シークレットを含むページに移動します
 * 詳細は <https://developer.twitter.com/> を参照してください。
 
 #### :three: リクエスト :
