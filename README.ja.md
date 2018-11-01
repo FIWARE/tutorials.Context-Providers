@@ -2,7 +2,7 @@
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://www.fiware.org/developers/catalogue/)
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
-[![NGSI v1](https://img.shields.io/badge/NGSI-v1-ff69b4.svg)](https://forge.fi-ware.org/docman/view.php/7/3213/FI-WARE_NGSI_RESTful_binding_v1.0.zip)
+[![NGSI v1](https://img.shields.io/badge/NGSI-v1-ff69b4.svg)](http://forge.fi-ware.org/docman/view.php/7/3213/FI-WARE_NGSI_RESTful_binding_v1.0.zip)
 [![Support badge](https://nexus.lab.fiware.org/repository/raw/public/badges/stackoverflow/fiware.svg)](https://stackoverflow.com/questions/tagged/fiware)
 [![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](https://fiware-ges.github.io/core.Orion/api/v2/stable/)
 <br/>
@@ -259,7 +259,7 @@ Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用して
 、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
 
 プロキシ・エンドポイントに関する詳細は
-、[こちら](https://github.com/Fiware/tutorials.Step-by-Step/tree/master/docker/context-provider)を
+、[こちら](https://github.com/Fiware/tutorials.Step-by-Step/tree/master/context-provider)を
 参照してください。
 
 -   Open Weather Map API にアクセスするには、<`https://openweathermap.org/api`>
