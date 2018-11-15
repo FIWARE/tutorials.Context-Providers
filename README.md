@@ -595,7 +595,7 @@ curl -iX POST \
         "temperature",
         "relativeHumidity"
     ]
-}''
+}'
 ```
 
 #### Response:
