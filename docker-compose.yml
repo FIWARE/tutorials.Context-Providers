@@ -29,7 +29,8 @@ services:
     command: -dbhost mongo-db -logLevel DEBUG
 
   tutorial:
-    image: fiware/tutorials.context-provider
+    # image: fiware/tutorials.context-provider
+    image: tutorials
     hostname: context-provider
     container_name: fiware-tutorial
     depends_on:
