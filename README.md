@@ -22,7 +22,10 @@ available as
 
 -   このチュートリアルは[日本語](README.ja.md)でもご覧いただけます。
 
-# Contents
+## Contents
+
+<details>
+<summary><strong>Details</strong></summary>
 
 -   [Context Data and Context Providers](#context-data-and-context-providers)
     -   [Entities within a stock management system](#entities-within-a-stock-management-system)
@@ -47,6 +50,8 @@ available as
         -   [List all registered Context Providers](#list-all-registered-context-providers)
         -   [Remove a registered Context Provider](#remove-a-registered-context-provider)
 -   [Next Steps](#next-steps)
+
+</details>
 
 # Context Data and Context Providers
 

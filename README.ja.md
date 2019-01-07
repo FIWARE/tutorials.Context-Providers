@@ -20,7 +20,10 @@
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/7c9bed4bd2ce5213a80b)
 
-# 内容
+## 内容
+
+<details>
+<summary>詳細 <b>(クリックして拡大)</b></summary>
 
 -   [コンテキスト・データとコンテキスト・プロバイダ](#context-data-and-context-providers)
     -   [在庫管理システム内のエンティティ](#entities-within-a-stock-management-system)
@@ -45,6 +48,8 @@
         -   [登録されているすべてのコンテキスト・プロバイダの一覧](#list-all-registered-content-providers)
         -   [登録済みのコンテキスト・プロバイダの削除](#remove-a-registered-content-provider)
 -   [次のステップ](#next-steps)
+
+</details>
 
 <A name="context-data-and-context-providers"></A>
 
