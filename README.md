@@ -335,7 +335,7 @@ curl -X GET \
     "array": ["Arthur", "Dent"],
     "boolean": true,
     "number": 42,
-    "structuredValue": null,
+    "structuredValue": { somevalue: 'this' },
     "text": "I never could get the hang of Thursdays"
 }
 ```
@@ -362,7 +362,7 @@ curl -X GET \
     "array": ["sit", "consectetur", "sint", "excepteur"],
     "boolean": false,
     "number": 4,
-    "structuredValue": null,
+    "structuredValue": { somevalue: 'this' },
     "text": " nisi reprehenderit pariatur. Aute ea"
 }
 ```
