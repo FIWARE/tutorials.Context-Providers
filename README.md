@@ -525,7 +525,7 @@ endpoint once a context provider has been registered.
 
 ```console
 curl -iX POST \
-  'http://localhost:3000/proxy/static/temperature/queryContext' \
+  'http://localhost:3000/proxy/v1/static/temperature/queryContext' \
   -H 'Content-Type: application/json' \
   -d '{
     "entities": [
