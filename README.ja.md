@@ -8,6 +8,8 @@
 <br/>
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
+<!-- prettier-ignore -->
+
 このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロ
 バイダについて説明しています。チュートリアルは、以前
 の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations/)で作成され
