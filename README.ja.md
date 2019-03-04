@@ -299,7 +299,7 @@ API キーにサインアップしたくない場合は、代わりにランダ�
 ージを作成してください :
 
 ```console
-git clone git@github.com:Fiware/tutorials.Context-Providers.git
+git clone git@github.com:FIWARE/tutorials.Context-Providers.git
 cd tutorials.Context-Providers
 
 ./services create; ./services start;
