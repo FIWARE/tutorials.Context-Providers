@@ -12,7 +12,7 @@
 
 このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロ
 バイダについて説明しています。チュートリアルは、以前
-の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations/)で作成され
+の[在庫管理の例](https://github.com/FIWARE/tutorials.CRUD-Operations/)で作成され
 た **Store** エンティティをベースにしていて、ユーザは、Orion Context Broker 内で
 直接保持されていないストアに関するデータを取得できます。
 
@@ -202,7 +202,7 @@ tutorial:
 設定値は使用していません。
 
 MongoDB と Orion Context Broker の設定情報については
-、[以前のチュートリアル](https://github.com/Fiware/tutorials.Entity-Relationships/)で
+、[以前のチュートリアル](https://github.com/FIWARE/tutorials.Entity-Relationships/)で
 説明しました。
 
 <A name="prerequisites"></A>
@@ -266,7 +266,7 @@ Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用して
 、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
 
 プロキシ・エンドポイントに関する詳細は
-、[こちら](https://github.com/Fiware/tutorials.Step-by-Step/tree/master/context-provider)を
+、[こちら](https://github.com/FIWARE/tutorials.Step-by-Step/tree/master/context-provider)を
 参照してください。
 
 -   Open Weather Map API にアクセスするには、<`https://openweathermap.org/api`>
@@ -306,7 +306,7 @@ cd tutorials.Context-Providers
 ```
 
 このコマンドは、起動時に以前
-の[在庫管理の例](https://github.com/Fiware/tutorials.CRUD-Operations)からシード
+の[在庫管理の例](https://github.com/FIWARE/tutorials.CRUD-Operations)からシード
 ・データをインポートします。
 
 <A name="using-a-context-provider"></A>

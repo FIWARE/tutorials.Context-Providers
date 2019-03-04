@@ -8,7 +8,7 @@
 <br/> [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
 This tutorial teaches FIWARE users about context data and context providers. The tutorial builds on the **Store** entity
-created in the previous [stock management example](https://github.com/Fiware/tutorials.CRUD-Operations/) and enables a
+created in the previous [stock management example](https://github.com/FIWARE/tutorials.CRUD-Operations/) and enables a
 user to retrieve data about a store which is not held directly within the Orion Context Broker.
 
 The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as
@@ -174,7 +174,7 @@ The `tutorial` container is driven by environment variables as shown:
 The other `tutorial` container configuration values described in the YAML file are not used in this tutorial.
 
 The configuration information for MongoDB and the Orion Context Broker has been described in a
-[previous tutorial](https://github.com/Fiware/tutorials.Entity-Relationships/)
+[previous tutorial](https://github.com/FIWARE/tutorials.Entity-Relationships/)
 
 # Prerequisites
 
@@ -216,7 +216,7 @@ the Twitter Search API and two dummy data context providers - a static data prov
 data) and a random data context provider (which will change every time it is invoked).
 
 More information about the proxy endpoints can be found
-[here](https://github.com/Fiware/tutorials.Step-by-Step/tree/master/context-provider)
+[here](https://github.com/FIWARE/tutorials.Step-by-Step/tree/master/context-provider)
 
 -   In order to access the Open Weather Map API, you will need to sign up for a key at
     `https://openweathermap.org/appid`
@@ -250,7 +250,7 @@ cd tutorials.Context-Providers
 ```
 
 This command will also import seed data from the previous
-[Stock Management example](https://github.com/Fiware/tutorials.CRUD-Operations) on startup.
+[Stock Management example](https://github.com/FIWARE/tutorials.CRUD-Operations) on startup.
 
 > :information_source: **Note:** If you want to clean up and start over again you can do so with the following command:
 >
