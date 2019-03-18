@@ -529,9 +529,7 @@ Provider. The requested attributes are found within the `attributes` array of th
 ```console
 curl -iX POST \
   'http://localhost:3000/proxy/v1/random/weatherConditions/queryContext' \
-  -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
-  -H 'Postman-Token: 2ae9e6d6-802b-4a62-a561-5c7739489fb3' \
   -d '{
     "entities": [
         {
