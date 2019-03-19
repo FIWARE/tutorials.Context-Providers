@@ -12,6 +12,11 @@ loadData () {
 	echo ""
 }
 
+stoppingContainers () {
+	echo "Stopping containers"
+	docker-compose --log-level ERROR -p fiware down -v --remove-orphans
+}
+
 if (( $# != 1 )); then
     echo "Illegal number of parameters"
     echo "usage: services [create|start|stop]"
@@ -24,6 +29,7 @@ case "${command}" in
         echo "usage: services [create|start|stop]"
         ;;
     "start")
+		stoppingContainers
 		echo -e "Starting three containers  \033[1;34mOrion\033[0m, \033[1;30mTutorial\033[0m and a \033[1;30mMongoDB\033[0m database."
 		echo -e "- \033[1;34mOrion\033[0m is the context broker"
 		echo -e "- \033[1;30mTutorial\033[0m is used as a content provider proxying other web services"
@@ -33,8 +39,7 @@ case "${command}" in
 		echo -e "Now open \033[4mhttp://localhost:3000/app/monitor\033[0m"
 		;;
 	"stop")
-		echo "stopping containers"
-		docker-compose --log-level ERROR -p fiware down -v --remove-orphans
+		stoppingContainers
 		;;
 	"create")
 		echo "Obtaining Mongo DB image"
