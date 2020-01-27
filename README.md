@@ -2,7 +2,6 @@
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
-[![NGSI v1](https://img.shields.io/badge/NGSI-v1-ff69b4.svg)](http://forge.fiware.org/docman/view.php/7/3213/FI-WARE_NGSI_RESTful_binding_v1.0.zip)
 [![Support badge](https://nexus.lab.fiware.org/repository/raw/public/badges/stackoverflow/fiware.svg)](https://stackoverflow.com/questions/tagged/fiware)
 [![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](https://fiware-ges.github.io/orion/api/v2/stable/) <br/>
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
@@ -37,7 +36,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
         -   [Random Data Context Provider (Health Check)](#random-data-context-provider-health-check)
         -   [Twitter API Context Provider (Health Check)](#twitter-api-context-provider-health-check)
         -   [Weather API Context Provider (Health Check)](#weather-api-context-provider-health-check)
-    -   [Accessing the NGSI v1 QueryContext Endpoint](#accessing-the-ngsi-v1-querycontext-endpoint)
+    -   [Accessing the NGSI v2 op/query Endpoint](#accessing-the-ngsi-v2-opquery-endpoint)
         -   [Retrieving a Single Attribute Value](#retrieving-a-single-attribute-value)
         -   [Retrieving Multiple Attribute Values](#retrieving-multiple-attribute-values)
     -   [Context Provider Registration Actions](#context-provider-registration-actions)
@@ -211,7 +210,7 @@ to provide a command-line functionality similar to a Linux distribution on Windo
 ## Context Provider NGSI proxy
 
 A simple [Node.js](https://nodejs.org/) [Express](https://expressjs.com/) application has been bundled as part of the
-repository. The application offers an NGSI v1 interface for four different context providers - the Open Weather Map API,
+repository. The application offers an NGSI v2 interface for four different context providers - the Open Weather Map API,
 the Twitter Search API and two dummy data context providers - a static data provider (which always returns the same
 data) and a random data context provider (which will change every time it is invoked).
 
@@ -438,7 +437,7 @@ can be seen below:
 As you can see details of the current temperature and relative humidity are available within the attributes of the
 `current_observation`
 
-## Accessing the NGSI v1 QueryContext Endpoint
+## Accessing the NGSI v2 op/query Endpoint
 
 Because the `3000` port of the Context Provider has been exposed outside of the Docker container, it is possible for
 curl to make requests directly to the Context Provider - this simulates the requests that would have been made by the
@@ -462,17 +461,17 @@ As you can see, within the network, the hostname of the Context Provider is `con
 
 ### Retrieving a Single Attribute Value
 
-This example uses the NGSI v1 `queryContext` endpoint to request a `temperature` reading from the Static Data Generator
+This example uses the NGSI v2 `op/query` endpoint to request a `temperature` reading from the Static Data Generator
 Context Provider. The requested attributes are found within the `attributes` array of the POST body.
 
-The Orion Context Broker will make similar requests to this `queryContext` endpoint once a context provider has been
+The Orion Context Broker will make similar requests to this `op/query` endpoint once a context provider has been
 registered.
 
 #### :five: Request:
 
 ```console
 curl -iX POST \
-  'http://localhost:3000/proxy/v1/static/temperature/queryContext' \
+  'http://localhost:3000/static/temperature/op/query' \
   -H 'Content-Type: application/json' \
   -d '{
     "entities": [
@@ -490,45 +489,33 @@ curl -iX POST \
 
 #### Response:
 
-The response will be in NGSI v1 response format as shown. The `attributes` element holds the data returned - an object
+The response will be in NGSI v2 response format as shown. The `attributes` element holds the data returned - an object
 of `type:Number` with the `value:42`.
 
 ```json
-{
-    "contextResponses": [
-        {
-            "contextElement": {
-                "attributes": [
-                    {
-                        "name": "temperature",
-                        "type": "Number",
-                        "value": 42
-                    }
-                ],
-                "id": "urn:ngsi-ld:Store:001",
-                "isPattern": "false",
-                "type": "Store"
-            },
-            "statusCode": {
-                "code": "200",
-                "reasonPhrase": "OK"
-            }
+[
+    {
+        "id": "urn:ngsi-ld:Store:001",
+        "type": "Store",
+        "temperature": {
+            "type": "Number",
+            "value": 42
         }
-    ]
-}
+    }
+]
 ```
 
 ### Retrieving Multiple Attribute Values
 
-It is possible for the Orion Context Broker to make a request for multiple data values . This example uses the NGSI v1
-`queryContext` endpoint to request `temperature` and `relativeHumidity` readings from the Random Data Generator Context
+It is possible for the Orion Context Broker to make a request for multiple data values . This example uses the NGSI v2
+`op/query` endpoint to request `temperature` and `relativeHumidity` readings from the Random Data Generator Context
 Provider. The requested attributes are found within the `attributes` array of the POST body.
 
 #### :six: Request:
 
 ```console
 curl -iX POST \
-  'http://localhost:3000/proxy/v1/random/weatherConditions/queryContext' \
+  'http://localhost:3000/random/weatherConditions/op/query' \
   -H 'Content-Type: application/json' \
   -d '{
     "entities": [
@@ -547,36 +534,23 @@ curl -iX POST \
 
 #### Response:
 
-The response will be in NGSI v1 response format as shown. The `attributes` element holds the data returned
+The response will be in NGSI v2 response format as shown. The `attributes` element holds the data returned
 
 ```json
-{
-    "contextResponses": [
-        {
-            "contextElement": {
-                "attributes": [
-                    {
-                        "name": "temperature",
-                        "type": "Number",
-                        "value": 27
-                    },
-                    {
-                        "name": "relativeHumidity",
-                        "type": "Number",
-                        "value": 21
-                    }
-                ],
-                "id": "urn:ngsi-ld:Store:001",
-                "isPattern": "false",
-                "type": "Store"
-            },
-            "statusCode": {
-                "code": "200",
-                "reasonPhrase": "OK"
-            }
+[
+    {
+        "id": "urn:ngsi-ld:Store:001",
+        "type": "Store",
+        "temperature": {
+            "type": "Number",
+            "value": 16
+        },
+        "relativeHumidity": {
+            "type": "Number",
+            "value": 30
         }
-    ]
-}
+    }
+]
 ```
 
 ## Context Provider Registration Actions
@@ -592,21 +566,16 @@ apply:
 
 This example registers the Random Data Context Provider with the Orion Context Broker.
 
-The body of the request states that: _"The URL_ `http://context-provider:3000/proxy/v1/random/weatherConditions` _is
+The body of the request states that: _"The URL_ `http://context-provider:3000/random/weatherConditions` _is
 capable of providing_ `relativeHumidity` and `temperature` _data for the entity called_ `id=urn:ngsi-ld:Store:001`._"_
 
 The values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion
 merely holds the registration information about which context providers can offer context data.
 
-The presence of the flag `"legacyForwarding": true` indicates that the registered context provider offers an NGSI v1
-interface - therefore Orion will make POST request for data on
-`http://context-provider:3000/proxy/v1/random/weatherConditions/queryContext` using the NGSI v1 format for the body, and
-expect to receive data in the NGSI v1 format in return.
-
 > _Note:_ if you have registered with the Weather API, you can retrieve live values for `temperature` and
 > `relativeHumidity` in Berlin by placing the following `url` in the `provider`:
 >
-> -   `http://context-provider:3000/proxy/v1/weather/weatherConditions`
+> -   `http://context-provider:3000/weather/weatherConditions`
 
 This request will return with a **201 - Created** response code. The `Location` Header of the response contains a path
 to the registration record held in Orion
@@ -632,9 +601,8 @@ curl -iX POST \
   },
   "provider": {
     "http": {
-      "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
-    },
-     "legacyForwarding": true
+      "url": "http://context-provider:3000/random/weatherConditions"
+    }
   }
 }'
 ```
@@ -751,10 +719,9 @@ curl -X GET \
         },
         "provider": {
             "http": {
-                "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
+                "url": "http://context-provider:3000/random/weatherConditions"
             },
-            "supportedForwardingMode": "all",
-            "legacyForwarding": true
+            "supportedForwardingMode": "all"
         },
         "status": "active"
     }

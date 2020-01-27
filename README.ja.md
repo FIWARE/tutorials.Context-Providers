@@ -2,7 +2,6 @@
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
-[![NGSI v1](https://img.shields.io/badge/NGSI-v1-ff69b4.svg)](http://forge.fiware.org/docman/view.php/7/3213/FI-WARE_NGSI_RESTful_binding_v1.0.zip)
 [![Support badge](https://nexus.lab.fiware.org/repository/raw/public/badges/stackoverflow/fiware.svg)](https://stackoverflow.com/questions/tagged/fiware)
 [![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](https://fiware-ges.github.io/orion/api/v2/stable/)
 <br/>
@@ -41,7 +40,7 @@
         -   [ランダムデータのコンテキスト・プロバイダ (ヘルスチェック)](#random-data-context-provider-health-check)
         -   [Twitter API のコンテキスト・プロバイダ (ヘルスチェック)](#twitter-api-context-provider-health-check)
         -   [Weather API のコンテキスト・プロバイダ (ヘルスチェック)](#weather-api-context-provider-health-check)
-    -   [NGSI v1 QueryContext エンドポイントへのアクセス](#accessing-the-ngsi-v1-querycontext-endpoint)
+    -   [NGSI v2 op/query エンドポイントへのアクセス](#accessing-the-ngsi-v2-opquery-endpoint)
         -   [単一の属性値の取得](#retrieving-a-single-attribute-value)
         -   [複数の属性値の取得](#retrieving-multiple-attribute-values)
     -   [コンテキスト・プロバイダ登録アクション](#context-provider-registration-actions)
@@ -260,7 +259,7 @@ Docker バージョン 18.03 以降と Docker Compose 1.21 以上を使用して
 
 単純な [nodejs](https://nodejs.org/) [Express](https://expressjs.com/) アプリケ
 ーションが、リポジトリの一部としてバンドルされています。このアプリケーションは
-、4 つの異なるコンテキスト・プロバイダに対して NGSI v1 インターフェイスを提供し
+、4 つの異なるコンテキスト・プロバイダに対して NGSI v2 インターフェイスを提供し
 ます。Open Weather Map API, Twitter Search API と 、2 つのダミーデータのコンテキ
 スト・プロバイダである、いつも同じデータを返すスタティック・データのプロバイダと
 、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
@@ -504,9 +503,9 @@ curl -X GET \
 ご覧のように、現在の温度と相対湿度の詳細は、 `current_observation` 属性内にあり
 ます。
 
-<A name="accessing-the-ngsi-v1-querycontext-endpoint"></A>
+<A name="accessing-the-ngsi-v2-opquery-endpoint"></A>
 
-## NGSI v1 QueryContext エンドポイントへのアクセス
+## NGSI v2 op/query エンドポイントへのアクセス
 
 コンテキスト・プロバイダの `3000` ポートは Docker コンテナの外部に公開されている
 ため、curl はコンテキスト・プロバイダに直接リクエストを行うことができます。これ
@@ -534,19 +533,19 @@ docker run --network fiware_default --rm appropriate/curl \
 
 ### 単一の属性値の取得
 
-この例では、NGSI v1 `queryContext` エンドポイントを使用して、スタティック・デー
+この例では、NGSI v2 `op/query` エンドポイントを使用して、スタティック・デー
 タ・ジェネレータのコンテキスト・プロバイダから `temperature` の読み取りをリクエ
 ストします。リクエストされた属性は、POST ボディの `attributes` 配列内にあります
 。
 
 Orion Context Broker は、コンテキスト・プロバイダが登録されると、この
-`queryContext` エンドポイントに同様のリクエストを行います。
+`op/query` エンドポイントに同様のリクエストを行います。
 
 #### :five: リクエスト :
 
 ```console
 curl -iX POST \
-  'http://localhost:3000/proxy/v1/static/temperature/queryContext' \
+  'http://localhost:3000/static/temperature/op/query' \
   -H 'Content-Type: application/json' \
   -d '{
     "entities": [
@@ -564,32 +563,20 @@ curl -iX POST \
 
 #### レスポンス :
 
-レスポンスは NGSI v1 レスポンス形式で示されます。`attributes` 要素は、返されたデ
+レスポンスは NGSI v2 レスポンス形式で示されます。`attributes` 要素は、返されたデ
 ータの `value:42` を持つ `type:Number` オブジェクトを保持しています。
 
 ```json
-{
-    "contextResponses": [
-        {
-            "contextElement": {
-                "attributes": [
-                    {
-                        "name": "temperature",
-                        "type": "Number",
-                        "value": 42
-                    }
-                ],
-                "id": "urn:ngsi-ld:Store:001",
-                "isPattern": "false",
-                "type": "Store"
-            },
-            "statusCode": {
-                "code": "200",
-                "reasonPhrase": "OK"
-            }
+[
+    {
+        "id": "urn:ngsi-ld:Store:001",
+        "type": "Store",
+        "temperature": {
+            "type": "Number",
+            "value": 42
         }
-    ]
-}
+    }
+]
 ```
 
 <A name="retrieving-multiple-attribute-values"></A>
@@ -597,7 +584,7 @@ curl -iX POST \
 ### 複数の属性値の取得
 
 Orion Context Broker が複数のデータ値をリクエストすることは可能です。この例では
-、NGSI v1 `queryContext` エンドポイントを使用して、ランダム・データ・ジェネレー
+、NGSI v2 `op/query` エンドポイントを使用して、ランダム・データ・ジェネレー
 タのコンテキスト・プロバイダから`temperature`と `relativeHumidity` の読み取りを
 リクエストします。リクエストされた属性は、POST ボディの `attributes` 配列内にあ
 ります。
@@ -606,7 +593,7 @@ Orion Context Broker が複数のデータ値をリクエストすることは�
 
 ```console
 curl -iX POST \
-  'http://localhost:3000/proxy/v1/random/weatherConditions/queryContext' \
+  'http://localhost:3000/random/weatherConditions/op/query' \
   -H 'Content-Type: application/json' \
   -d '{
     "entities": [
@@ -625,37 +612,24 @@ curl -iX POST \
 
 #### レスポンス :
 
-レスポンスは NGSI v1 レスポンス形式で示されます。`attributes` 要素は、返されたデ
+レスポンスは NGSI v2 レスポンス形式で示されます。`attributes` 要素は、返されたデ
 ータを保持しています。
 
 ```json
-{
-    "contextResponses": [
-        {
-            "contextElement": {
-                "attributes": [
-                    {
-                        "name": "temperature",
-                        "type": "Number",
-                        "value": 27
-                    },
-                    {
-                        "name": "relativeHumidity",
-                        "type": "Number",
-                        "value": 21
-                    }
-                ],
-                "id": "urn:ngsi-ld:Store:001",
-                "isPattern": "false",
-                "type": "Store"
-            },
-            "statusCode": {
-                "code": "200",
-                "reasonPhrase": "OK"
-            }
+[
+    {
+        "id": "urn:ngsi-ld:Store:001",
+        "type": "Store",
+        "temperature": {
+            "type": "Number",
+            "value": 16
+        },
+        "relativeHumidity": {
+            "type": "Number",
+            "value": 30
         }
-    ]
-}
+    }
+]
 ```
 
 <A name="context-provider-registration-actions"></A>
@@ -677,7 +651,7 @@ curl -iX POST \
 登録します。
 
 リクエストのボディには、"URL
-`http://context-provider:3000/proxy/v1/random/weatherConditions` は、
+`http://context-provider:3000/random/weatherConditions` は、
 `id=urn:ngsi-ld:Store:001` と呼ばれるエンティティ の `relativeHumidity` と
 `temperature` データ を提供することができます" と記述します。
 
@@ -685,16 +659,11 @@ curl -iX POST \
 要求に応じて常にリクエストされます。Orion は、どのコンテキスト・プロバイダがコン
 テキスト・データを提供できるかについての登録情報を保持するだけです。
 
-`"legacyForwarding": true` フラグがあると、登録されたコンテキスト・プロバイダが
-NGSI v1 インターフェイスを提供していることを示します。したがって、Orion は
-、`http://context-provider:3000/proxy/v1/random/weatherConditions/queryContext`
-形式のデータを POST でリクエストし、NGSI v1 形式のデータを受け取ります。
-
 > _注_ : Weather API に登録している場合、`provider` の中に 次の `url` を置くこと
 > で、Berlin の `temperature` と `relativeHumidity` のライブ値を取得することがで
 > きます :
 >
-> -   `http://context-provider:3000/proxy/v1/weather/weatherConditions`
+> -   `http://context-provider:3000/weather/weatherConditions`
 
 このリクエストは、**201 - Created** レスポンス・コードとともに返されます。レスポ
 ンスの `Location` ヘッダには、Orion で保持されている登録レコードへのパスが含まれ
@@ -721,9 +690,8 @@ curl -iX POST \
   },
   "provider": {
     "http": {
-      "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
-    },
-     "legacyForwarding": true
+      "url": "http://context-provider:3000/random/weatherConditions"
+    }
   }
 }'
 ```
@@ -848,10 +816,9 @@ curl -X GET \
         },
         "provider": {
             "http": {
-                "url": "http://context-provider:3000/proxy/v1/random/weatherConditions"
+                "url": "http://context-provider:3000/random/weatherConditions"
             },
-            "supportedForwardingMode": "all",
-            "legacyForwarding": true
+            "supportedForwardingMode": "all"
         },
         "status": "active"
     }
