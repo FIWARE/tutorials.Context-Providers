@@ -481,7 +481,7 @@ curl -iX POST \
             "id": "urn:ngsi-ld:Store:001"
         }
     ],
-    "attributes": [
+    "attrs": [
         "temperature"
     ]
 } '
@@ -525,7 +525,7 @@ curl -iX POST \
             "id": "urn:ngsi-ld:Store:001"
         }
     ],
-    "attributes": [
+    "attrs": [
         "temperature",
         "relativeHumidity"
     ]
