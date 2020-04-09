@@ -566,8 +566,8 @@ apply:
 
 This example registers the Random Data Context Provider with the Orion Context Broker.
 
-The body of the request states that: _"The URL_ `http://context-provider:3000/random/weatherConditions` _is
-capable of providing_ `relativeHumidity` and `temperature` _data for the entity called_ `id=urn:ngsi-ld:Store:001`._"_
+The body of the request states that: _"The URL_ `http://context-provider:3000/random/weatherConditions` _is capable of
+providing_ `relativeHumidity` and `temperature` _data for the entity called_ `id=urn:ngsi-ld:Store:001`._"_
 
 The values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion
 merely holds the registration information about which context providers can offer context data.
