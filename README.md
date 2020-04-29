@@ -84,7 +84,7 @@ these dynamic data attributes will need to be retrieved whenever the entity cont
 Smart solutions are designed to react on the current state of the real-world. They are "aware" since they rely on
 dynamic data readings from external sources (such social media, IoT sensors, user inputs). The FIWARE platform makes the
 gathering and presentation of real-time context data transparent, since whenever an
-[NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) request is made to the Orion Context Broker it will
+[NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) request is made to the Orion Context Broker it will
 always return the latest context by combining the data held within its database along with real-time data readings from
 any registered external context providers.
 
@@ -121,15 +121,15 @@ simple Context Provider NGSI proxy.
 Therefore, the architecture will consist of three elements:
 
 -   The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using
-    [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
+    [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
 -   The underlying [MongoDB](https://www.mongodb.com/) database :
     -   Used by the Orion Context Broker to hold context data information such as data entities, subscriptions and
         registrations
 -   The **Context Provider NGSI proxy** which will will:
-    -   receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
+    -   receive requests using [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
     -   makes requests to publicly available data sources using their own APIs in a proprietary format
     -   returns context data back to the Orion Context Broker in
-        [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
+        [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
 
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run
 from exposed ports.

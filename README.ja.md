@@ -98,7 +98,7 @@ FIWARE プラットフォーム内では、エンティティは、実世界に�
 シャルメディア, IoT センサー, ユーザ入力などの外部ソースからの動的なデータ読み取
 りに依存しているため、それらは "aware" (アウェア)です。FIWARE プラットフォームは
 、リアルタイム・コンテキスト・データの収集と提示を透過的にします。Orion Context
-Broker に対して [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
+Broker に対して [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
 リクエストが行われるたびに、登録された外部コンテキスト・プロバイダからのリアルタ
 イム・データ読み取りと一緒に、データベース内に保持されているデータを結合すること
 によって常に最新のコンテキストを戻すからです。
@@ -144,18 +144,18 @@ _"Powered by FIWARE"_ と認定するには、Orion Context Broker を使用す�
 
 したがって、アーキテクチャは 3 つの要素で構成されます :
 
--   [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリ
+-   [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリ
     クエストを受信する
     [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)
 -   バックエンドの [MongoDB](https://www.mongodb.com/) データベース
     -   Orion Context Broker が、データ・エンティティなどのコンテキスト・データ
         情報、サブスクリプション、登録などを保持するために使用します
 -   **コンテキスト・プロバイダ NGSI proxy** は次のようになります :
-    -   [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用し
+    -   [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用し
         てリクエストを受信する
     -   独自の API を独自のフォーマットで使用して、公開されているデータソースへ
         のリクエストを行います
-    -   [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) 形式でコ
+    -   [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) 形式でコ
         ンテキスト・データを Orion Context Broker に返します
 
 要素間のすべての対話は HTTP リクエストによって開始されるため、エンティティはコン
