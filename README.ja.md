@@ -300,6 +300,7 @@ API キーにサインアップしたくない場合は、代わりにランダ�
 ```console
 git clone https://github.com/FIWARE/tutorials.Context-Providers.git
 cd tutorials.Context-Providers
+git checkout NGSI-v2
 
 ./services create; ./services start;
 ```
