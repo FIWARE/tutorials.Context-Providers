@@ -126,7 +126,7 @@ Therefore, the architecture will consist of three elements:
 -   The underlying [MongoDB](https://www.mongodb.com/) database :
     -   Used by the Orion Context Broker to hold context data information such as data entities, subscriptions and
         registrations
--   The **Context Provider NGSI proxy** which will will:
+-   The **Context Provider NGSI proxy** which will:
     -   receive requests using [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
     -   makes requests to publicly available data sources using their own APIs in a proprietary format
     -   returns context data back to the Orion Context Broker in
@@ -577,7 +577,7 @@ merely holds the registration information about which context providers can offe
 > _Note:_ if you have registered with the Weather API, you can retrieve live values for `temperature` and
 > `relativeHumidity` in Berlin by placing the following `url` in the `provider`:
 >
-> -   `http://context-provider:3000/weather/weatherConditions`
+> -   `http://context-provider:3000/weather/weatherConditions/op/query`
 
 This request will return with a **201 - Created** response code. The `Location` Header of the response contains a path
 to the registration record held in Orion
@@ -655,7 +655,7 @@ curl -X GET \
     },
     "relativeHumidity": {
         "type": "Number",
-        "value": "58%",
+        "value": "58",
         "metadata": {}
     }
 }
@@ -673,7 +673,7 @@ curl -X GET \
 #### Response:
 
 ```
-"58%"
+"58"
 ```
 
 ### Read a registered Context Provider
