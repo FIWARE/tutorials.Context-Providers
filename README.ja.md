@@ -665,7 +665,7 @@ curl -iX POST \
 > で、Berlin の `temperature` と `relativeHumidity` のライブ値を取得することがで
 > きます :
 >
-> -   `http://context-provider:3000/weather/weatherConditions`
+> -   `http://context-provider:3000/weather/weatherConditions/op/query`
 
 このリクエストは、**201 - Created** レスポンス・コードとともに返されます。レスポ
 ンスの `Location` ヘッダには、Orion で保持されている登録レコードへのパスが含まれ
@@ -745,7 +745,7 @@ curl -X GET \
     },
     "relativeHumidity": {
         "type": "Number",
-        "value": "58%",
+        "value": "58",
         "metadata": {}
     }
 }
@@ -764,7 +764,7 @@ curl -X GET \
 #### レスポンス :
 
 ```
-"58%"
+"58"
 ```
 
 <A name="read-a-registered-content-provider"></A>
