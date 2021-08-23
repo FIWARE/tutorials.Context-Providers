@@ -22,7 +22,7 @@ loadData () {
 
 stoppingContainers () {
 	echo "Stopping running containers"
-	docker compose -p fiware down -v --remove-orphans
+	docker-compose down -v --remove-orphans
 }
 
 addDatabaseIndex () {
@@ -73,7 +73,7 @@ case "${command}" in
 		echo -e "- \033[1;34mOrion\033[0m is the context broker"
 		echo -e "- \033[1mTutorial\033[0m is used as a content provider proxying other web services"
 		echo ""
-		docker compose -p fiware up -d --remove-orphans
+		docker-compose up -d --remove-orphans
 		waitForMongo
 		addDatabaseIndex
 		waitForOrion
@@ -89,7 +89,7 @@ case "${command}" in
 		export $(cat .env | grep "#" -v)
 		echo "Pulling Docker images"
 		docker pull curlimages/curl
-		docker compose -p fiware pull
+		docker-compose pull
 		;;
 	*)
 		echo "Command not Found."
