@@ -37,15 +37,15 @@ services:
   # Tutorial acts as a series of dummy IoT Sensors over HTTP
   tutorial:
     image: fiware/tutorials.context-provider
-    hostname: tutorial
+    hostname: context-provider
     container_name: fiware-tutorial
     depends_on:
       - orion
     networks:
       default:
         aliases:
+          - tutorial
           - iot-sensors
-          - context-provider
     expose:
       - "${TUTORIAL_APP_PORT}" # localhost:3000
       - "${TUTORIAL_DUMMY_DEVICE_PORT}" # localhost:3001
