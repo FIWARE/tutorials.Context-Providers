@@ -62,9 +62,9 @@ services:
       - "DUMMY_DEVICES_TRANSPORT=HTTP" # Default transport used by dummy Io devices
       - "DUMMY_DEVICES_API_KEY=4jggokgpepnvsb2uv4s40d59ov"
       - "CONTEXT_BROKER=http://orion:${ORION_PORT}/v2" # URL of the context broker to update context
-      - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
-      - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
-      - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
+      - "OPENWEATHERMAP_KEY_ID=399a3f08fd061ecec2cce78514aa66e9"
+      - "TWITTER_CONSUMER_KEY=399a3f08fd061ecec2cce78514aa66e9"
+      - "TWITTER_CONSUMER_SECRET=399a3f08fd061ecec2cce78514aa66e9"
 
 
 
