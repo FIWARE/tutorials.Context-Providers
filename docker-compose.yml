@@ -20,6 +20,8 @@ version: "3.5"
 services:
   # Orion is the context broker
   orion:
+    labels:
+      org.fiware: 'tutorial'
     image: fiware/orion:${ORION_VERSION}
     hostname: orion
     container_name: fiware-orion
@@ -70,6 +72,8 @@ services:
 
   # Databases
   mongo-db:
+    labels:
+      org.fiware: 'tutorial'
     image: mongo:${MONGO_DB_VERSION}
     hostname: mongo-db
     container_name: db-mongo
