@@ -168,7 +168,7 @@ _"Powered by FIWARE"_ と認定するには、Orion Context Broker を使用す�
 
 ```yaml
 tutorial:
-    image: fiware/tutorials.context-provider
+    image: quay.io/fiware/tutorials.context-provider
     hostname: context-provider
     container_name: fiware-tutorial
     networks:

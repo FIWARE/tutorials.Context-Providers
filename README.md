@@ -142,7 +142,7 @@ of the associated `docker-compose.yml` file:
 
 ```yaml
 tutorial:
-    image: fiware/tutorials.context-provider
+    image: quay.io/fiware/tutorials.context-provider
     hostname: context-provider
     container_name: fiware-tutorial
     networks:
