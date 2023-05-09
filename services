@@ -10,7 +10,7 @@ set -e
 SCORPIO="http://scorpio:9090/"
 ORION="http://orion:1026/version"
 STELLIO="http://localhost:8080/actuator/health"
-CONTEXT="https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
+CONTEXT="http://context/ngsi-context.jsonld"
 CORE_CONTEXT="https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
 
 dockerCmd="docker compose"
@@ -41,14 +41,24 @@ getHeartbeat(){
 	eval "response=$(docker run --network fiware_default --rm curlimages/curl -s -o /dev/null -w "%{http_code}" "$1")"
 }
 
-waitForOrion () {
+waitForOrionLD () {
 	echo -e "\n⏳ Waiting for \033[1;34mOrion-LD\033[0m to be available\n"
 	
-	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-orion` == "healthy" ]
+	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-orion-ld` == "healthy" ]
 	do
 		echo -e "\nContext Broker HTTP state: ${response} (waiting for 200)"
 		pause 6
 		getHeartbeat "${ORION}"
+	done
+}
+
+waitForOrionV2 () {
+	echo -e "\n⏳ Waiting for \033[1;34mOrion\033[0m to be available\n"
+
+	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-orion-v2` == "healthy" ]
+	do
+	  echo -e "Context Broker HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:1027/version'` " (waiting for 200)"
+	  sleep 1
 	done
 }
 
@@ -112,6 +122,10 @@ waitForMongo () {
 }
 
 loadData () {
+	echo ""
+	docker run --rm -v $(pwd)/import-orion-v2:/import-orion-v2 \
+		--network fiware_default \
+		--entrypoint /bin/ash curlimages/curl import-orion-v2
 	echo ""
 	waitForUserContext
 	docker run --rm -v $(pwd)/import-data:/import-data \
@@ -177,9 +191,11 @@ case "${command}" in
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/orion-ld.yml up -d --remove-orphans --renew-anon-volumes
 		waitForMongo
 		addDatabaseIndex
-		waitForOrion
+		waitForOrionV2
+		waitForOrionLD
 		export CONTEXT_BROKER=orion:1026
 		loadData
+
 		displayServices fiware
 		;;
 	"scorpio")
@@ -192,6 +208,7 @@ case "${command}" in
 		echo ""
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio-aaio.yml up -d --remove-orphans --renew-anon-volumes
 		waitForMongo
+		waitForOrionV2
 		waitForScorpio
 		export CONTEXT_BROKER=scorpio:9090
 		loadData
@@ -206,8 +223,12 @@ case "${command}" in
 		echo -e "- Data models \033[1m@context\033[0m (Smart Supermarket) is supplied externally"
 		echo ""
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/stellio.yml up -d --remove-orphans --renew-anon-volumes
-		displayServices stellio
+		waitForMongo
+		waitForOrionV2
 		waitForStellio
+		export CONTEXT_BROKER=stellio:8080
+		loadData
+		displayServices stellio
 		;;
 	"stop")
 		export $(cat .env | grep "#" -v)
