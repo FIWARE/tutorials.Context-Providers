@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+    steps:
     - uses: actions/checkout@master
       with:
         persist-credentials: false 
@@ -26,7 +27,13 @@ jobs:
         submodules: recursive
     - name: Build Images
       run: |
-        ./services create || true
-    - name: Run Script
+        ./services create test || true
+    - name: Run Orion
       run: |
-        ./services start test && ./services stop test
+        ./services orion test && ./services stop test
+    - name: Run Stellio
+      run: |
+        ./services stellio test && ./services stop test
+    - name: Run Scorpio
+      run: |
+        ./services scorpio test && ./services stop test

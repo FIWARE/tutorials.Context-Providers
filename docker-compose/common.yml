@@ -16,60 +16,8 @@
 # 
 # see: https://github.com/FIWARE/helm-charts/
 #
-version: "3.5"
-services:
-  # Orion is the context broker
-  orion:
-    labels:
-      org.fiware: 'tutorial'
-    image: quay.io/fiware/orion:${ORION_VERSION}
-    hostname: orion
-    container_name: fiware-orion
-    depends_on:
-      - mongo-db
-    networks:
-      - default
-    ports:
-      - "${ORION_PORT}:${ORION_PORT}" # localhost:1026
-    command: -dbhost mongo-db -logLevel DEBUG -noCache
-    healthcheck:
-      test: curl --fail -s http://orion:${ORION_PORT}/version || exit 1
-      interval: 5s
-
-  # Tutorial acts as a series of dummy IoT Sensors over HTTP
-  tutorial:
-    image: quay.io/fiware/tutorials.context-provider
-    hostname: context-provider
-    container_name: fiware-tutorial
-    depends_on:
-      - orion
-    networks:
-      default:
-        aliases:
-          - tutorial
-          - iot-sensors
-    expose:
-      - "${TUTORIAL_APP_PORT}" # localhost:3000
-      - "${TUTORIAL_DUMMY_DEVICE_PORT}" # localhost:3001
-    ports:
-      - "${TUTORIAL_APP_PORT}:${TUTORIAL_APP_PORT}" # localhost:3000
-      - "${TUTORIAL_DUMMY_DEVICE_PORT}:${TUTORIAL_DUMMY_DEVICE_PORT}" # localhost:3001
-    environment:
-      - "MONGO_URL=mongodb://mongo-db:27017"
-      - "DEBUG=tutorial:*"
-      - "WEB_APP_PORT=${TUTORIAL_APP_PORT}" # Port used by the content provider proxy and web-app for viewing data
-      - "IOTA_HTTP_HOST=iot-agent"
-      - "IOTA_HTTP_PORT=${IOTA_SOUTH_PORT}"
-      - "DUMMY_DEVICES_PORT=${TUTORIAL_DUMMY_DEVICE_PORT}" # Port used by the dummy IOT devices to receive commands
-      - "DUMMY_DEVICES_TRANSPORT=HTTP" # Default transport used by dummy Io devices
-      - "DUMMY_DEVICES_API_KEY=4jggokgpepnvsb2uv4s40d59ov"
-      - "CONTEXT_BROKER=http://orion:${ORION_PORT}/v2" # URL of the context broker to update context
-      - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
-      - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
-      - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
-
-
-
+version: '3.9'
+services:  
   # Databases
   mongo-db:
     labels:
@@ -80,9 +28,10 @@ services:
     expose:
       - "${MONGO_DB_PORT}"
     ports:
-      - "${MONGO_DB_PORT}:${MONGO_DB_PORT}" # localhost:27017 # localhost:27017
+      - "${MONGO_DB_PORT}:${MONGO_DB_PORT}" # localhost:27017
     networks:
       - default
+    command: --nojournal
     volumes:
       - mongo-db:/data
     healthcheck:
@@ -92,11 +41,49 @@ services:
       interval: 5s
     
 
+
+  # Tutorial displays a web app to manipulate the context directly
+  tutorial:
+    labels:
+      org.fiware: 'tutorial'
+    image: quay.io/fiware/tutorials.context-provider
+    hostname: tutorial
+    container_name: fiware-tutorial
+    networks:
+      default:
+        aliases:
+          - iot-sensors
+          - context-provider
+    expose:
+      - "${TUTORIAL_APP_PORT}" # localhost:3000
+      - "${TUTORIAL_DUMMY_DEVICE_PORT}" # localhost:3001
+    ports:
+      - "${TUTORIAL_APP_PORT}:${TUTORIAL_APP_PORT}" # localhost:3000
+      - "${TUTORIAL_DUMMY_DEVICE_PORT}:${TUTORIAL_DUMMY_DEVICE_PORT}" # localhost:3001
+    environment:
+      - "MONGO_URL=mongodb://mongo-db:27017"
+      - "DEBUG=tutorial:*"
+      - "WEB_APP_PORT=${TUTORIAL_APP_PORT}" # Port used by the content provider proxy and web-app for viewing data
+      - "NGSI_VERSION=ngsi-ld"
+      - "CONTEXT_BROKER=http://orion:${ORION_LD_PORT}/ngsi-ld/v1" # URL of the context broker to update context
+      - "DEVICE_BROKER=http://devices:${ORION_EDGE_PORT}/v2" # URL of the device's context broker to update context
+      - "NGSI_LD_PREFIX=urn:ngsi-ld:"
+      
+      - "IOTA_HTTP_HOST=iot-agent"
+      - "IOTA_HTTP_PORT=${IOTA_SOUTH_PORT}"
+      - "DUMMY_DEVICES_PORT=${TUTORIAL_DUMMY_DEVICE_PORT}" # Port used by the dummy IOT devices to receive commands
+      - "DUMMY_DEVICES_TRANSPORT=HTTP" # Default transport used by dummy Io devices
+
+      - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
+      - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
+      - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
+
+
+
 networks:
   default:
-    ipam:
-      config:
-        - subnet: 172.18.1.0/24
+    labels:
+      org.fiware: 'tutorial'
 
 volumes:
   mongo-db: ~

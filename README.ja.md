@@ -1,854 +1,809 @@
-[![FIWARE Banner](https://fiware.github.io/tutorials.Context-Providers/img/fiware.png)](https://www.fiware.org/developers)
+[![FIWARE Banner](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/fiware.png)](https://www.fiware.org/developers)
 [![NGSI v2](https://img.shields.io/badge/NGSI-v2-5dc0cf.svg)](https://fiware-ges.github.io/orion/api/v2/stable/)
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
-[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Relationships-Linked-Data.svg)](https://opensource.org/licenses/MIT)
 [![Support badge](https://img.shields.io/badge/tag-fiware-orange.svg?logo=stackoverflow)](https://stackoverflow.com/questions/tagged/fiware)
-<br/> [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
+[![NGSI LD](https://img.shields.io/badge/NGSI-LD-d6604d.svg)](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.04.02_60/gs_cim009v010402p.pdf)
+[![JSON LD](https://img.shields.io/badge/JSON--LD-1.1-f06f38.svg)](https://w3c.github.io/json-ld-syntax/) <br/>
+[![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
-<!-- prettier-ignore -->
+このチュートリアルでは、NGSI-LD 内のサブスクリプションとレジストレーションの使用方法について説明し、NGSI-v2  と NGSI-LD
+の同等操作の類似点と相違点を強調します。このチュートリアルは、元のコンテキスト・プロバイダとサブスクリプションの
+チュートリアルに似ていますが、全体で **NGSI-LD** インターフェイスからの API 呼び出しを使用します。
 
-このチュートリアルでは、FIWARE ユーザにコンテキスト・データとコンテキスト・プロ
-バイダについて説明しています。チュートリアルは、以前
-の[在庫管理の例](https://github.com/FIWARE/tutorials.CRUD-Operations/)で作成され
-た **Store** エンティティをベースにしていて、ユーザは、Orion Context Broker 内で
-直接保持されていないストアに関するデータを取得できます。
+このチュートリアルでは、全体で [cUrl](https://ec.haxx.se/) コマンドを使用していますが、
+[Postmanドキュメント](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/) としても利用できます。
 
-このチュートリアルでは、[cUrl](https://ec.haxx.se/) コマンドを使用していますが
-、[Postman documentation](https://fiware.github.io/tutorials.Context-Providers/)
-も利用できます。
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/2c53b7c2bce9fd7b7b47)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/tree/NGSI-v2)
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/7c9bed4bd2ce5213a80b)
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FIWARE/tutorials.Context-Providers/tree/NGSI-v2)
+:warning:  **注:** このチュートリアルは、システムを **NGSI-LD** に切り替えたりアップグレードしたりする **NGSI-v2**
+開発者向けに設計されています。リンクト・データシステムを最初から構築する場合、または **NGSI-v2** にまだ慣れていない場合は、
+[NGSI-LD 開発者向けチュートリアル](https://www.letsfiware.jp/ngsi-ld-tutorials)のドキュメントを参照することをお勧めします。
 
 ## コンテンツ
 
 <details>
-<summary>詳細 <b>(クリックして拡大)</b></summary>
+<summary><strong>詳細</strong></summary>
 
--   [コンテキスト・データとコンテキスト・プロバイダ](#context-data-and-context-providers)
+-   [リンクト・データのサブスクリプションとレジストレーション](#understanding-linked-data-subscriptions-and-registrations)
     -   [在庫管理システム内のエンティティ](#entities-within-a-stock-management-system)
--   [アーキテクチャ](#architecture)
+    -   [在庫管理フロントエンド](#stock-management-frontend)
 -   [前提条件](#prerequisites)
     -   [Docker](#docker)
     -   [Cygwin](#cygwin)
-    -   [コンテキスト・プロバイダ NGSI プロキシ](#context-provider-ngsi-proxy)
+-   [アーキテクチャ](#architecture)
 -   [起動](#start-up)
--   [コンテキスト・プロバイダの使用](#using-a-context-provider)
-    -   [ヘルスチェック](#health-checks)
-        -   [スタティック・データのコンテキスト・プロバイダ (ヘルスチェック)](#static-data-context-provider-health-check)
-        -   [ランダムデータのコンテキスト・プロバイダ (ヘルスチェック)](#random-data-context-provider-health-check)
-        -   [Twitter API のコンテキスト・プロバイダ (ヘルスチェック)](#twitter-api-context-provider-health-check)
-        -   [Weather API のコンテキスト・プロバイダ (ヘルスチェック)](#weather-api-context-provider-health-check)
-    -   [NGSI v2 op/query エンドポイントへのアクセス](#accessing-the-ngsi-v2-opquery-endpoint)
-        -   [単一の属性値の取得](#retrieving-a-single-attribute-value)
-        -   [複数の属性値の取得](#retrieving-multiple-attribute-values)
-    -   [コンテキスト・プロバイダ登録アクション](#context-provider-registration-actions)
-        -   [新しいコンテキスト・プロバイダの登録](#registering-a-new-context-provider)
-        -   [登録されたコンテキスト・プロバイダの読み込み](#read-a-registered-content-provider)
-        -   [登録されているすべてのコンテキスト・プロバイダの一覧](#list-all-registered-content-providers)
-        -   [登録済みのコンテキスト・プロバイダの削除](#remove-a-registered-content-provider)
--   [次のステップ](#next-steps)
+-   [コンポーネント間の相互作用](#interactions-between-components)
+    -   [NGSI-LD でのサブスクリプションの使用](#using-subscriptions-with-ngsi-ld)
+        -   [サブスクリプションを作成 (Store 1) - 低在庫](#create-a-subscription-store-1---low-stock)
+        -   [サブスクリプションを作成 (Store 2) - 低在庫](#create-a-subscription-store-2---low-stock)
+        -   [サブスクリプションの詳細を取得](#read-subscription-details)
+        -   [サブスクリプション・イベントの取得](#retrieving-subscription-events)
+    -   [NGSI-LD でのレジストレーションの使用](#using-registrations-with-ngsi-ld)
+        -   [レジストレーションを作成](#create-a-registration)
+        -   [レジストレーションの詳細を取得](#read-registration-details)
+        -   [Store 1 から取得](#read-from-store-1)
+        -   [コンテキスト・プロバイダから直接取得](#read-direct-from-the-context-provider)
+        -   [コンテキスト・プロバイダの直接更新](#direct-update-of-the-context-provider)
+        -   [フォワード更新 (Forwarded-update)](#forwarded-update)
 
 </details>
 
-<A name="context-data-and-context-providers"></A>
+<a name="understanding-linked-data-subscriptions-and-registrations"/>
 
-# コンテキスト・データとコンテキスト・プロバイダ
+# リンクト・データのサブスクリプションとレジストレーション
 
-> "知識には二つのタイプがある。物事を知っているということ。もう一つはどこを探す
-> べきかを知っているということ。"
+> “Do not repeat after me words that you do not understand. Do not merely put on a mask of my ideas, for it will be an
+> illusion and you will thereby deceive yourself.”
 >
-> — Samuel Johnson (Boswell's Life of Johnson)
+> ― Jiddu Krishnamurti
 
-FIWARE プラットフォーム内では、エンティティは、実世界に存在する物理的または概念
-的オブジェクトの状態を表します。たとえば、**Store** は実際のレンガやモルタルの建
-物です。
+NGSI-LD サブスクリプションとレジストレーションは、スマート・リンクト・データ・ソリューション内のコンポーネントが相互に
+やり取りできるようにする基本的なメカニズムを提供します。
 
-そのエンティティのコンテキスト・データは、与えられた瞬間における実世界オブジェク
-トの状態を定義します。
+簡単な注意として、分散システム内では、サブスクリプションはサードパーティ・コンポーネントにコンテキスト・データの変更が
+発生したことを通知し (コンポーネントはさらにアクションを実行する必要があります) 、レジストレーションは Context Broker
+に別ソースからコンテキスト情報が利用可能であることを通知します。
 
-これまでのチュートリアルでは、Orion Context Broker 内の **Store** エンティティの
-コンテキスト・データをすべて保持しています。たとえば、ストアには次のような属性が
-あります :
+これらの操作はどちらも、受信コンポーネントが受信したリクエストを完全に理解し、結果のペイロードを作成して解釈できることが
+必要です。ここでの NGSI-v2 と NGSI-LD の操作の違いはわずかですが、リンクト・データの概念の組み込みを容易にするための
+マイナーな修正が行われたため、さまざまなコンポーネント間の規約がマイナー・アップデートを含むように変更されました。
 
--   **id** : ストアの一意の識別子。たとえば、`urn:ngsi-ld:Store:002`
--   **name** : ストアの名前。たとえば、"Checkpoint Markt"
--   **address** :ストアの住所。たとえば、 "Friedrichstraße 44, 10969 Kreuzberg,
-    Berlin"
--   **location** : ストアの物理的な場所。たとえば、_52.5075 N, 13.3903 E_
-
-ご覧のように、これらの属性のほとんどは完全に静的 (場所など) で、他のものは定期的
-に変更されることはありませんが、ストリートの名前を変更したり、ストアの名を変更す
-ることができます。
-
-しかし、**Store** エンティティに関する別のクラスのコンテキスト・データがあります
-。これは、より動的な情報です。たとえば、次のような情報があります :
-
--   **temperature** : ストアの現在の温度
--   **relativeHumidity** : ストアの現在の相対湿度
--   **tweets** : ストアに関する最近のソーシャルメディアのつぶやき
-
-この情報は常に変化しており、静的にデータベースに保持されている場合、データは常に
-古くなります。コンテキスト・データを最新に保ち、オンデマンドでシステムの現在の状
-態を取得できるようにするには、エンティティのコンテキストがリクエストされるたびに
-、これらの動的データ属性の新しい値を取得する必要があります。
-
-スマートなソリューションは、現実世界の現状に対応するように設計されています。ソー
-シャルメディア, IoT センサー, ユーザ入力などの外部ソースからの動的なデータ読み取
-りに依存しているため、それらは "aware" (アウェア)です。FIWARE プラットフォームは
-、リアルタイム・コンテキスト・データの収集と提示を透過的にします。Orion Context
-Broker に対して [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
-リクエストが行われるたびに、登録された外部コンテキスト・プロバイダからのリアルタ
-イム・データ読み取りと一緒に、データベース内に保持されているデータを結合すること
-によって常に最新のコンテキストを戻すからです。
-
-Orion Context Broker は、これらのリクエストを満たすために、まず次の 2 種類の情報
-を提供する必要があります :
-
--   Orion 自体で保持された静的コンテキスト・データ。 _Orion が知っている
-    ("knows") エンティティ_
--   既存のエンティティに関連付けられた登録済みの外部コンテキストプロバイダ
-    。_Orion が情報を見つけることができる ("find information" )エンティティ_
-
-<A name="entities-within-a-stock-management-system"></A>
+<a name="entities-within-a-stock-management-system"/>
 
 ## 在庫管理システム内のエンティティ
 
-私たちの簡単な在庫管理システムで、**Store** エンティティは、`id`, `name`,
-`address` および `location` 属性を返します。我々は、以下の無料で公開されているの
-データソースからのリアルタイムのコンテキスト・データを追加してこれを補強します :
+リンクト・データ・エンティティ間のリレーションシップは、次のように定義されています。既存のデータに加えて、`tweets` 属性は
+コンテキスト・プロバイダ (_Context Provider_) によって提供されます。他のすべての点で、このモデルは
+[以前のチュートリアル](https://github.com/FIWARE/tutorials.Working-with-Linked-Data/) と同じです。
 
--   [Open Weather Map API](`https://openweathermap.org/api`) の温度と相対湿度
--   [Twitter API](https://developer.twitter.com/) のストアに関する最近のソーシャ
-    ルメディアのツイート
+![](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/entities.png)
 
-エンティティ間のリレーションシップは、次のように定義されます :
+<a name="stock-management-frontend"/>
 
-![](https://fiware.github.io/tutorials.Context-Providers/img/entities.png)
+## 在庫管理フロントエンド
 
-<A name="architecture"></A>
+シンプルな Node.js Express アプリケーションは、
+[以前のチュートリアル](https://github.com/FIWARE/tutorials.Working-with-Linked-Data/) で NGSI-LD を使用するように更新
+されました。モニタ・ページを使用して最近のリクエストのステータスを監視し、2つの Store  ページを使用して商品を購入します。
+サービスが実行されると、これらのページには次の URL からアクセスできます :
 
-# アーキテクチャ
+#### イベント・モニタ
 
-このアプリケーションは
-、[Orion Context Broker](https://catalogue.fiware.org/enablers/publishsubscribe-context-broker-orion-context-broker)
-という 1 つの FIWARE コンポーネントしか使用しません。アプリケーションが
-_"Powered by FIWARE"_ と認定するには、Orion Context Broker を使用するだけで十分
-です。
+イベント・モニタは次の場所にあります: `http://localhost:3000/app/monitor`
 
-現在、Orion Context Broker はオープンソースの
-[MongoDB](https://www.mongodb.com/) 技術を利用して、コンテキスト・データの永続性
-を維持しています。外部ソースからコンテキスト・データをリクエストするには、単純な
-コンテキスト・プロバイダ NGSI プロキシを追加する必要があります。
+![FIWARE Monitor](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/monitor.png)
 
-したがって、アーキテクチャは 3 つの要素で構成されます :
+#### Store 001
 
--   [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリ
-    クエストを受信する
-    [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)
--   バックエンドの [MongoDB](https://www.mongodb.com/) データベース
-    -   Orion Context Broker が、データ・エンティティなどのコンテキスト・データ
-        情報、サブスクリプション、登録などを保持するために使用します
--   **コンテキスト・プロバイダ NGSI proxy** は次のようになります :
-    -   [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用し
-        てリクエストを受信する
-    -   独自の API を独自のフォーマットで使用して、公開されているデータソースへ
-        のリクエストを行います
-    -   [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) 形式でコ
-        ンテキスト・データを Orion Context Broker に返します
+Store001 は次の場所にあります: `http:/localhost:3000/app/store/urn:ngsi-ld:Building:store001`
 
-要素間のすべての対話は HTTP リクエストによって開始されるため、エンティティはコン
-テナ化され、公開されたポートから実行されます。
+![Store](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/store.png)
 
-![](https://fiware.github.io/tutorials.Context-Providers/img/architecture.png)
+#### Store 002
 
-**コンテキスト・プロバイダ NGSI proxy** に必要な設定情報は、関連する
-`docker-compose.yml` ファイルの services セクションにあります:
+Store002 は次の場所にあります: `http:/localhost:3000/app/store/urn:ngsi-ld:Building:store002`
 
-```yaml
-tutorial:
-    image: quay.io/fiware/tutorials.context-provider
-    hostname: context-provider
-    container_name: fiware-tutorial
-    networks:
-        - default
-    expose:
-        - "3000"
-    ports:
-        - "3000:3000"
-    environment:
-        - "DEBUG=tutorial:*"
-        - "PORT=3000"
-        - "CONTEXT_BROKER=http://orion:1026/v2"
-        - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
-        - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
-        - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
-```
+![Store2](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/store2.png)
 
-`tutorial` コンテナは以下のように環境変数によってドライブされます:
-
-| Key                     | Value                        | Description                                                                                         |
-| ----------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------- |
-| DEBUG                   | `tutorial:*`                 | ロギングに使用されるデバッグフラグです                                                              |
-| WEB_APP_PORT            | `3000`                       | データを表示するためにコンテキスト・プロバイダ NGSI proxy と Web アプリケーションで使用されるポート |
-| CONTEXT_BROKER          | `http://orion:1026/v2`       | コンテキストを更新するために接続する Context Broker の URL                                          |
-| OPENWEATHERMAP_KEY_ID   | `<ADD_YOUR_KEY_ID>`          | Open Weather Map API へのアクセスを得るために使用されるコンシューマ・キー                           |
-| TWITTER_CONSUMER_KEY    | `<ADD_YOUR_CONSUMER_KEY>`    | Twitter API へのアクセスを得るために使用されるコンシューマ・キー                                    |
-| TWITTER_CONSUMER_SECRET | `<ADD_YOUR_CONSUMER_SECRET>` | Twitter API へのアクセスを得るために使用されるユーザ・キー                                          |
-
-このチュートリアルでは、YAML ファイルに記述されている他の `tutorial` コンテナの
-設定値は使用していません。
-
-MongoDB と Orion Context Broker の設定情報については
-、[以前のチュートリアル](https://github.com/FIWARE/tutorials.Entity-Relationships/)で
-説明しました。
-
-<A name="prerequisites"></A>
+<a name="prerequisites"/>
 
 # 前提条件
 
-<A name="docker"></A>
+<a name="docker"/>
 
 ## Docker
 
-物事を単純にするために、両方のコンポーネントは [Docker](https://www.docker.com)
-を使用して実行されます。**Docker** は、さまざまコンポーネントをそれぞれの環境に
-分離することを可能にするコンテナ・テクノロジです。
+物事を単純にするために、両方のコンポーネントが [Docker](https://www.docker.com) を使用して実行されます。**Docker** は、
+さまざまコンポーネントをそれぞれの環境に分離することを可能にするコンテナ・テクノロジです。
 
--   Docker を Windows にインストールするには
-    、[こちら](https://docs.docker.com/docker-for-windows/)の手順に従ってくださ
-    い
--   Docker を Mac にインストールするには
-    、[こちら](https://docs.docker.com/docker-for-mac/)の手順に従ってください
--   Docker を Linux にインストールするには
-    、[こちら](https://docs.docker.com/install/)の手順に従ってください
+-   Windows に Docker をインストールするには、[こちら](https://docs.docker.com/docker-for-windows/)の指示に従ってください
+-   Mac に Docker をインストールするには、[こちら](https://docs.docker.com/docker-for-mac/)の指示に従ってください
+-   Linux に Docker をインストールするには、[こちら](https://docs.docker.com/install/)の手順に従ってください
 
-**Docker Compose** は、マルチコンテナ Docker アプリケーションを定義して実行する
-ためのツールです
-。[YAML file](https://raw.githubusercontent.com/Fiware/tutorials.Context-Providers/master/docker-compose.yml)
-ファイルは、アプリケーションのために必要なサービスを構成するために使用します。つ
-まり、すべてのコンテナ・サービスは 1 つのコマンドで呼び出すことができます
-。Docker Compose は、デフォルトで Docker for Windows と Docker for Mac の一部と
-してインストールされますが、Linux ユーザ
-は[ここ](https://docs.docker.com/compose/install/)に記載されている手順に従う必要
-があります。
+**Docker Compose** は、マルチコンテナ Docker アプリケーションを定義して実行するためのツールです。
+[YAML ファイル](https://raw.githubusercontent.com/fiware/tutorials.LD-Subscriptions-Registrations/master/docker-compose/orion-ld.yml)
+を使用して、アプリケーションに必要なサービスを設定します。これは、すべてのコンテナ・サービスを単一のコマンドで起動
+できることを意味します。Docker Compose は、Docker for Windows および Docker for Mac の一部としてデフォルトでインストール
+されますが、Linux ユーザは[こちら](https://docs.docker.com/compose/install/)にある手順に従う必要があります。
 
-次のコマンドを使用して、現在の **Docker** バージョンと **Docker Compose** バージ
-ョンを確認できます :
-
-```console
-docker-compose -v
-docker version
-```
-
-Docker バージョン 20.10 以降と Docker Compose 1.29 以上を使用していることを確認
-し、必要に応じてアップグレードしてください。
-
-<A name="cygwin"></A>
+<a name="cygwin"/>
 
 ## Cygwin
 
-シンプルな Bash スクリプトを使用してサービスを開始します。Windows ユーザは
-[cygwin](http://www.cygwin.com/) をダウンロードして、Windows の Linux ディストリ
-ビューションに似たコマンドライン機能を提供する必要があります。
+簡単な bash スクリプトを使ってサービスを開始します。Windows ユーザは、Windows 上の Linux ディストリビューションに
+似たコマンドライン機能を提供するために [cygwin](http://www.cygwin.com/) をダウンロードするべきです。
 
-<A name="context-provider-ngsi-proxy"></A>
+<a name="architecture"/>
 
-## コンテキスト・プロバイダ NGSI プロキシ
+# アーキテクチャ
 
-単純な [nodejs](https://nodejs.org/) [Express](https://expressjs.com/) アプリケ
-ーションが、リポジトリの一部としてバンドルされています。このアプリケーションは
-、4 つの異なるコンテキスト・プロバイダに対して NGSI v2 インターフェイスを提供し
-ます。Open Weather Map API, Twitter Search API と 、2 つのダミーデータのコンテキ
-スト・プロバイダである、いつも同じデータを返すスタティック・データのプロバイダと
-、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
+デモ・スーパーマーケット・アプリケーションは、準拠している Context Broker と NGSI-LD の呼び出しを送受信します。
+NGSI-LD インターフェースは、[Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) の実験バージョンで
+利用できるため、デモ・アプリケーションは1つの FIWARE コンポーネントのみを使用します。
 
-プロキシ・エンドポイントに関する詳細は
-、[こちら](https://github.com/FIWARE/tutorials.Step-by-Step/tree/master/context-provider)を
-参照してください。
+現在、Orion Context Broker は、オープンソース [MongoDB](https://www.mongodb.com/) テクノロジに依存して、保持している
+コンテキスト・データの永続性を維持しています。外部ソースからコンテキスト・データをリクエストするために、シンプルな
+Context Provider NGSI proxy  も追加されました。 コンテキストを視覚化し、対話するために、簡単な Express
+アプリケーションを追加します。
 
--   Open Weather Map API にアクセスするには、<`https://openweathermap.org/api`>
-    でキーを申請する必要があります
--   Twitter Search API にアクセスするには、<https://developer.twitter.com/> から
-    Twitter でアプリを作成し 、コンシューマ・キーとコンシューマ・シークレットを
-    取得する必要があります
+したがって、アーキテクチャは次の4つの要素で構成されます。
 
-`docker-compose.yml` のリポジトリのルートにあるプレースホルダを、アプリケーショ
-ン用に取得した値に置き換えます :
+-   [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
+    を使ってリクエストを受け取る [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)
+-   基礎となる [MongoDB](https://www.mongodb.com/) データベース :
+    -   データ・エンティティ、サブスクリプション、レジストレーションなどのコンテキスト・データ情報を保持するために
+        Orion Context Broker によって使用されます
+-   **Context Provider NGSI** は、次のことができます :
+    -   [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json#/)
+        を使用してリクエストを受信します
+    -   独自の API を独自の形式で使用して、公開されているデータソースにリクエストを送信します
+    -   コンテキスト・データを NGSI-lD 形式で
+        [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json#/)
+        形式で Orion Context Broker に返します
+-   **在庫管理フロントエンド** は、次のことができます :
+    -   ストア情報を表示
+    -   各ストアで購入できる製品を表示
+    -   ユーザが製品を "購入" して在庫数を減らすことを許可
 
-```yaml
-environment:
-    - "DEBUG=tutorial:*"
-    - "CONTEXT_BROKER=http://orion:1026/v2"
-    - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
-    - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
-    - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
-```
+要素間のすべての対話は HTTP リクエストによって開始されるため、エンティティはコンテナ化され、公開されたポートから実行
+できます。
 
-API キーにサインアップしたくない場合は、代わりにランダム・データ・コンテキスト・
-プロバイダのデータを使用できます。
+![](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/architecture.png)
 
-<A name="start-up"></A>
+必要な設定情報は、関連する `orion-ld.yml` ファイルの services セクションで確認できます。
+[以前のチュートリアル](https://github.com/FIWARE/tutorials.Working-with-Linked-Data/) で説明しています。
+
+<a name="start-up"/>
 
 # 起動
 
-リポジトリ内で提供される bash スクリプトを実行すると、コマンドラインからすべての
-サービスを初期化できます。リポジトリを複製し、以下のコマンドを実行して必要なイメ
-ージを作成してください :
+[services](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/blob/NGSI-v2/services) Bash スクリプトを
+実行して、コマンドラインから初期化できます。以下のようにコマンドを実行して、リポジトリのクローンを作成して必要な
+イメージを作成してください :
 
-```console
-git clone https://github.com/FIWARE/tutorials.Context-Providers.git
-cd tutorials.Context-Providers
+```bash
+git clone https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations.git
+cd tutorials.LD-Subscriptions-Registrations
 git checkout NGSI-v2
 
-./services create; ./services start;
+./services orion
 ```
 
-このコマンドは、起動時に以前
-の[在庫管理の例](https://github.com/FIWARE/tutorials.CRUD-Operations)からシード
-・データをインポートします。
+> **注:** クリーンアップして最初からやり直す場合は、次のコマンドで実行できます :
+>
+> ```
+> ./services stop
+> ```
 
-<A name="using-a-context-provider"></A>
+---
 
-# コンテキスト・プロバイダの使用
+<a name="interactions-between-components"/>
 
-<A name="health-checks"></A>
+# コンポーネント間の相互作用
 
-## ヘルスチェック
+<a name="using-subscriptions-with-ngsi-ld"/>
 
-nodejs proxy アプリケーションは、4 つのコンテキスト・プロバイダのそれぞれに
-`health` エンドポイントを提供します。適切なエンドポイントにリクエストを行うと、
-プロバイダが実行中であり、外部データを受信できるかどうかがチェックされます。アプ
-リケーションはポート `3000` で実行されます。
+## NGSI-LD でのサブスクリプションの使用
 
-<A name="static-data-context-provider-health-check"></A>
+`http:/localhost:3000/app/store/urn:ngsi-ld:Building:store001` に移動して、スーパーマーケットのデータを表示して操作します。
 
-### スタティック・データのコンテキスト・プロバイダ (ヘルスチェック)
+<a name="create-a-subscription-store-1---low-stock"/>
 
-この例では、スタティック・データのコンテキスト・プロバイダのエンドポイントの状態
-を返します。
+### サブスクリプションを作成 (Store 1) - 低在庫
 
-エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値
-を返すことを示しています。各リクエストは同じデータを返します。
+NGSI-LD サブスクリプションは、`/ngsi-ld/v1/subscriptions/` エンドポイントを使用して、NGSI-v2 `/v2/subscriptions`
+エンドポイントと同様の方法で設定できます。ただし、ペイロード本体は少し異なります。まず、リンクト・データ `@context`
+は属性として、または `Link` ヘッダに存在する必要があります。`@context` がボディに配置されている場合、`Context-Type`
+ヘッダはペイロードが `application/ld+json`、つまり、リンクト・データと JSON であることを示す必要があります。提供された
+`@context` は、通知リクエスト (notification request) の一部として通知を行うときにも使用されます。
 
-#### :one: リクエスト :
+NGSI-LD サブスクリプション・リクエストの `type` は常に `type=Subscription` です。サブスクリプションの構造が変更されました。
+サブスクリプションを設定するとき、ペイロードに対する個別の `subject` セクションはなくなり、条件を監視およびトリガーする
+エンティティはサブスクリプションの `description` と同じレベルに設定されるようになりました。
+
+-   `condition.attrs` は1つ上のレベルに移動し、`watchedAttributes` に名前が変更されました
+-   `condition.expression` が1つ上のレベルに移動し、`q` に名前が変更されました
+
+ボディの `notification`  セクションには、サブスクリプションの条件が満たされると、影響を受けるすべての Shelf
+エンティティを含む POST リクエストが URL `http://tutorial:3000/subscription/low-stock-store001` に送信されることが記載
+されています。`notification.format=keyValues` をリクエストして通知ペイロードを修正し、
+`notification.endpoint.accept=application/json` を指定して通知ボディから `@context` を削除できるようになりました。
+`@context` は失われず、単に `Link` ヘッダとして渡されます。要約すると、サブスクリプション内のすべてのフラグは、
+Context Broker 自体への GET リクエストと同じように機能します。フラグが設定されていない場合、デフォルトで `@context`
+を含む完全な NGSI-LD レスポンスが返され、さらに制限を追加することでペイロードを削減および修正できます。
+
+#### :one: リクエスト:
 
 ```console
-curl -X GET \
-  'http://localhost:3000/health/static'
-```
-
-#### レスポンス :
-
-```json
-{
-    "array": ["Arthur", "Dent"],
-    "boolean": true,
-    "number": 42,
-    "structuredValue": { somevalue: 'this' },
-    "text": "I never could get the hang of Thursdays"
-}
-```
-
-<A name="random-data-context-provider-health-check"></A>
-
-### ランダムデータのコンテキスト・プロバイダ (ヘルスチェック)
-
-この例では、ランダム・データ・ジェネレータのコンテキスト・エンドポイントの正常性
-を返します。
-
-エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値
-を返すことを示しています。各リクエストはランダムなダミー・データを返します。
-
-#### :two: リクエスト :
-
-```console
-curl -X GET \
-  'http://localhost:3000/health/random'
-```
-
-#### レスポンス :
-
-```json
-{
-    "array": ["sit", "consectetur", "sint", "excepteur"],
-    "boolean": false,
-    "number": 4,
-    "structuredValue": { somevalue: 'this' },
-    "text": " nisi reprehenderit pariatur. Aute ea"
-}
-```
-
-<A name="twitter-api-context-provider-health-check"></A>
-
-### Twitter API コンテキスト・プロバイダ (ヘルスチェック)
-
-この例は、Twitter API コンテキスト・プロバイダのエンドポイントの正常性を返します
-。
-
-エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値
-を返すことを示しています。
-
-プロキシが Twitter API に接続するように正しく設定されている場合は、一連のツイー
-トが返されます。
-
-Twitter API は OAuth2 を使用します :
-
--   Twitter API のコンシューマ・キーとコンシューマ・シークレットを取得するには
-    、<https://developer.twitter.com/> から Twitter でアプリを作成する必要があり
-    ます。その後、コンシューマ・キーとコンシューマ・シークレットを含むページに移
-    動します
--   詳細は <https://developer.twitter.com/> を参照してください。
-
-#### :three: リクエスト :
-
-```console
-curl -X GET \
-  'http://localhost:3000/health/twitter'
-```
-
-#### レスポンス :
-
-このレスポンスには、FIWARE に関する 15 のツイートが含まれます。完全なレスポンス
-はかなり長いですが、断片は以下のようなものです :
-
-```json
-{
-	"statuses": [
-	{
-		"created_at": "Mon Apr 23 13:08:35 +0000 2018",
-		"id": 988404265227038700,
-		"id_str": "988404265227038721",
-		"text": "@FIWARE: Full house today during the Forum Industrie 4.0 at @Hannover_Messe as #FIWARE Foundation CEO ...",
-		"truncated": false,
-		"entities": {
-			... ETC
-		},
-		"metadata": {
-	        ... ETC
-	    }
-	    ... ETC
-	}
-	... ETC
-
-    ],
-    "search_metadata": {
-        "completed_in": 0.089,
-        "max_id": 988407193497108500,
-        "max_id_str": "988407193497108481",
-        "next_results": "?max_id=988373340074242048&q=FIWARE&include_entities=1",
-        "query": "FIWARE",
-        "refresh_url": "?since_id=988407193497108481&q=FIWARE&include_entities=1",
-        "count": 15,
-        "since_id": 0,
-        "since_id_str": "0"
+curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'Content-Type: application/ld+json' \
+--data-raw '{
+  "description": "Notify me of low stock in Store 001",
+  "type": "Subscription",
+  "entities": [{"type": "Shelf"}],
+  "watchedAttributes": ["numberOfItems"],
+  "q": "numberOfItems<10;locatedIn==%22urn:ngsi-ld:Building:store001%22",
+  "notification": {
+    "attributes": ["numberOfItems", "stocks", "locatedIn"],
+    "format": "keyValues",
+    "endpoint": {
+      "uri": "http://tutorial:3000/subscription/low-stock-store001",
+      "accept": "application/json"
     }
-
-}
-```
-
-詳細から分かるように、各ツイートの `text`は、`statuses` 配列内にあります。
-
-<A name="weather-api-context-provider-health-check"></A>
-
-### Weather API コンテキスト・プロバイダ (ヘルスチェック)
-
-この例では、スタティック・データのコンテキスト・プロバイダのエンドポイントの状態
-を返します。
-
-エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値
-を返すことを示しています。各リクエストは同じデータを返します。
-
-#### :four: リクエスト :
-
-```console
-curl -X GET \
-  'http://localhost:3000/health/weather'
-```
-
-#### レスポンス :
-
-レスポンスには、ベルリンの現在の天気に関するデータが含まれます。完全なレスポンス
-はかなり長いですが、断片は以下のようなものです :
-
-```json
-{
-  "coord": {
-    "lon": 13.39,
-    "lat": 52.52
   },
-  "weather": [
-    {
-      "id": 800,
-      "main": "Clear",
-      "description": "clear sky",
-      "icon": "01d"
-    }
-  ],
-  "base": "stations",
-  "main": {
-    "temp": 299.64,
-    "pressure": 1019,
-    "humidity": 36,
-    "temp_min": 299.15,
-    "temp_max": 300.15
-  },
-  ...ETC
-  "id": 2950159,
-  "name": "Berlin",
-  "cod": 200
-}
-```
-
-ご覧のように、現在の温度と相対湿度の詳細は、 `current_observation` 属性内にあり
-ます。
-
-<A name="accessing-the-ngsi-v2-opquery-endpoint"></A>
-
-## NGSI v2 op/query エンドポイントへのアクセス
-
-コンテキスト・プロバイダの `3000` ポートは Docker コンテナの外部に公開されている
-ため、curl はコンテキスト・プロバイダに直接リクエストを行うことができます。これ
-は、Orion Context Broker によって行われたリクエストをシミュレートします
-。`appropriate/curl` の Docker イメージを実行することによって、Docker コンテナ・
-ネットワークの一部としてリクエストを作成することもシミュレートできます。
-
-まず、Docker コンテナ内で使用されているネットワークの名前を取得します :
-
-```console
-docker network ls
-```
-
-次に、`--network` パラメータを含む次の `curl` コマンドを実行します :
-
-```console
-docker run --network fiware_default --rm appropriate/curl \
-  -X GET 'http://context-provider:3000/health/random'
-```
-
-ご覧のとおり、ネットワーク内では、コンテキスト・プロバイダのホスト名は
-`context-provider` です。
-
-<A name="retrieving-a-single-attribute-value"></A>
-
-### 単一の属性値の取得
-
-この例では、NGSI v2 `op/query` エンドポイントを使用して、スタティック・デー
-タ・ジェネレータのコンテキスト・プロバイダから `temperature` の読み取りをリクエ
-ストします。リクエストされた属性は、POST ボディの `attributes` 配列内にあります
-。
-
-Orion Context Broker は、コンテキスト・プロバイダが登録されると、この
-`op/query` エンドポイントに同様のリクエストを行います。
-
-#### :five: リクエスト :
-
-```console
-curl -iX POST \
-  'http://localhost:3000/static/temperature/op/query' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "entities": [
-        {
-            "type": "Store",
-            "isPattern": "false",
-            "id": "urn:ngsi-ld:Store:001"
-        }
-    ],
-    "attrs": [
-        "temperature"
-    ]
-} '
-```
-
-#### レスポンス :
-
-レスポンスは NGSI v2 レスポンス形式で示されます。`attributes` 要素は、返されたデ
-ータの `value:42` を持つ `type:Number` オブジェクトを保持しています。
-
-```json
-[
-    {
-        "id": "urn:ngsi-ld:Store:001",
-        "type": "Store",
-        "temperature": {
-            "type": "Number",
-            "value": 42
-        }
-    }
-]
-```
-
-<A name="retrieving-multiple-attribute-values"></A>
-
-### 複数の属性値の取得
-
-Orion Context Broker が複数のデータ値をリクエストすることは可能です。この例では
-、NGSI v2 `op/query` エンドポイントを使用して、ランダム・データ・ジェネレー
-タのコンテキスト・プロバイダから`temperature`と `relativeHumidity` の読み取りを
-リクエストします。リクエストされた属性は、POST ボディの `attributes` 配列内にあ
-ります。
-
-#### :six: リクエスト :
-
-```console
-curl -iX POST \
-  'http://localhost:3000/random/weatherConditions/op/query' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "entities": [
-        {
-            "type": "Store",
-            "isPattern": "false",
-            "id": "urn:ngsi-ld:Store:001"
-        }
-    ],
-    "attrs": [
-        "temperature",
-        "relativeHumidity"
-    ]
+   "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
 }'
 ```
 
-#### レスポンス :
+<a name="create-a-subscription-store-2---low-stock"/>
 
-レスポンスは NGSI v2 レスポンス形式で示されます。`attributes` 要素は、返されたデ
-ータを保持しています。
+### サブスクリプションを作成 (Store 2) - 低在庫
 
-```json
-[
-    {
-        "id": "urn:ngsi-ld:Store:001",
-        "type": "Store",
-        "temperature": {
-            "type": "Number",
-            "value": 16
-        },
-        "relativeHumidity": {
-            "type": "Number",
-            "value": 30
-        }
-    }
-]
-```
+この2番目のリクエストは、別のエンドポイント (URL `http://tutorial:3000/subscription/low-stock-store002`) に通知を送信
+します。`notification.format=normalized` および `notification.endpoint.accept=application/ld+json` は、通知リクエストの
+ボディで `@context` が渡され、ペイロードが展開されたエンティティで構成されることを保証します。
 
-<A name="context-provider-registration-actions"></A>
-
-## コンテキスト・プロバイダの登録アクション
-
-すべてのコンテキスト・プロバイダの登録アクションは、`v2/registrations` エンドポ
-イントで行われます。標準の CRUD マッピングが適用されます :
-
--   Creation (作成) は HTTP POST にマップされます
--   Reading/Listing (読み込み/一覧) は HTTP GET にマップされます
--   Deletin (削除) は HTTP DELETE にマップされます
-
-<A name="registering-a-new-context-provider"></A>
-
-### 新しいコンテキスト・プロバイダの登録
-
-この例では、ランダム・データのコンテキスト・プロバイダを Orion Context Broker に
-登録します。
-
-リクエストのボディには、"URL
-`http://context-provider:3000/random/weatherConditions` は、
-`id=urn:ngsi-ld:Store:001` と呼ばれるエンティティ の `relativeHumidity` と
-`temperature` データ を提供することができます" と記述します。
-
-値は**決して**、 Orion 内に保持されず、登録されたコンテキスト・プロバイダからの
-要求に応じて常にリクエストされます。Orion は、どのコンテキスト・プロバイダがコン
-テキスト・データを提供できるかについての登録情報を保持するだけです。
-
-> _注_ : Weather API に登録している場合、`provider` の中に 次の `url` を置くこと
-> で、Berlin の `temperature` と `relativeHumidity` のライブ値を取得することがで
-> きます :
->
-> -   `http://context-provider:3000/weather/weatherConditions/op/query`
-
-このリクエストは、**201 - Created** レスポンス・コードとともに返されます。レスポ
-ンスの `Location` ヘッダには、Orion で保持されている登録レコードへのパスが含まれ
-ています :
-
-#### :seven: リクエスト :
+#### :two: リクエスト:
 
 ```console
-curl -iX POST \
-  'http://localhost:1026/v2/registrations' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "description": "Relative Humidity Context Source",
-  "dataProvided": {
-    "entities": [
-      {
-        "id": "urn:ngsi-ld:Store:001",
-        "type": "Store"
-      }
-    ],
-    "attrs": [
-      "relativeHumidity"
-    ]
-  },
-  "provider": {
-    "http": {
-      "url": "http://context-provider:3000/random/weatherConditions"
+curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'Content-Type: application/json' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+--data-raw '{
+  "description": "LD Notify me of low stock in Store 002",
+  "type": "Subscription",
+  "entities": [{"type": "Shelf"}],
+  "watchedAttributes": ["numberOfItems"],
+  "q": "numberOfItems<10;locatedIn==%22urn:ngsi-ld:Building:store002%22",
+  "notification": {
+    "attributes": ["numberOfItems", "stocks", "locatedIn"],
+    "format": "normalized",
+    "endpoint": {
+      "uri": "http://tutorial:3000/subscription/low-stock-store002",
+      "accept": "application/ld+json"
     }
   }
 }'
 ```
 
-コンテキスト・プロバイダが登録されると、`/entities/<entity-id>` エンドポイントを
-使用して、**Store** エンティティのコンテキスト `urn:ngsi-ld:Store:001` がリクエ
-ストされた場合、新しいコンテキスト・データがインクルードされます :
+<a name="read-subscription-details"/>
 
-#### :eight: リクエスト :
+### サブスクリプションの詳細を取得
+
+サブスクリプションの詳細は、`/ngsi-ld/v1/subscriptions/` に GET リクエストを行うことで取得できます。すべての
+サブスクリプション CRUD アクションは、以前と同じ HTTP 動詞に引き続きマップされます。`Accept:application/json` を追加
+すると、レスポンスボディから`@context` 要素が削除されます。
+
+#### :three: リクエスト:
 
 ```console
-curl -X GET \
-  'http://localhost:1026/v2/entities/urn:ngsi-ld:Store:001?type=Store'
+curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/subscriptions/'
 ```
 
-#### レスポンス :
+#### レスポンス:
+
+レスポンスは、システム内のサブスクリプションの詳細で構成されています。内部的にブローカーは長い名前を一貫して使用する
+ため、`q` 属性内のパラメータは完全な URIs を使用するように拡張されました。2つのサブスクリプションによって提供される
+ペイロードの違いについては、以下で説明します。
 
 ```json
+[
+    {
+        "id": "urn:ngsi-ld:Subscription:5e62405ee232da3a07b5fa7f",
+        "type": "Subscription",
+        "description": "Notify me of low stock in Store 001",
+        "entities": [
+            {
+                "type": "Shelf"
+            }
+        ],
+        "watchedAttributes": [
+            "numberOfItems"
+        ],
+        "q": "https://fiware.github.io/tutorials.Step-by-Step/schema/numberOfItems<10;https://fiware.github.io/tutorials.Step-by-Step/schema/locatedIn==%22urn:ngsi-ld:Building:store001%22",
+        "notification": {
+            "attributes": [
+                "numberOfItems",
+                "stocks",
+                "locatedIn"
+            ],
+            "format": "keyValues",
+            "endpoint": {
+                "uri": "http://tutorial:3000/subscription/low-stock-store001",
+                "accept": "application/json"
+            }
+        },
+        "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
+    },
+    {
+        "id": "urn:ngsi-ld:Subscription:5e624063e232da3a07b5fa80",
+        "type": "Subscription",
+        "description": "Notify me of low stock in Store 002",
+        "entities": [
+            {
+                "type": "Shelf"
+            }
+        ],
+        "watchedAttributes": [
+            "numberOfItems"
+        ],
+        "q": "https://fiware.github.io/tutorials.Step-by-Step/schema/numberOfItems<10;https://fiware.github.io/tutorials.Step-by-Step/schema/locatedIn==%22urn:ngsi-ld:Building:store002%22",
+        "notification": {
+            "attributes": [
+                "numberOfItems",
+                "stocks",
+                "locatedIn"
+            ],
+            "format": "keyValues",
+            "endpoint": {
+                "uri": "http://tutorial:3000/subscription/low-stock-store002",
+                "accept": "application/json"
+            }
+        },
+        "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
+    }
+]
+```
+
+<a name="retrieving-subscription-events"/>
+
+### サブスクリプション・イベントの取得
+
+ブラウザで2つのタブを開きます。イベント・モニタ (`http://localhost:3000/app/monitor`) に移動して、サブスクリプションの
+起動時に受信されるペイロードを確認し、store001 (`http:/localhost:3000/app/store/urn:ngsi-ld:Building:store001`) 、
+在庫が10未満になるまでビールを購入します。在庫不足のメッセージが画面に表示されます。
+
+![low-stock](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/low-stock-warehouse.png)
+
+`low-stock-store001` は、Store001 内の棚 (shelves) の商品が少なくなると発生します。サブスクリプションのペイロードは
+以下のようになります。
+
+![low-stock-json](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/low-stock-monitor.png)
+
+ペイロード内のデータは、リクエストで指定された属性のキーと値のペアで構成されています。これは、サブスクリプションが
+`format=keyValues` 属性を使用して作成されたためです。`endpoint.accept=application/json` が設定されているため、
+`@context` はペイロードのボディに存在しません。その結果、`data` 配列は `v2/subscription/` ペイロードと非常によく似た
+形式で返されます。`data` 配列に加えて、`subscriptionId` は、通知がいつ起動されたかを説明する `notifiedAt` 要素とともに
+レスポンスに含まれます。
+
+次に store002 (`http:/localhost:3000/app/store/urn:ngsi-ld:Building:store002`) に移動して、在庫が10未満になるまでビール
+を購入します。在庫不足のメッセージが再び画面に表示され、イベント・モニタ内でペイロードを確認できます。
+
+![low-stock-ld](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/low-stock-monitor-ld.png)
+
+2番目のサブスクリプションは、`@context` とともに正規化された完全な NGSI-LD ペイロードを渡すように設定されています。
+これは、サブスクリプション自体の中で `format=normalized` 属性を使用することと、`endpoint.accept=application/ld +json`
+を設定することで実現され、各エンティティとともに `@context` も渡されます。
+
+<a name="using-registrations-with-ngsi-ld"/>
+
+## NGSI-LD でのレジストレーションの使用
+
+コンテキスト・レジストレーションを使用すると、エンティティ内の一部 (またはすべて) のデータを外部コンテキスト・プロバイダ
+から提供できます。これは、NGSI-LD エンドポイントのサブセットにのみレスポンスする別のマイクロサービスである別の完全な
+コンテキスト・プロバイダである可能性があります。ただし、だれが何を提供するかについて作成されたコントラクトが必要です。
+
+すべてのレジストレーションは、2つのタイプのいずれかに細分することができます。単一のコンテキスト・プロバイダが
+エンティティ全体のメンテナンスを担当する単純なレジストレーションと、属性が複数のコンテキスト・プロバイダに分散している
+部分的なレジストレーションです。単純なレジストレーションの場合、すべてのコンテキスト・リクエストが転送されます。
+
+| リクエスト | **Context Broker** でのアクション                                                       | **コンテキスト・プロバイダ**でのアクション                                                                   |
+| ---------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **GET**    | リクエストを**コンテキスト・プロバイダ**に渡し、レスポンスを変更せずにプロキシします    | 内部で保持されているエンティティに基づく GET リクエストの結果で Context Broker にレスポンスします            |
+| **PATCH**  | リクエストを**コンテキスト・プロバイダ**に渡し、HTTP ステータス・コードをプロキシします | **コンテキスト・プロバイダ**内のエンティティを更新し、ステータス・コードで Context Broker にレスポンスします |
+| **DELETE** | **コンテキスト・プロバイダ**にリクエストを渡します                                      | **コンテキスト・プロバイダ**内のエンティティを削除し、ステータス・コードで Context Broker にレスポンスします |
+
+事実上、すべての単純なレジストレーションは _"このエンティティは別の場所に保持されています"_ と言っていますが、
+エンティティ・データは、この Context Broker へのリクエストを介してリクエストおよび変更できます。すべての
+Context Brokers は単純なレジストレーションをサポートする必要があります。実際、"エンティティの排他性"
+の概念がない、つまり、個々の broker にエンティティがバインドされていない大規模システムで動作する Context
+Brokers のフェデレーション・アレイの操作には、このような単純なレジストレーションが必要です。
+
+部分レジストレーションの場合、状況はより複雑になります。
+
+| リクエスト | **Context Broker** でのアクション                                                                                                                                                                                                                                         | **コンテキスト・プロバイダ**でのアクション                                                                                                           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GET**    | エンティティがローカルに存在すると仮定して、追加のプロキシされた属性のリクエストを**コンテキスト・プロバイダ**に渡し、ローカルに保持されている属性と**コンテキスト・プロバイダ**からの追加情報のレスポンスを連結します                                                    | 内部で保持されているエンティティに基づく GET リクエストの結果で Context Broker にレスポンスします                                                   |
+| **PATCH**  | ローカルに保持されている属性を更新し、追加の属性の更新リクエストを**コンテキスト・プロバイダ**に渡し、全体的な結果に応じて**成功**または**部分的に成功**の HTTP ステータス・コードを返します                                                                              | **コンテキスト・プロバイダ**内に保持されているエンティティのリクエストされた属性を更新します。ステータス・コードで Context Broker にレスポンスします |
+| **DELETE** | エンティティを削除する場合は、ローカル・インスタンス全体を削除してください。ローカルに保持されている属性を削除する場合は、それらを削除してください。**コンテキスト・プロバイダ**に保持されている属性を削除する場合は、**コンテキスト・プロバイダ**にリクエストを渡します | **コンテキスト・プロバイダ**内のエンティティ属性を削除し、ステータス・コードで Context Broker にレスポンスします                                     |
+
+各部分レジストレーションは、_"このエンティティの追加の拡張コンテキストは別の場所に保持されている"_ と述べています。
+エンティティ・データは、この Context Broker へのリクエストを介してリクエストおよび変更できます。この場合、
+エンティティ・データは個々の Context Broker に効果的にバインドされるため、大規模なフェデレーション環境で実行する
+場合は特別な処理が必要になる場合があります。ここで、フェデレーションのユースケースの特別なニーズをカバーすることは、
+このチュートリアルの目的ではありません。
+
+Context Broker 内では、単一のエンティティが単純なレジストレーションと部分的なレジストレーションの両方に同時に
+参加できないことに注意してください。これは、エンティティ全体とそのエンティティの一部のみの両方がリモートで
+取得されることを意味し、これは無意味です。このような状況が要求された場合、Context Broker は
+409 - Conflict HTTP response を返します。
+
+また、エンティティが Context Broker 内にすでに存在する場合、エンティティの単純なレジストレーションは拒否され、
+エンティティ属性の部分レジストレーションは、Context Broker 内に存在する、またはすでに部分レジストレーションの
+対象となっている場合、拒否されます。後者は、datasetId を使用することで発生する可能性があります。
+
+内部的に X-Forwarded-For ヘッダは、Context Broker A がエンティティを Context Broker B にレジストレーションし、
+Context Broker B がエンティティを Context Broker C にレジストレーションし、Context Broker C がエンティティを
+Context Broker A にレジストレーションする循環依存関係を回避するために使用されます。ただし、X-Forwarded-For
+ヘッダは、クライアントにレスポンスする前に削除されます。
+
+通常の操作では、NGSI-LD レスポンスは、複数のソースから照合されたデータが Context Broker 内に直接保持されているかどうか、
+または情報が外部から取得されたかどうかを公開しません。エラーが発生した場合 (タイムアウトなど) にのみ、HTTP ステータス・
+エラーコードにより、外部で保持されている情報を取得または修正できなかったことがわかります。
+
+<a name="create-a-registration"/>
+
+### レジストレーションを作成
+
+すべての NGSI-LD コンテキスト・プロバイダのレジストレーション・アクションは、`/ngsi-ld/v1/csourceRegistrations/`
+エンドポイントで実行されます。標準の CRUD マッピングが適用されます。`@context` は、`Link` ヘッダとして、または
+リクエストのボディ内で渡す必要があります。
+
+リクエストのボディは、次の変更を加えた同等の NGSI-v2 に似ています:
+
+-   NGSI-v2 `dataProvided` オブジェクトは、`information` という配列になりました
+-   NGSI-v2 属性は、`properties` と `relationships` の個別の配列に分割されました
+-   NGSI-v2 `provider.url`が `endpoint` に移動しました
+
+#### :four: リクエスト:
+
+```console
+curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+-H 'Content-Type: application/json' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+--data-raw ' {
+    "type": "ContextSourceRegistration",
+    "information": [
+        {
+            "entities": [
+                {
+                    "type": "Building",
+                    "id": "urn:ngsi-ld:Building:store001"
+                }
+            ],
+            "properties": [
+                "tweets"
+            ]
+        }
+    ],
+    "endpoint": "http://tutorial:3000/static/tweets"
+}'
+```
+
+> **注** `properties` は 1.1.1 NGSI-LD コア・コンテキストで定義されています。1.3.1 では、2つの別個の属性
+> (`propertyNames` と `relationshipNames`) に置き換えられる予定です。この変更は、GeoJSON-LD を完全に
+> サポートするために行われました。Context Broker は、更新されたコア・コンテキストをサポートする場合と
+> サポートしない場合があります。
+
+<a name="read-registration-details"/>
+
+### レジストレーションの詳細を取得
+
+レジストレーションの詳細を取得するには、GETリクエストを `/ngsi-ld/v1/csourceRegistrations/` エンドポイントに送信し、
+`Link` ヘッダの適切な JSON-LD コンテキストとフィルタリングするエンティティの `type` を指定します。
+
+#### :five: リクエスト:
+
+```console
+curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+-H 'Accept: application/ld+json' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
+-d 'type=Building'
+```
+
+#### レスポンス:
+
+レスポンスはレジストレーションの詳細を返します。この場合、`properties` の短い名前が `@context`
+とともに返されています。
+
+```jsonld
+[
+    {
+        "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
+        "id": "urn:ngsi-ld:ContextSourceRegistration:5e6242179c26be5aef9991d4",
+        "type": "ContextSourceRegistration",
+        "endpoint": "http://tutorial:3000/static/tweets",
+        "information": [
+            {
+                "entities": [
+                    {
+                        "id": "urn:ngsi-ld:Building:store001",
+                        "type": "Building"
+                    }
+                ],
+                "properties": [
+                    "tweets"
+                ]
+            }
+        ]
+    }
+]
+```
+
+<a name="read-from-store-1"/>
+
+### Store 1 から取得
+
+レジストレーションが設定されると、要求されたエンティティがリクエストされると、追加のレジストレーション済みプロパティと
+リレーションシップが透過的に返されます。 単純なレジストレーションの場合、エンティティ全体を取得するリクエストは
+レジストレーションされたエンドポイントにプロキシされます。部分的なレジストレーションの場合、プロパティと
+レジストレーションは Context Broker 内に保持されている既存のエンティティに追加されます。
+
+#### :six: リクエスト:
+
+```console
+curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Content-Type: application/json'
+```
+
+> 執筆時点では、フェデレーションされた、Scorpio Broker の場合、このリクエストはローカル・エンティティのみの取得を
+> 示していることに注意してください。レジストレーションから転送されたデータは、代わりに次の方法で取得する必要があります:
+> `/ngsi-ld/v1/entities/?id=urn:ngsi-ld:Building:store001`
+
+#### レスポンス:
+
+レスポンスには、追加の `tweets` プロパティが含まれるようになりました。このプロパティは、
+`http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001`
+から取得した値を返します。例えば、フォワーディング・エンドポイント
+
+```jsonld
 {
-    "id": "urn:ngsi-ld:Store:001",
-    "type": "Store",
+    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
+    "id": "urn:ngsi-ld:Building:store001",
+    "type": "Building",
+    "furniture": {
+        "type": "Relationship",
+        "object": [
+            "urn:ngsi-ld:Shelf:unit001",
+            "urn:ngsi-ld:Shelf:unit002",
+            "urn:ngsi-ld:Shelf:unit003"
+        ]
+    },
     "address": {
-        "type": "PostalAddress",
+        "type": "Property",
         "value": {
             "streetAddress": "Bornholmer Straße 65",
             "addressRegion": "Berlin",
             "addressLocality": "Prenzlauer Berg",
             "postalCode": "10439"
         },
-        "metadata": {}
-    },
-    "location": {
-        "type": "geo:json",
-        "value": {
-            "type": "Point",
-            "coordinates": [13.3986, 52.5547]
-        },
-        "metadata": {}
+        "verified": {
+            "type": "Property",
+            "value": true
+        }
     },
     "name": {
-        "type": "Text",
-        "value": "Bösebrücke Einkauf",
-        "metadata": {}
+        "type": "Property",
+        "value": "Bösebrücke Einkauf"
     },
-    "temperature": {
-        "type": "Number",
-        "value": "22.6",
-        "metadata": {}
+    "category": {
+        "type": "Property",
+        "value": "commercial"
     },
-    "relativeHumidity": {
-        "type": "Number",
-        "value": "58",
-        "metadata": {}
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [
+                13.3986,
+                52.5547
+            ]
+        }
+    },
+    "tweets": {
+        "type": "Property",
+        "value": [
+            "It has great practical value – you can wrap it around you for warmth as you bound across the cold moons of Jaglan Beta;",
+            "You can lie on it on the brilliant marble-sanded beaches of Santraginus V, inhaling the heady sea vapours;",
+            "You can sleep under it beneath the stars which shine so redly on the desert world of Kakrafoon;",
+            "Use it to sail a mini raft down the slow heavy river Moth;",
+            "Wet it for use in hand-to-hand-combat;",
+            "Wrap it round your head to ward off noxious fumes or to avoid the gaze of the Ravenous Bugblatter Beast of Traal  (a mindboggingly stupid animal, it assumes that if you can’t see it, it can’t see you – daft as a bush, but very, very ravenous);",
+            "You can wave your towel in emergencies as a distress signal, and of course dry yourself off with it if it still seems to be clean enough."
+        ]
     }
 }
 ```
 
-同様に、単一の属性は、 `/entities/<entity-id>/attrs/<attribute>` にリクエストす
-ることで取得できます。
+同じレスポンスデータは、スーパーマーケット・アプリケーション自体で確認できます。実際には、このデータは一連のリクエスト
+を介して作成されています。 Context Broker は `urn:ngsi-ld:Building:store001`  データを担当しますが、他のソースから提供
+できる情報があるかどうかを確認します。私たちの場合、`CSourceRegistration` は、もう1つの属性が使用できることを示して
+います。次にブローカーはコンテキスト・プロバイダに `tweets` 情報をリクエストし、タイムリーにレスポンスする場合、
+ `tweets` 情報が結果のペイロードに追加されます。
 
-#### :nine: リクエスト :
+スーパーマーケット・アプリケーションは、スーパーマーケット・アプリケーション自体の画面に受信データを表示します :
 
-```console
-curl -X GET \
-  'http://localhost:1026/v2/entities/urn:ngsi-ld:Store:001/attrs/relativeHumidity/value'
-```
+![tweets-1](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/tweets-1.png)
 
-#### レスポンス :
+### コンテキスト・プロバイダから直接取得
 
-```
-"58"
-```
+すべてのコンテキスト・プロバイダは、固定されたコントラクトに従う必要があります。少なくとも、
+`/ngsi-ld/v1/entities/<entity-id>` GET リクエストのさまざまな種類にレスポンスできる必要があります。レジストレーションが
+特定のプロパティに制限されている場合、このリクエストにはクエリ文字列に `attrs` パラメータも含まれます。
 
-<A name="read-a-registered-content-provider"></A>
+コンテキスト・プロバイダのユースケースに応じて、JSON-LD `@context` を解釈できる必要がある場合とそうでない場合が
+あります。この場合、リクエストは完全な `tweets` 属性を返すだけです。
 
-### 登録されたコンテキスト・プロバイダの読み込み
+レジストレーションされた属性を照会するときに、同じリクエストが Context Broker 自体によって行われます。
 
-この例では、id が 5addeffd93e53f86d8264521 の登録データをコンテキストから読み込
-みます。
-
-登録データは、`/v2/registrations/<entity>` エンドポイントに GET リクエストを行う
-ことで取得できます。
-
-#### :one::zero: リクエスト :
+#### :seven: リクエスト:
 
 ```console
-curl -X GET \
-  'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
+curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Content-Type: application/ld+json'
 ```
 
-<A name="list-all-registered-content-providers"></A>
+#### レスポンス:
 
-### 登録されているすべてのコンテキスト・プロバイダの一覧
+ご覧のように、`@context` はリクエストで返されています (`Content-Type` ヘッダが設定されているため) 。
+残りのレスポンスは、標準の NGSI-LD リクエストに似ています。
 
-この例では、登録されているすべてのコンテキスト・プロバイダをリストします。
-
-指定されたエンティティ・タイプの完全なコンテキスト・データは
-、`/v2/registrations/` エンドポイントに GET リクエストを行うことで取得できます。
-
-#### :one::one: リクエスト :
-
-```console
-curl -X GET \
-  'http://localhost:1026/v2/registrations'
-```
-
-#### レスポンス :
-
-```json
-[
-    {
-        "id": "5addeffd93e53f86d8264521",
-        "description": "Random Weather Conditions",
-        "dataProvided": {
-            "entities": [
-                {
-                    "id": "urn:ngsi-ld:Store:002",
-                    "type": "Store"
-                }
-            ],
-            "attrs": ["temperature", "relativeHumidity"]
-        },
-        "provider": {
-            "http": {
-                "url": "http://context-provider:3000/random/weatherConditions"
-            },
-            "supportedForwardingMode": "all"
-        },
-        "status": "active"
+```jsonld
+{
+    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
+    "id": "urn:ngsi-ld:Building:store001",
+    "type": "Building",
+    "tweets": {
+        "type": "Property",
+        "value": [
+            "It has great practical value – you can wrap it around you for warmth as you bound across the cold moons of Jaglan Beta;",
+            "You can lie on it on the brilliant marble-sanded beaches of Santraginus V, inhaling the heady sea vapours;",
+            "You can sleep under it beneath the stars which shine so redly on the desert world of Kakrafoon;",
+            "Use it to sail a mini raft down the slow heavy river Moth;",
+            "Wet it for use in hand-to-hand-combat;",
+            "Wrap it round your head to ward off noxious fumes or to avoid the gaze of the Ravenous Bugblatter Beast of Traal  (a mindboggingly stupid animal, it assumes that if you can’t see it, it can’t see you – daft as a bush, but very, very ravenous);",
+            "You can wave your towel in emergencies as a distress signal, and of course dry yourself off with it if it still seems to be clean enough."
+        ]
     }
-]
+}
 ```
 
-<A name="remove-a-registered-content-provider"></A>
+### コンテキスト・プロバイダの直接更新
 
-### 登録済みのコンテキスト・プロバイダの削除
+読み取り/書き込みインターフェースの場合、関連する `ngsi-ld/v1/entities/<entity-id>/attrs` エンドポイントに PATCH
+リクエストを行うことで、コンテキスト・データを修正することもできます。
 
-登録は、`/v2/registrations/<entity>`エンドポイントに DELETE リクエストを行うこと
-によって削除できます。
+#### :eight: リクエスト:
 
 ```console
-curl -iX DELETE \
-  'http://localhost:1026/v2/registrations/5ad5b9435c28633f0ae90671'
+curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Content-Type: application/json' \
+--data-raw '{
+  "tweets": {
+    "type": "Property",
+    "value": [
+      "Space is big.",
+      "You just won'\''t believe how vastly, hugely, mind-bogglingly big it is.",
+      "I mean, you may think it'\''s a long way down the road to the chemist'\''s, but that'\''s just peanuts to space."
+    ]
+  }
+}'
 ```
 
-<a name="next-steps"></a>
+#### :nine: リクエスト:
 
-# 次のステップ
+レジストレーションされた属性が Context Broker からリクエストされた場合、
+`http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001`
+から取得した更新された値を返します。例えば、フォワーディング・エンドポイント
 
-高度な機能を追加することで、アプリケーションに複雑さを加える方法を知りたいですか
-？このシリーズ
-の[他のチュートリアル](https://www.letsfiware.jp/fiware-tutorials)を読むことで見
-つけることができます :
+```console
+curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets&options=keyValues' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+```
+
+#### レスポンス:
+
+これにより、前の PATCH リクエストで更新された値と一致するようにレスポンスが変更されます。
+
+```jsonld
+{
+    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
+    "id": "urn:ngsi-ld:Building:store001",
+    "type": "Building",
+    "tweets": [
+        "Space is big.",
+        "You just won't believe how vastly, hugely, mind-bogglingly big it is.",
+        "I mean, you may think it's a long way down the road to the chemist's, but that's just peanuts to space."
+    ]
+}
+```
+
+コンテキスト・プロバイダは `tweets`  情報の提供を担当するため、コンテキスト・プロバイダの変更は常に Context Broker
+自体へのリクエストに反映されます。スーパーマーケット・アプリケーションはコンテキストに関係なく Context Broker を
+呼び出しているため、更新された `tweets` データはスーパーマーケット・アプリケーション自体の画面に表示されます。
+
+![tweets-2](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/tweets-2.png)
+
+したがって、 Context Broker は、世界の現在の状態の完全な全体像を返すことができます。
+
+<a name="forwarded-update"/>
+
+### フォワード更新 (Forwarded-update)
+
+#### :one::zero: リクエスト:
+
+Context Broker への PATCH リクエスト (`ngsi-ld/v1/entities/<entity-id>/` または
+`ngsi-ld/v1/entities/<entity-id>/attrs`) は、レジストレーションが見つかった場合、レジストレーションされたコンテキスト
+・プロバイダに転送されます。したがって、副作用としてコンテキスト・プロバイダの状態を変更することが可能です。もちろん、
+すべてのコンテキスト・プロバイダが必ずしも読み書き可能であるとは限らないため、転送されたコンテキストの属性を変更
+しようとしても、完全に尊重されるとは限りません。
+
+ただし、この場合、PATCH `ngsi-ld/v1/entities/<entity-id>` へのリクエストは、レジストレーションで見つかった
+レジストレーションされた各属性に対する、一連の `ngsi-ld/v1/entities/<entity-id>/attrs` リクエストとして正常に転送
+されます。
+
+```console
+curl -L -X PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs/tweets' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Content-Type: application/json' \
+--data-raw '{
+  "type": "Property",
+  "value": [
+    "This must be Thursday",
+    "I never could get the hang of Thursdays."
+  ]
+} '
+```
+
+#### :one::one: リクエスト:
+
+前の操作の結果は、GET リクエストを使用してエンティティ全体を取得することで確認できます。
+
+```console
+curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets&options=keyValues' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Content-Type: application/json'
+```
+
+#### レスポンス:
+
+これにより、Context Broker に送信されてからコンテキスト・プロバイダのエンドポイントにフォワーディングされた前の
+PATCH リクエストで更新された値と一致するようにレスポンスが変更されます。
+
+```jsonld
+{
+    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
+    "id": "urn:ngsi-ld:Building:store001",
+    "type": "Building",
+    "tweets": [
+        "This must be Thursday",
+        "I never could get the hang of Thursdays."
+    ]
+}
+```
+
+ご覧のように、更新された `tweets` データもスーパーマーケット・アプリケーション自体に表示されます :
+
+![tweets-3](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/tweets-3.png)
 
 ---
 
 ## License
 
-[MIT](LICENSE) © 2018-2023 FIWARE Foundation e.V.
+[MIT](LICENSE) © 2020-2023 FIWARE Foundation e.V.
