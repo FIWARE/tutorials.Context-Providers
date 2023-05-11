@@ -39,22 +39,20 @@ services:
     image: mongo:${MONGO_DB_VERSION}
     hostname: mongo-db
     container_name: db-mongo
-    expose:
-      - "${MONGO_DB_PORT}"
     ports:
       - "${MONGO_DB_PORT}:${MONGO_DB_PORT}" # localhost:27017
     networks:
       - default
     command: --nojournal
     volumes:
-      - mongo-db:/data
+      - mongo-db1:/data
     healthcheck:
       test: |
         host=`hostname --ip-address || echo '127.0.0.1'`; 
         mongo --quiet $host/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' && echo 0 || echo 1
       interval: 5s
 
-  mongo-v2:
+  mongo-for-orion-v2:
     labels:
       org.fiware: 'tutorial'
     image: mongo:${MONGO_DB_VERSION}
@@ -67,26 +65,22 @@ services:
     networks:
       - default
 
-  orion-v2:
+
+  mongo-for-orion-ld:
     labels:
       org.fiware: 'tutorial'
-    image: quay.io/fiware/orion:${ORION_VERSION}
-    hostname: orion2
-    container_name: fiware-orion-v2
-    depends_on:
-      - mongo-v2
+    image: mongo:${MONGO_DB_VERSION}
+    hostname: mongo-db3
+    container_name: db-mongo-3
+    volumes:
+      - mongo-db3:/data
+    ports:
+      - 27019:27017 # localhost:27017
     networks:
       - default
-    expose:
-      - "${ORION_PORT}"
-    ports:
-      - "${ORION_PORT}:1026" # localhost:1026
-    command: -dbhost mongo-v2 -logLevel DEBUG
-    healthcheck:
-      test: curl --fail -s http://orion2:1026/version || exit 1
-      interval: 5s
-    
 
+
+  
   # Tutorial acts as a series of dummy IoT Sensors over HTTP
   tutorial:
     labels:
@@ -153,7 +147,7 @@ services:
     healthcheck:
       interval: 5s
 
-  facade:
+  facade-for-orion-v2:
     labels:
       org.fiware: 'tutorial'
     image: quay.io/fiware/facade
@@ -161,6 +155,7 @@ services:
       context: ../proxy
       dockerfile: Dockerfile
     hostname: facade
+    container_name: facade-for-v2
     networks:
       - default
     expose:
@@ -172,14 +167,49 @@ services:
       - PROXY=http://orion2:1026/v2
       - CONTEXT_URL=https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld
 
+  orion-v2:
+    labels:
+      org.fiware: 'tutorial'
+    image: quay.io/fiware/orion:${ORION_VERSION}
+    hostname: orion2
+    container_name: fiware-orion-v2
+    depends_on:
+      - mongo-for-orion-v2
+    networks:
+      - default
+    expose:
+      - "${ORION_PORT}"
+    ports:
+      - "${ORION_PORT}:1026" # localhost:1026
+    command: -dbhost mongo-db2 -logLevel DEBUG
+    healthcheck:
+      test: curl --fail -s http://orion2:1026/version || exit 1
+      interval: 5s
+
+  orion-ld:
+    labels:
+      org.fiware: 'tutorial'
+    image: quay.io/fiware/orion-ld:${ORION_LD_VERSION}
+    hostname: context-broker
+    container_name: fiware-orion-ld2
+    depends_on:
+      - mongo-for-orion-ld
+    networks:
+      - default
+    ports:
+      - "1028:1026" # localhost:1026
+    command: -dbhost mongo-db -logLevel DEBUG
+
+
 networks:
   default:
     labels:
       org.fiware: 'tutorial'
 
 volumes:
-  mongo-db: ~
+  mongo-db1: ~
   mongo-db2: ~
+  mongo-db3: ~
   mongo-config: ~
   data-models:
     driver: local
