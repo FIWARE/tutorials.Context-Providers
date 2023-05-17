@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-    steps:
     - uses: actions/checkout@master
       with:
         persist-credentials: false 
