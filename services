@@ -9,6 +9,7 @@ set -e
 
 SCORPIO="http://scorpio:9090/"
 ORION="http://orion:1026/version"
+ORION2="http://orion2:1026/version"
 STELLIO="http://localhost:8080/actuator/health"
 CONTEXT="http://context/ngsi-context.jsonld"
 CORE_CONTEXT="https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
@@ -38,7 +39,7 @@ pause(){
 }
 
 getHeartbeat(){
-	eval "response=$(docker run --network fiware_default --rm curlimages/curl -s -o /dev/null -w "%{http_code}" "$1")"
+	eval "response=$(docker run --network fiware_default --rm quay.io/curl/curl -s -o /dev/null -w "%{http_code}" "$1")"
 }
 
 waitForOrionLD () {
@@ -57,7 +58,7 @@ waitForOrionV2 () {
 
 	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-orion-v2` == "healthy" ]
 	do
-	  echo -e "Context Broker HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:1027/version'` " (waiting for 200)"
+	  echo -e "Context Broker HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:1026/version'` " (waiting for 200)"
 	  sleep 1
 	done
 }
@@ -76,14 +77,14 @@ waitForScorpio () {
 waitForStellio () {
 	echo -e "\n⏳ Waiting for \033[1;34mStellio\033[0m to respond\n"
 	waitSeconds=30
-	while [ `docker run --network fiware_default --rm curlimages/curl -s -o /dev/null -w %{http_code} 'http://stellio:8080/ngsi-ld/v1/entities/?type=X'` -eq 000 ]
+	while [ `docker run --network fiware_default --rm quay.io/curl/curl -s -o /dev/null -w %{http_code} 'http://stellio:8080/ngsi-ld/v1/entities/?type=X'` -eq 000 ]
 	do 
 	  echo -e "Context Broker HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:8080/ngsi-ld/v1/entities/?type=X'` " (waiting for 500)"
 	  echo -e "Waiting for ${waitSeconds} seconds ..."
 	  sleep ${waitSeconds}
 	done
 	echo -e "\n⏳ Waiting for all \033[1;34mStellio\033[0m services to be available\n"
-	while [ `docker run --network fiware_default --rm curlimages/curl -s -o /dev/null -w %{http_code} 'http://stellio:8080/ngsi-ld/v1/entities/?type=X'` -eq 500 ]
+	while [ `docker run --network fiware_default --rm quay.io/curl/curl -s -o /dev/null -w %{http_code} 'http://stellio:8080/ngsi-ld/v1/entities/?type=X'` -eq 500 ]
 	do 
 	  echo -e "Context Broker HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:8080/ngsi-ld/v1/entities/?type=X'` " (waiting for 200)"
 	  echo -e "Waiting for ${waitSeconds} seconds ..."
@@ -104,12 +105,12 @@ waitForUserContext () {
 
 waitForCoreContext () {
 	echo -e "\n⏳ Checking availability of \033[1m core @context\033[0m from ETSI\n"
-	eval "response=$(docker run --rm curlimages/curl -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
+	eval "response=$(docker run --rm quay.io/curl/curl -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
 	while [ "${response}" -eq 000 ]
 	do
 		echo -e "\n@context HTTP state: ${response} (waiting for 200)"
 		pause 3
-		eval "response=$(docker run --rm curlimages/curl -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
+		eval "response=$(docker run --rm quay.io/curl/curl -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
 	done
 }
 
@@ -123,16 +124,22 @@ waitForMongo () {
 
 loadData () {
 	echo ""
-	docker run --rm -v $(pwd)/import-orion-v2:/import-orion-v2 \
+	docker run --rm -v $(pwd)/import-ngsi-v2:/import-ngsi-v2 \
 		--network fiware_default \
-		--entrypoint /bin/ash curlimages/curl import-orion-v2
+		--entrypoint /bin/ash quay.io/curl/curl /import-ngsi-v2
 	echo ""
 	waitForUserContext
 	docker run --rm -v $(pwd)/import-data:/import-data \
 		--network fiware_default \
 		-e CONTEXT_BROKER=${CONTEXT_BROKER} \
 		-e TUTORIAL_DATA_MODELS_CONTEXT=${CONTEXT} \
-		--entrypoint /bin/ash curlimages/curl import-data
+		--entrypoint /bin/ash quay.io/curl/curl /import-data
+
+	docker run --rm -v $(pwd)/import-ngsi-ld:/import-ngsi-ld \
+		--network fiware_default \
+		-e CONTEXT_BROKER=${ORION2} \
+		-e TUTORIAL_DATA_MODELS_CONTEXT=${CONTEXT} \
+		--entrypoint /bin/ash quay.io/curl/curl /import-ngsi-ld
 }
 
 addDatabaseIndex () {
