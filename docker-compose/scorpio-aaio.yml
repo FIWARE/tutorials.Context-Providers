@@ -16,7 +16,8 @@
 # 
 # see: https://github.com/FIWARE/helm-charts/
 #
-version: "3.8"
+version: "3.9"
+
 services:
   zookeeper:
     labels:
@@ -72,7 +73,7 @@ services:
   scorpio:
     labels:
       org.fiware: 'tutorial'
-    image: scorpiobroker/scorpio:scorpio-aaio-no-eureka_${SCORPIO_VERSION}
+    image: scorpiobroker/all-in-one-runner:spring-kafka-${SCORPIO_VERSION}
     hostname: scorpio
     container_name: fiware-scorpio
     networks:
@@ -83,6 +84,13 @@ services:
       - postgres
       - kafka
 
+  # IoT-Agent connects to the Scorpio Broker
+  iot-agent:
+    environment:
+      - IOTA_DEFAULT_RESOURCE=/iot/d
+      - IOTA_CB_HOST=scorpio # name of the context broker to update context
+      - IOTA_CB_PORT=${SCORPIO_PORT} # port the context broker listens on to update context
+
   # Tutorial acts as a series of dummy IoT Sensors over HTTP and connects to the Scorpio Broker
   tutorial:
     environment:
@@ -91,8 +99,3 @@ services:
       - DUMMY_DEVICES_TRANSPORT=HTTP # Default transport used by dummy Io devices
       - DUMMY_DEVICES_PAYLOAD=ULTRALIGHT
       - CONTEXT_BROKER=http://scorpio:${SCORPIO_PORT}/ngsi-ld/v1 # URL of the context broker to update context
-
-networks:
-  default:
-    labels:
-      org.fiware: 'tutorial'
