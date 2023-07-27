@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const proxy = require('../lib/proxy');
+const entities = require('../controllers/entities');
+const subscriptions = require('../controllers/subscriptions');
+const notify = require('../controllers/notify');
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-    //res.send('respond with a resource');
-    proxy.response(req, res, next);
-});
+router.get('/entities', entities.response);
+router.get('/entities/:id', entities.response);
+router.get('/entities/:id/attrs', entities.response);
+router.get('/entities/:id/attrs/:attr', entities.response);
 
-router.get('/entities', proxy.response);
-router.get('/entities/:id', proxy.response);
-router.get('/entities/:id/attrs', proxy.response);
-router.get('/entities/:id/attrs/:attr', proxy.response);
+router.get('/subscriptions', subscriptions.list);
+router.get('/subscriptions/:id', subscriptions.read);
+router.delete('/subscriptions/:id', subscriptions.delete);
+router.patch('/subscriptions/:id', subscriptions.update);
+
+router.post('/notify', notify.notify);
 
 module.exports = router;

@@ -7,7 +7,7 @@
 
 //const config_service = require('./config_service');
 //const config = config_service.get_config();
-const debug = require('debug')('proxy:access');
+const debug = require('debug')('proxy:convert');
 const got = require('got');
 const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;
@@ -15,13 +15,15 @@ const _ = require('lodash');
 const moment = require('moment-timezone');
 const path = require('node:path');
 
-const PROXY_URL = process.env.PROXY || 'http://localhost:1026/v2';
+
 const NGSI_LD_URN = 'urn:ngsi-ld:';
-const JSON_LD_CONTEXT =
-    process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
 const TIMESTAMP_ATTRIBUTE = 'TimeInstant';
 const DATETIME_DEFAULT = '1970-01-01T00:00:00.000Z';
 const ATTRIBUTE_DEFAULT = null;
+
+const JSON_LD_CONTEXT =
+    process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
+
 
 //(config.app.ssl ? 'https://' : 'http://') + config.app.host + ':' + config.app.port;
 const template = require('handlebars').compile(
@@ -79,7 +81,7 @@ function getClientIp(req) {
  *                                   format
  */
 
-function convertAttrNGSILD(attr, transformFlags) {
+function convertAttrNGSILD(attr, transformFlags = {}) {
     // eslint eqeqeq - deliberate double equals to include undefined.
     if (attr.value == null || Number.isNaN(attr.value)) {
         return undefined;
@@ -234,146 +236,49 @@ function internalError(res, e, component) {
     );
 }
 
+
+
 /**
- * "Access Permitted" forwarding. Forward the proxied request and
- * return the response.
+ * Amends an NGSIv2 payload to NGSI-LD format
  *
- * @param req - the incoming request
- * @param res - the response to return
+ * @param      {Object}   value       JSON to be converted
+ * @return     {Object}               NGSI-LD payload
  */
-async function proxyResponse(req, res) {
-    const headers = req.headers;
-    const contentType = req.get('Accept');
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
-    const queryOptions = req.query.options ? req.query.options.split(',') : null;
-    const queryAttrs = req.query.attrs ? req.query.attrs.split(',') : null;
-    const queryType = req.query.type ? req.query.type.split(',') : [];
 
-    const transformFlags = {};
-    transformFlags.sysAttrs = !!(queryOptions && queryOptions.includes('sysAttrs'));
-    transformFlags.concise = !!(queryOptions && queryOptions.includes('concise'));
-    transformFlags.keyValues = !!(queryOptions && queryOptions.includes('keyValues'));
-    transformFlags.attrsOnly = req.path.split(path.sep).includes('attrs');
-    let v2queryOptions = null;
-    let ldPayload = null;
-    if (req.query.options) {
-        v2queryOptions = _.without(queryOptions, 'concise', 'sysAttrs');
+function formatAsNGSILD(json, bodyIsJSONLD, transformFlags = {}) {
+    const obj = {};
+    if (bodyIsJSONLD) {
+        obj['@context'] = JSON_LD_CONTEXT;
     }
 
-    /**
-     * Amends an NGSIv2 payload to NGSI-LD format
-     *
-     * @param      {Object}   value       JSON to be converted
-     * @return     {Object}               NGSI-LD payload
-     */
-
-    function formatAsNGSILD(json) {
-        const obj = {};
-        if (bodyIsJSONLD) {
-            obj['@context'] = JSON_LD_CONTEXT;
+    let id;
+    Object.keys(json).forEach(function (key) {
+        switch (key) {
+            case 'id':
+                id = json[key];
+                obj[key] = id;
+                if (!id.startsWith(NGSI_LD_URN)) {
+                    obj[key] = NGSI_LD_URN + json.type + ':' + id;
+                    debug('Amending id to a valid URN: %s', obj[key]);
+                }
+                break;
+            case 'type':
+                obj[key] = json[key];
+                break;
+            case TIMESTAMP_ATTRIBUTE:
+                // Timestamp should not be added as a root
+                // element for NSGI-LD.
+                break;
+            default:
+                obj[key] = convertAttrNGSILD(json[key], transformFlags);
         }
+    });
 
-        let id;
-        Object.keys(json).forEach(function (key) {
-            switch (key) {
-                case 'id':
-                    id = json[key];
-                    obj[key] = id;
-                    if (!id.startsWith(NGSI_LD_URN)) {
-                        obj[key] = NGSI_LD_URN + json.type + ':' + id;
-                        debug('Amending id to a valid URN: %s', obj[key]);
-                    }
-                    break;
-                case 'type':
-                    obj[key] = json[key];
-                    break;
-                case TIMESTAMP_ATTRIBUTE:
-                    // Timestamp should not be added as a root
-                    // element for NSGI-LD.
-                    break;
-                default:
-                    obj[key] = convertAttrNGSILD(json[key], transformFlags);
-            }
-        });
-
-        delete obj.TimeInstant;
-        return obj;
-    }
-
-    headers['x-forwarded-for'] = getClientIp(req);
-    headers.accept = 'application/json';
-
-    const options = {
-        method: req.method,
-        headers,
-        throwHttpErrors: false,
-        retry: 0
-    };
-
-    if (req.query) {
-        options.searchParams = req.query;
-        delete options.searchParams.options;
-
-        if (queryType.length > 1) {
-            delete options.searchParams.type;
-        }
-        if (v2queryOptions && v2queryOptions.length > 0) {
-            options.searchParams.options = v2queryOptions.join(',');
-        }
-
-        if (queryAttrs && queryAttrs.length > 0) {
-            options.searchParams.attrs = queryAttrs.join(',');
-        }
-    }
-
-    if (transformFlags.sysAttrs) {
-        options.searchParams = options.searchParams || {};
-        options.searchParams.sysAttrs = 'true';
-    }
-
-    const response = await got(PROXY_URL + req.path, options);
-
-    res.statusCode = response.statusCode;
-    res.headers = response.headers;
-    res.headers['content-type'] = contentType;
-    res.type(contentType);
-    const body = JSON.parse(response.body);
-    const type = body.type;
-    if (res.statusCode === 400) {
-        res.headers['content-type'] = 'application/json';
-        return res.send(body);
-    }
-
-    if (queryType.length > 1 && !queryType.includes(type)) {
-        res.statusCode = 404;
-        return res.send();
-    }
-
-    if (!bodyIsJSONLD) {
-        res.header(
-            'Link',
-            '<' + JSON_LD_CONTEXT + '>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
-        );
-    }
-
-    if (transformFlags.keyValues) {
-        ldPayload = body;
-        if (bodyIsJSONLD) {
-            ldPayload['@context'] = JSON_LD_CONTEXT;
-        }
-    } else if (transformFlags.attrsOnly) {
-        ldPayload = convertAttrNGSILD(body, transformFlags);
-        if (bodyIsJSONLD) {
-            ldPayload['@context'] = JSON_LD_CONTEXT;
-        }
-    } else if (body instanceof Array) {
-        ldPayload = _.map(body, formatAsNGSILD);
-    } else {
-        ldPayload = formatAsNGSILD(body);
-    }
-
-    return ldPayload ? res.send(ldPayload) : res.send();
+    delete obj.TimeInstant;
+    return obj;
 }
 
-exports.response = proxyResponse;
+exports.getClientIp = getClientIp;    
+exports.formatAttribute = convertAttrNGSILD;
+exports.formatEntity = formatAsNGSILD;
 exports.internalError = internalError;

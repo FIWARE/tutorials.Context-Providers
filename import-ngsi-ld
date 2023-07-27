@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+#  curl commands to reload the data from the previous tutorial
+#
+#
+
+set -e
+
+echo -e "⏳ Loading context data in \033[1mNGSI-LD\033[0m format"
+echo -e "    - all entity data models are defined referencing the" 
+echo -e "      \033[1m"${TUTORIAL_DATA_MODELS_CONTEXT}"\033[0m JSON-LD context"
+
+#
+# Create four Store Entities in various locations across Berlin
+#
+curl -s -o /dev/null -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert' \
+-H 'Content-Type: application/json' \
+-H 'Link: <'"${TUTORIAL_DATA_MODELS_CONTEXT}"'>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Accept: application/ld+json' \
+--data-raw '[
+  {
+    "id": "urn:ngsi-ld:Building:farm003",
+    "type": "Building",
+    "category": {"type": "Property", "value": ["farm"]},
+    "address": {
+        "type": "Property",
+        "value": { "streetAddress": "Hardenbergplatz 8", "addressRegion": "Berlin", "addressLocality": "Tiergarten", "postalCode": "10557"},
+        "verified": { "type": "Property", "value": true}
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": { "type": "Point", "coordinates": [13.3375, 52.508333]}
+    },
+    "name": {"type": "Property","value": "Zoo Garden Farm"},
+    "owner": {"type": "Relationship", "object": "urn:ngsi-ld:Person:person003"}
+  },
+  {
+    "id": "urn:ngsi-ld:Building:barn002",
+    "type": "Building",
+    "name": {"type": "Property","value": "Big Green Barn"},
+    "owner": {"type": "Relationship", "object": "urn:ngsi-ld:Person:person004"}
+  }
+]'
+
+echo -e " \033[1;32mdone\033[0m"
