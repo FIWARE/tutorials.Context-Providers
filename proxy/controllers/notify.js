@@ -9,60 +9,75 @@ const got = require('got');
 const moment = require('moment-timezone');
 const { v4: uuidv4 } = require('uuid');
 const util = require('util');
-
+const StatusCodes = require('http-status-codes').StatusCodes;
+const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 
 async function notify(req, res) {
-	const headers = req.headers;
-	const body = req.body;
-	const subscriptionId =  body.subscriptionId.startsWith(NGSI_LD_URN) ?  body.subscriptionId: NGSI_LD_URN + 'Subscription:' + body.subscriptionId;
+    const headers = req.headers;
+    const body = req.body;
+    const subscriptionId = body.subscriptionId.startsWith(NGSI_LD_URN)
+        ? body.subscriptionId
+        : NGSI_LD_URN + 'Subscription:' + body.subscriptionId;
 
     const contentType = req.get('Accept') || 'application/json';
     const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
     const data = _.map(body.data, (entity) => {
-        	return convert.formatEntity(entity, bodyIsJSONLD, {})
-        } );
-    
+        return convert.formatEntity(entity, bodyIsJSONLD, {});
+    });
+
     const target = req.get('Target');
 
-	
-	if (target){ 
-    
-    	const options = {
-	        method: 'POST',
-	        headers: {
-	        	'Content-Type': contentType,
-	        },
-	        throwHttpErrors: false,
-	        retry:  0,
-	        responseType: 'json',
-	        json: {
-					id: 'urn:ngsi-ld:Notification:' + uuidv4(),
-					type: 'Notification',
-					notifiedAt: moment().tz('Etc/UTC').toISOString(),
-					subscriptionId,
-					data
-				}
-    	};
+    if (target) {
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': contentType
+            },
+            throwHttpErrors: false,
+            retry: 0,
+            //responseType: 'json',
+            json: {
+                id: 'urn:ngsi-ld:Notification:' + uuidv4(),
+                type: 'Notification',
+                notifiedAt: moment().tz('Etc/UTC').toISOString(),
+                subscriptionId,
+                data
+            }
+        };
 
-    	if (!bodyIsJSONLD) {
-        	options.headers[ 'Link'] =
-            '<' + JSON_LD_CONTEXT + '>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"';
+        if (!bodyIsJSONLD) {
+            options.headers['Link'] =
+                '<' + JSON_LD_CONTEXT + '>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"';
         }
 
         got(target, options)
-        .then((response) => {
-            return res.status(response.statusCode).send(response.body);
-        })
-        .catch((error) => {
-            debug('Error: %s', JSON.stringify(util.inspect(error), null, 4));
-            return res.status(error.response ? error.response.statusCode : 500).send(error);
-        });
-	} else{
-		return res.status(404).send();
-	}
+            .then((response) => {
+                res.statusCode = response.statusCode;
+                res.headers = response.headers;
+                if (response.headers['content-type']) {
+                    res.type(response.headers['content-type']);
+                }
+                return res.status(response.statusCode).send(response.body);
+            })
+            .catch((error) => {
+                return (code =
+                    error.code !== 'ENOTFOUND'
+                        ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                              type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
+                              title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
+                              message: `${target} caused an error: ${error.code}`
+                          })
+                        : res.status(StatusCodes.NOT_FOUND).send({
+                              type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
+                              title: getReasonPhrase(StatusCodes.NOT_FOUND),
+                              message: `${target} is unavailable`
+                          }));
+            });
+    } else {
+        return res.status(404).send();
+    }
 
-
-/*
+    /*
     if (!bodyIsJSONLD) {
         res.header(
             'Link',
@@ -79,8 +94,6 @@ async function notify(req, res) {
 		subscriptionId,
 		data
 	});*/
-	 
 }
 
-
-exports.notify = notify;  
+exports.notify = notify;

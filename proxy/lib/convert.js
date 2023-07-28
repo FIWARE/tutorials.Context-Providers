@@ -15,15 +15,16 @@ const _ = require('lodash');
 const moment = require('moment-timezone');
 const path = require('node:path');
 
-
 const NGSI_LD_URN = 'urn:ngsi-ld:';
 const TIMESTAMP_ATTRIBUTE = 'TimeInstant';
 const DATETIME_DEFAULT = '1970-01-01T00:00:00.000Z';
 const ATTRIBUTE_DEFAULT = null;
 
+const createdAt = DATETIME_DEFAULT; //moment().tz('Etc/UTC').toISOString();
+const modifiedAt = DATETIME_DEFAULT; //moment().tz('Etc/UTC').toISOString();
+
 const JSON_LD_CONTEXT =
     process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
-
 
 //(config.app.ssl ? 'https://' : 'http://') + config.app.host + ':' + config.app.port;
 const template = require('handlebars').compile(
@@ -193,6 +194,7 @@ function convertAttrNGSILD(attr, transformFlags = {}) {
                     } else {
                         obj.observedAt = moment.tz(timestamp, 'Etc/UTC').toISOString();
                     }
+
                     break;
                 case 'unitCode':
                     obj.unitCode = attr.metadata[key].value;
@@ -204,9 +206,13 @@ function convertAttrNGSILD(attr, transformFlags = {}) {
         delete obj.TimeInstant;
     }
 
+    if (transformFlags.sysAttrs) {
+        obj.modifiedAt = obj.observedAt || modifiedAt;
+        obj.createdAt = createdAt;
+    }
     if (transformFlags.concise) {
         delete obj.type;
-        if (obj.value && _.isEmpty(attr.metadata)) {
+        if (obj.value && _.isEmpty(attr.metadata) && !transformFlags.sysAttrs) {
             obj = obj.value;
         }
     }
@@ -235,8 +241,6 @@ function internalError(res, e, component) {
         })
     );
 }
-
-
 
 /**
  * Amends an NGSIv2 payload to NGSI-LD format
@@ -278,7 +282,7 @@ function formatAsNGSILD(json, bodyIsJSONLD, transformFlags = {}) {
     return obj;
 }
 
-exports.getClientIp = getClientIp;    
+exports.getClientIp = getClientIp;
 exports.formatAttribute = convertAttrNGSILD;
 exports.formatEntity = formatAsNGSILD;
 exports.internalError = internalError;
