@@ -82,7 +82,7 @@ function getClientIp(req) {
  *                                   format
  */
 
-function convertAttrNGSILD(attr, transformFlags = {}) {
+function formatAttribute(attr, transformFlags = {}) {
     // eslint eqeqeq - deliberate double equals to include undefined.
     if (attr.value == null || Number.isNaN(attr.value)) {
         return undefined;
@@ -200,7 +200,7 @@ function convertAttrNGSILD(attr, transformFlags = {}) {
                     obj.unitCode = attr.metadata[key].value;
                     break;
                 default:
-                    obj[key] = convertAttrNGSILD(attr.metadata[key]);
+                    obj[key] = formatAttribute(attr.metadata[key]);
             }
         });
         delete obj.TimeInstant;
@@ -249,7 +249,7 @@ function internalError(res, e, component) {
  * @return     {Object}               NGSI-LD payload
  */
 
-function formatAsNGSILD(json, bodyIsJSONLD, transformFlags = {}) {
+function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
     const obj = {};
     if (bodyIsJSONLD) {
         obj['@context'] = JSON_LD_CONTEXT;
@@ -274,7 +274,7 @@ function formatAsNGSILD(json, bodyIsJSONLD, transformFlags = {}) {
                 // element for NSGI-LD.
                 break;
             default:
-                obj[key] = convertAttrNGSILD(json[key], transformFlags);
+                obj[key] = formatAttribute(json[key], transformFlags);
         }
     });
 
@@ -282,7 +282,36 @@ function formatAsNGSILD(json, bodyIsJSONLD, transformFlags = {}) {
     return obj;
 }
 
+function formatSubscription(json, bodyIsJSONLD) {
+    const condition = json.subject.condition || {};
+    const expression = condition.expression || {};
+    const notification = json.notification || {};
+
+    const obj = {
+        id: NGSI_LD_URN + 'Subscription:' + json.id,
+        type: 'Subscription',
+        description: json.description,
+        entities: json.subject.entities,
+        watchedAttributes: condition.attrs,
+        q: expression.q,
+        notification: {
+            attributes: notification.attrs,
+            format: notification.attrsFormat,
+            endpoint: {
+                uri: notification.httpCustom.headers.target,
+                accept: 'application/json'
+            }
+        }
+    };
+
+    if (bodyIsJSONLD) {
+        obj['@context'] = JSON_LD_CONTEXT;
+    }
+    return obj;
+}
+
 exports.getClientIp = getClientIp;
-exports.formatAttribute = convertAttrNGSILD;
-exports.formatEntity = formatAsNGSILD;
+exports.formatAttribute = formatAttribute;
+exports.formatEntity = formatEntity;
+exports.formatSubscription = formatSubscription;
 exports.internalError = internalError;
