@@ -19,6 +19,7 @@ const NGSI_LD_URN = 'urn:ngsi-ld:';
 const TIMESTAMP_ATTRIBUTE = 'TimeInstant';
 const DATETIME_DEFAULT = '1970-01-01T00:00:00.000Z';
 const ATTRIBUTE_DEFAULT = null;
+const { v4: uuidv4 } = require('uuid');
 
 const createdAt = DATETIME_DEFAULT; //moment().tz('Etc/UTC').toISOString();
 const modifiedAt = DATETIME_DEFAULT; //moment().tz('Etc/UTC').toISOString();
@@ -221,6 +222,48 @@ function formatAttribute(attr, transformFlags = {}) {
     return obj;
 }
 
+function formatType(type) {
+    let ldType = 'Property';
+
+    switch (type.toLowerCase()) {
+        case 'geoproperty':
+        case 'point':
+        case 'geo:point':
+        case 'geo:json':
+        case 'linestring':
+        case 'geo:linestring':
+        case 'polygon':
+        case 'geo:polygon':
+        case 'multipoint':
+        case 'geo:multipoint':
+        case 'multilinestring':
+        case 'geo:multilinestring':
+        case 'multipolygon':
+        case 'geo:multipolygon':
+            ldType = 'GeoProperty';
+            break;
+        case 'listproperty':
+            ldType = 'ListProperty';
+            break;
+        case 'relationship':
+            ldType = 'Relationship';
+            break;
+        case 'listrelationship':
+            ldType = 'ListRelationship';
+            break;
+        case 'languageproperty':
+            ldType = 'LanguageProperty';
+            break;
+        case 'vocabularyproperty':
+            ldType = 'VocabularyProperty';
+            break;
+        default:
+            ldType = 'Property';
+            break;
+    }
+    return ldType;
+}
+
 /**
  * Return an "Internal Error" response. These should not occur
  * during standard operation
@@ -310,8 +353,112 @@ function formatSubscription(json, bodyIsJSONLD) {
     return obj;
 }
 
+function formatEntityTypeList(json, bodyIsJSONLD) {
+    const typeList = _.map(json, (type) => {
+        return type.type;
+    });
+
+    const obj = {
+        id: 'urn:ngsi-ld:EntityTypeList:' + uuidv4(),
+        type: 'EntityTypeList',
+        typeList
+    };
+
+    if (bodyIsJSONLD) {
+        obj['@context'] = JSON_LD_CONTEXT;
+    }
+    return obj;
+}
+
+function formatEntityTypeInformation(json, bodyIsJSONLD, typeName) {
+    const attributeDetails = [];
+
+    _.forEach(json.attrs, (value, key) => {
+        attributeDetails.push({
+            id: key,
+            type: 'Attribute',
+            attributeName: key,
+            attributeTypes: _.map(value.types, (type) => {
+                return formatType(type);
+            })
+        });
+    });
+
+    const obj = {
+        id: 'urn:ngsi-ld:EntityTypeInformation:' + uuidv4(),
+        type: 'EntityTypeInformation',
+        typeName: 'Building',
+        entityCount: json.count,
+        attributeDetails
+    };
+
+    if (bodyIsJSONLD) {
+        obj['@context'] = JSON_LD_CONTEXT;
+    }
+    return obj;
+}
+
+function formatEntityAttributeList(json, bodyIsJSONLD) {
+    const attributeList = [];
+
+    _.map(json, (type) => {
+        _.forEach(type.attrs, (value, key) => {
+            attributeList.push(key);
+        });
+    });
+
+    const obj = {
+        id: 'urn:ngsi-ld:EntityAttributeList:' + uuidv4(),
+        type: 'EntityAttributeList',
+        attributeList: _.uniq(attributeList)
+    };
+
+    if (bodyIsJSONLD) {
+        obj['@context'] = JSON_LD_CONTEXT;
+    }
+    return obj;
+}
+
+function formatEntityAttribute(json, bodyIsJSONLD, attributeName) {
+    let attributeCount = 0;
+    let attributeTypes = [];
+    const typeNames = [];
+
+    const filtered = _.filter(json, function (o) {
+        return o.attrs[attributeName];
+    });
+
+    _.map(filtered, (type) => {
+        attributeCount += type.count;
+        typeNames.push(type.type);
+        attributeTypes.push(type.attrs[attributeName].types);
+    });
+
+    attributeTypes = _.uniq(_.flatten(attributeTypes));
+
+    const obj = {
+        id: attributeName,
+        type: 'Attribute',
+        attributeCount,
+        attributeTypes: _.map(attributeTypes, (type) => {
+            return formatType(type);
+        }),
+        typeNames,
+        attributeName
+    };
+
+    if (bodyIsJSONLD) {
+        obj['@context'] = JSON_LD_CONTEXT;
+    }
+    return obj;
+}
+
 exports.getClientIp = getClientIp;
 exports.formatAttribute = formatAttribute;
 exports.formatEntity = formatEntity;
 exports.formatSubscription = formatSubscription;
+exports.formatEntityTypeList = formatEntityTypeList;
+exports.formatEntityTypeInformation = formatEntityTypeInformation;
+exports.formatEntityAttributeList = formatEntityAttributeList;
+exports.formatEntityAttribute = formatEntityAttribute;
 exports.internalError = internalError;

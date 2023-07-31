@@ -21,27 +21,6 @@ const JSON_LD_CONTEXT =
     process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
 
 /**
- * Return an "Internal Error" response. These should not occur
- * during standard operation
- *
- * @param res - the response to return
- * @param e - the error that occurred
- * @param component - the component that caused the error
- */
-function internalError(res, e, component) {
-    const message = e ? e.message : undefined;
-    debug(`Error in ${component} communication `, message ? message : e);
-    res.setHeader('Content-Type', errorContentType);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(
-        template({
-            type: 'urn:dx:as:InternalServerError',
-            title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-            message
-        })
-    );
-}
-
-/**
  * "Access Permitted" forwarding. Forward the proxied request and
  * return the response.
  *
@@ -152,12 +131,12 @@ async function proxyResponse(req, res) {
     } catch (error) {
         return error.code !== 'ENOTFOUND'
             ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                  type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
+                  type: 'urn:ngsi-ld/errors/InternalError',
                   title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
                   message: `${req.path} caused an error:  ${error.code}`
               })
             : res.status(StatusCodes.NOT_FOUND).send({
-                  type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
+                  type: 'urn:ngsi-ld/errors/ResourceNotFound',
                   title: getReasonPhrase(StatusCodes.NOT_FOUND),
                   message: `${req.path} is unavailable`
               });
@@ -165,4 +144,3 @@ async function proxyResponse(req, res) {
 }
 
 exports.response = proxyResponse;
-exports.internalError = internalError;
