@@ -1,12 +1,17 @@
-const debug = require('debug')('proxy:convert');
-const got = require('got');
-const StatusCodes = require('http-status-codes').StatusCodes;
-const getReasonPhrase = require('http-status-codes').getReasonPhrase;
+/*
+ * Copyright 2023 -  FIWARE Foundation e.V.
+ *
+ * This file is part of NGSI-LD Proxy
+ *
+ */
+
+const debug = require('debug')('proxy:ngsi-ld');
+
 const _ = require('lodash');
 const moment = require('moment-timezone');
-const path = require('node:path');
 const { v4: uuidv4 } = require('uuid');
 const Constants = require('../lib/constants');
+const URN_PREFIX = 'urn:ngsi-ld:';
 
 /**
  * Determines if a value is of type float
@@ -228,8 +233,8 @@ function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
             case 'id':
                 id = json[key];
                 obj[key] = id;
-                if (!id.startsWith(Constants.NGSI_LD_URN)) {
-                    obj[key] = Constants.NGSI_LD_URN + json.type + ':' + id;
+                if (!id.startsWith(URN_PREFIX)) {
+                    obj[key] = URN_PREFIX + json.type + ':' + id;
                     debug('Amending id to a valid URN: %s', obj[key]);
                 }
                 break;
@@ -249,42 +254,13 @@ function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
     return obj;
 }
 
-function formatV2Subscription(json, bodyIsJSONLD) {
-    const condition = json.subject.condition || {};
-    const expression = condition.expression || {};
-    const notification = json.notification || {};
-
-    const obj = {
-        type: 'Subscription',
-        description: json.description,
-        subject: {
-            entities: json.entities,
-            condition: {
-                attrs: json.watchedAttributes,
-                expression: { q: json.q }
-            }
-        },
-        notification: {
-            httpCustom: {
-                url: Constants.RELAY_URL,
-                headers: {
-                    target: notification.uri
-                }
-            },
-            attrsFormat: notification.format
-        }
-    };
-
-    return Constants.appendContext(obj, bodyIsJSONLD);
-}
-
 function formatSubscription(json, bodyIsJSONLD) {
     const condition = json.subject.condition || {};
     const expression = condition.expression || {};
     const notification = json.notification || {};
 
     const obj = {
-        id: NGSI_LD_URN + 'Subscription:' + json.id,
+        id: URN_PREFIX + 'Subscription:' + json.id,
         type: 'Subscription',
         description: json.description,
         entities: json.subject.entities,
@@ -334,7 +310,7 @@ function formatEntityTypeInformation(json, bodyIsJSONLD, typeName) {
     const obj = {
         id: 'urn:ngsi-ld:EntityTypeInformation:' + uuidv4(),
         type: 'EntityTypeInformation',
-        typeName: 'Building',
+        typeName,
         entityCount: json.count,
         attributeDetails
     };

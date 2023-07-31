@@ -163,10 +163,11 @@ services:
     ports:
       - "3005:3000"
     environment:
-      - DEBUG=proxy:*
+      - DEBUG=facade:*
       - PROXY=http://orion2:1026/v2
       - CONTEXT_URL=https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld
-
+      - RELAY=http://facade:3000/notify
+      
   orion-v2:
     labels:
       org.fiware: 'tutorial'

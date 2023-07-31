@@ -1,3 +1,10 @@
+/*
+ * Copyright 2023 -  FIWARE Foundation e.V.
+ *
+ * This file is part of NGSI-LD Proxy
+ *
+ */
+
 const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');

@@ -1,7 +1,11 @@
-const debug = require('debug')('proxy:constants');
-const V2_BROKER_URL = process.env.PROXY || 'http://localhost:1027/v2';
-const NGSI_LD_URN = 'urn:ngsi-ld:';
+/*
+ * Copyright 2023 -  FIWARE Foundation e.V.
+ *
+ * This file is part of NGSI-LD Proxy
+ *
+ */
 
+const V2_BROKER_URL = process.env.PROXY || 'http://localhost:1027/v2';
 const DATETIME_DEFAULT = '1970-01-01T00:00:00.000Z';
 const ATTRIBUTE_DEFAULT = null;
 
@@ -60,7 +64,6 @@ module.exports = {
     appendContext,
     linkContext,
     getClientIp,
-    NGSI_LD_URN,
     DATETIME_DEFAULT,
     ATTRIBUTE_DEFAULT,
     RELAY_URL

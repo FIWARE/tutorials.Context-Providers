@@ -1,3 +1,10 @@
+/*
+ * Copyright 2023 -  FIWARE Foundation e.V.
+ *
+ * This file is part of NGSI-LD Proxy
+ *
+ */
+
 const debug = require('debug')('proxy:entities');
 const got = require('got');
 const StatusCodes = require('http-status-codes').StatusCodes;
@@ -22,6 +29,7 @@ async function proxyResponse(req, res) {
     const queryOptions = req.query.options ? req.query.options.split(',') : null;
     const queryAttrs = req.query.attrs ? req.query.attrs.split(',') : null;
     const queryType = req.query.type ? req.query.type.split(',') : [];
+    const queryQ = req.query.q;
 
     const transformFlags = {};
     transformFlags.sysAttrs = !!(queryOptions && queryOptions.includes('sysAttrs'));
@@ -33,8 +41,6 @@ async function proxyResponse(req, res) {
     if (req.query.options) {
         v2queryOptions = _.without(queryOptions, 'concise', 'sysAttrs');
     }
-
-    console.log('Here')
 
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     headers.accept = 'application/json';
@@ -60,6 +66,9 @@ async function proxyResponse(req, res) {
         if (queryAttrs && queryAttrs.length > 0) {
             options.searchParams.attrs = queryAttrs.join(',');
         }
+        if (queryQ) {
+            options.searchParams.q = queryQ.replace(/"/gi, '').replace(/%22/gi, '');
+        }
     }
 
     if (transformFlags.sysAttrs) {
@@ -68,6 +77,7 @@ async function proxyResponse(req, res) {
     }
 
     try {
+
         const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
@@ -108,7 +118,7 @@ async function proxyResponse(req, res) {
         }
         return ldPayload ? res.send(ldPayload) : res.send();
     } catch (error) {
-        console.log(error)
+        debug(error);
         return error.code !== 'ENOTFOUND'
             ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
                   type: 'urn:ngsi-ld/errors/InternalError',

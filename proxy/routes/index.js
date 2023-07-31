@@ -1,3 +1,10 @@
+/*
+ * Copyright 2023 -  FIWARE Foundation e.V.
+ *
+ * This file is part of NGSI-LD Proxy
+ *
+ */
+
 const express = require('express');
 const router = express.Router();
 const entities = require('../controllers/entities');

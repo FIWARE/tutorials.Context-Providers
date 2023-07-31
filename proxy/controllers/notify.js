@@ -1,3 +1,10 @@
+/*
+ * Copyright 2023 -  FIWARE Foundation e.V.
+ *
+ * This file is part of NGSI-LD Proxy
+ *
+ */
+
 const _ = require('lodash');
 const NGSI_LD = require('../lib/ngsi-ld');
 const Constants = require('../lib/constants');
