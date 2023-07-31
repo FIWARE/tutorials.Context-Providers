@@ -1,10 +1,11 @@
 const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
-const PROXY_URL = process.env.PROXY || 'http://localhost:1027/v2';
+
 const debug = require('debug')('proxy:types');
 const got = require('got');
-const convert = require('../lib/convert');
+const NGSI_LD = require('../lib/ngsi-ld');
+const Constants = require('../lib/constants');
 
 async function listTypes(req, res) {
     const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
@@ -16,16 +17,18 @@ async function listTypes(req, res) {
             throwHttpErrors: false,
             retry: 0
         };
-        const response = await got(PROXY_URL + req.path, options);
+        const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
         res.headers['content-type'] = contentType;
         res.type(contentType);
+        Constants.linkContext(res, bodyIsJSONLD);
+
         let ldPayload = [];
         const body = JSON.parse(response.body);
 
-        ldPayload = convert.formatEntityTypeList(body, bodyIsJSONLD);
+        ldPayload = NGSI_LD.formatEntityTypeList(body, bodyIsJSONLD);
 
         return body ? res.send(ldPayload) : res.send();
     } catch (error) {
@@ -54,15 +57,17 @@ async function readType(req, res) {
             throwHttpErrors: false,
             retry: 0
         };
-        const response = await got(PROXY_URL + req.path, options);
+        const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
         res.headers['content-type'] = contentType;
+        Constants.linkContext(res, bodyIsJSONLD);
+
         res.type(contentType);
         let ldPayload = [];
         const body = JSON.parse(response.body);
-        ldPayload = convert.formatEntityTypeInformation(body, bodyIsJSONLD, typeName);
+        ldPayload = NGSI_LD.formatEntityTypeInformation(body, bodyIsJSONLD, typeName);
 
         return body ? res.send(ldPayload) : res.send();
     } catch (error) {

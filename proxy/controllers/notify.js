@@ -1,10 +1,8 @@
 const _ = require('lodash');
-const convert = require('../lib/convert');
+const NGSI_LD = require('../lib/ngsi-ld');
+const Constants = require('../lib/constants');
 const debug = require('debug')('proxy:notify');
-const JSON_LD_CONTEXT =
-    process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
 
-const NGSI_LD_URN = 'urn:ngsi-ld:';
 const got = require('got');
 const moment = require('moment-timezone');
 const { v4: uuidv4 } = require('uuid');
@@ -20,14 +18,14 @@ async function notify(req, res) {
     }
 
     const body = req.body;
-    const subscriptionId = body.subscriptionId.startsWith(NGSI_LD_URN)
+    const subscriptionId = body.subscriptionId.startsWith(Constants.NGSI_LD_URN)
         ? body.subscriptionId
-        : NGSI_LD_URN + 'Subscription:' + body.subscriptionId;
+        : Constants.NGSI_LD_URN + 'Subscription:' + body.subscriptionId;
 
     const contentType = req.get('Accept') || 'application/json';
     const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
     const data = _.map(body.data, (entity) => {
-        return convert.formatEntity(entity, bodyIsJSONLD, {});
+        return NGSI_LD.formatEntity(entity, bodyIsJSONLD, {});
     });
 
     const options = {

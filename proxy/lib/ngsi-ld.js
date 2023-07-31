@@ -1,12 +1,3 @@
-/*
- * Copyright 2021 -  Universidad Politécnica de Madrid.
- *
- * This file is part of PEP-Proxy
- *
- */
-
-//const config_service = require('./config_service');
-//const config = config_service.get_config();
 const debug = require('debug')('proxy:convert');
 const got = require('got');
 const StatusCodes = require('http-status-codes').StatusCodes;
@@ -14,29 +5,8 @@ const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
 const moment = require('moment-timezone');
 const path = require('node:path');
-
-const NGSI_LD_URN = 'urn:ngsi-ld:';
-const TIMESTAMP_ATTRIBUTE = 'TimeInstant';
-const DATETIME_DEFAULT = '1970-01-01T00:00:00.000Z';
-const ATTRIBUTE_DEFAULT = null;
 const { v4: uuidv4 } = require('uuid');
-
-const createdAt = DATETIME_DEFAULT; //moment().tz('Etc/UTC').toISOString();
-const modifiedAt = DATETIME_DEFAULT; //moment().tz('Etc/UTC').toISOString();
-
-const JSON_LD_CONTEXT =
-    process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
-
-//(config.app.ssl ? 'https://' : 'http://') + config.app.host + ':' + config.app.port;
-const template = require('handlebars').compile(
-    `{
-    "type": "{{type}}",
-    "title": "{{title}}",
-    "detail": "{{message}}"
-  }`
-);
-
-const errorContentType = 'application/json';
+const Constants = require('../lib/constants');
 
 /**
  * Determines if a value is of type float
@@ -46,31 +16,6 @@ const errorContentType = 'application/json';
  */
 function isFloat(value) {
     return !isNaN(value) && value.toString().indexOf('.') !== -1;
-}
-
-/**
- * Add the client IP of the proxy client to the list of X-forwarded-for headers.
- *
- * @param req - the incoming request
- * @return a string representation of the X-forwarded-for header
- */
-function getClientIp(req) {
-    let ip = req.ip;
-    if (ip.substr(0, 7) === '::ffff:') {
-        ip = ip.substr(7);
-    }
-    let forwardedIpsStr = req.header('x-forwarded-for');
-
-    if (forwardedIpsStr) {
-        // 'x-forwarded-for' header may return multiple IP addresses in
-        // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the
-        // the first one
-        forwardedIpsStr += ',' + ip;
-    } else {
-        forwardedIpsStr = String(ip);
-    }
-
-    return forwardedIpsStr;
 }
 
 /**
@@ -188,10 +133,10 @@ function formatAttribute(attr, transformFlags = {}) {
         let timestamp;
         Object.keys(attr.metadata).forEach(function (key) {
             switch (key) {
-                case TIMESTAMP_ATTRIBUTE:
+                case 'TimeInstant':
                     timestamp = attr.metadata[key].value;
-                    if (timestamp === ATTRIBUTE_DEFAULT || !moment(timestamp).isValid()) {
-                        obj.observedAt = DATETIME_DEFAULT;
+                    if (timestamp === Constants.ATTRIBUTE_DEFAULT || !moment(timestamp).isValid()) {
+                        obj.observedAt = Constants.DATETIME_DEFAULT;
                     } else {
                         obj.observedAt = moment.tz(timestamp, 'Etc/UTC').toISOString();
                     }
@@ -208,8 +153,8 @@ function formatAttribute(attr, transformFlags = {}) {
     }
 
     if (transformFlags.sysAttrs) {
-        obj.modifiedAt = obj.observedAt || modifiedAt;
-        obj.createdAt = createdAt;
+        obj.modifiedAt = obj.observedAt || Constants.DATETIME_DEFAULT;
+        obj.createdAt = Constants.DATETIME_DEFAULT;
     }
     if (transformFlags.concise) {
         delete obj.type;
@@ -265,27 +210,6 @@ function formatType(type) {
 }
 
 /**
- * Return an "Internal Error" response. These should not occur
- * during standard operation
- *
- * @param res - the response to return
- * @param e - the error that occurred
- * @param component - the component that caused the error
- */
-function internalError(res, e, component) {
-    const message = e ? e.message : undefined;
-    debug(`Error in ${component} communication `, message ? message : e);
-    res.setHeader('Content-Type', errorContentType);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(
-        template({
-            type: 'urn:dx:as:InternalServerError',
-            title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-            message
-        })
-    );
-}
-
-/**
  * Amends an NGSIv2 payload to NGSI-LD format
  *
  * @param      {Object}   value       JSON to be converted
@@ -295,7 +219,7 @@ function internalError(res, e, component) {
 function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
     const obj = {};
     if (bodyIsJSONLD) {
-        obj['@context'] = JSON_LD_CONTEXT;
+        obj['@context'] = Constants.JSON_LD_CONTEXT;
     }
 
     let id;
@@ -304,15 +228,15 @@ function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
             case 'id':
                 id = json[key];
                 obj[key] = id;
-                if (!id.startsWith(NGSI_LD_URN)) {
-                    obj[key] = NGSI_LD_URN + json.type + ':' + id;
+                if (!id.startsWith(Constants.NGSI_LD_URN)) {
+                    obj[key] = Constants.NGSI_LD_URN + json.type + ':' + id;
                     debug('Amending id to a valid URN: %s', obj[key]);
                 }
                 break;
             case 'type':
                 obj[key] = json[key];
                 break;
-            case TIMESTAMP_ATTRIBUTE:
+            case 'TimeInstant':
                 // Timestamp should not be added as a root
                 // element for NSGI-LD.
                 break;
@@ -323,6 +247,35 @@ function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
 
     delete obj.TimeInstant;
     return obj;
+}
+
+function formatV2Subscription(json, bodyIsJSONLD) {
+    const condition = json.subject.condition || {};
+    const expression = condition.expression || {};
+    const notification = json.notification || {};
+
+    const obj = {
+        type: 'Subscription',
+        description: json.description,
+        subject: {
+            entities: json.entities,
+            condition: {
+                attrs: json.watchedAttributes,
+                expression: { q: json.q }
+            }
+        },
+        notification: {
+            httpCustom: {
+                url: Constants.RELAY_URL,
+                headers: {
+                    target: notification.uri
+                }
+            },
+            attrsFormat: notification.format
+        }
+    };
+
+    return Constants.appendContext(obj, bodyIsJSONLD);
 }
 
 function formatSubscription(json, bodyIsJSONLD) {
@@ -347,10 +300,7 @@ function formatSubscription(json, bodyIsJSONLD) {
         }
     };
 
-    if (bodyIsJSONLD) {
-        obj['@context'] = JSON_LD_CONTEXT;
-    }
-    return obj;
+    return Constants.appendContext(obj, bodyIsJSONLD);
 }
 
 function formatEntityTypeList(json, bodyIsJSONLD) {
@@ -364,10 +314,7 @@ function formatEntityTypeList(json, bodyIsJSONLD) {
         typeList
     };
 
-    if (bodyIsJSONLD) {
-        obj['@context'] = JSON_LD_CONTEXT;
-    }
-    return obj;
+    return Constants.appendContext(obj, bodyIsJSONLD);
 }
 
 function formatEntityTypeInformation(json, bodyIsJSONLD, typeName) {
@@ -392,10 +339,7 @@ function formatEntityTypeInformation(json, bodyIsJSONLD, typeName) {
         attributeDetails
     };
 
-    if (bodyIsJSONLD) {
-        obj['@context'] = JSON_LD_CONTEXT;
-    }
-    return obj;
+    return Constants.appendContext(obj, bodyIsJSONLD);
 }
 
 function formatEntityAttributeList(json, bodyIsJSONLD) {
@@ -413,10 +357,7 @@ function formatEntityAttributeList(json, bodyIsJSONLD) {
         attributeList: _.uniq(attributeList)
     };
 
-    if (bodyIsJSONLD) {
-        obj['@context'] = JSON_LD_CONTEXT;
-    }
-    return obj;
+    return Constants.appendContext(obj, bodyIsJSONLD);
 }
 
 function formatEntityAttribute(json, bodyIsJSONLD, attributeName) {
@@ -447,13 +388,9 @@ function formatEntityAttribute(json, bodyIsJSONLD, attributeName) {
         attributeName
     };
 
-    if (bodyIsJSONLD) {
-        obj['@context'] = JSON_LD_CONTEXT;
-    }
-    return obj;
+    return Constants.appendContext(obj, bodyIsJSONLD);
 }
 
-exports.getClientIp = getClientIp;
 exports.formatAttribute = formatAttribute;
 exports.formatEntity = formatEntity;
 exports.formatSubscription = formatSubscription;
@@ -461,4 +398,3 @@ exports.formatEntityTypeList = formatEntityTypeList;
 exports.formatEntityTypeInformation = formatEntityTypeInformation;
 exports.formatEntityAttributeList = formatEntityAttributeList;
 exports.formatEntityAttribute = formatEntityAttribute;
-exports.internalError = internalError;

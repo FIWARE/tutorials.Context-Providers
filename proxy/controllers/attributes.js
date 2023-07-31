@@ -1,10 +1,11 @@
 const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
-const PROXY_URL = process.env.PROXY || 'http://localhost:1027/v2';
+
 const debug = require('debug')('proxy:attributes');
 const got = require('got');
-const convert = require('../lib/convert');
+const NGSI_LD = require('../lib/ngsi-ld');
+const Constants = require('../lib/constants');
 
 async function listAttributes(req, res) {
     const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
@@ -16,16 +17,18 @@ async function listAttributes(req, res) {
             throwHttpErrors: false,
             retry: 0
         };
-        const response = await got(PROXY_URL + '/types', options);
+        const response = await got(Constants.v2BrokerURL('/types'), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
         res.headers['content-type'] = contentType;
         res.type(contentType);
+        Constants.linkContext(res, bodyIsJSONLD);
+
         let ldPayload = [];
         const body = JSON.parse(response.body);
 
-        ldPayload = convert.formatEntityAttributeList(body, bodyIsJSONLD);
+        ldPayload = NGSI_LD.formatEntityAttributeList(body, bodyIsJSONLD);
 
         return body ? res.send(ldPayload) : res.send();
     } catch (error) {
@@ -54,15 +57,17 @@ async function readAttribute(req, res) {
             throwHttpErrors: false,
             retry: 0
         };
-        const response = await got(PROXY_URL + '/types', options);
+        const response = await got(Constants.v2BrokerURL('/types'), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
         res.headers['content-type'] = contentType;
         res.type(contentType);
+        Constants.linkContext(res, bodyIsJSONLD);
+
         let ldPayload = [];
         const body = JSON.parse(response.body);
-        ldPayload = convert.formatEntityAttribute(body, bodyIsJSONLD, attrName);
+        ldPayload = NGSI_LD.formatEntityAttribute(body, bodyIsJSONLD, attrName);
 
         return body ? res.send(ldPayload) : res.send();
     } catch (error) {

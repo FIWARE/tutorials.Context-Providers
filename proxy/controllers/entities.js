@@ -1,12 +1,3 @@
-/*
- * Copyright 2021 -  Universidad Politécnica de Madrid.
- *
- * This file is part of PEP-Proxy
- *
- */
-
-//const config_service = require('./config_service');
-//const config = config_service.get_config();
 const debug = require('debug')('proxy:entities');
 const got = require('got');
 const StatusCodes = require('http-status-codes').StatusCodes;
@@ -14,11 +5,8 @@ const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
 const moment = require('moment-timezone');
 const path = require('node:path');
-const convert = require('../lib/convert');
-
-const PROXY_URL = process.env.PROXY || 'http://localhost:1027/v2';
-const JSON_LD_CONTEXT =
-    process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
+const NGSI_LD = require('../lib/ngsi-ld');
+const Constants = require('../lib/constants');
 
 /**
  * "Access Permitted" forwarding. Forward the proxied request and
@@ -46,7 +34,9 @@ async function proxyResponse(req, res) {
         v2queryOptions = _.without(queryOptions, 'concise', 'sysAttrs');
     }
 
-    headers['x-forwarded-for'] = convert.getClientIp(req);
+    console.log('Here')
+
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
     headers.accept = 'application/json';
 
     const options = {
@@ -78,7 +68,7 @@ async function proxyResponse(req, res) {
     }
 
     try {
-        const response = await got(PROXY_URL + req.path, options);
+        const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
@@ -97,30 +87,19 @@ async function proxyResponse(req, res) {
             return res.send();
         }
 
-        if (!bodyIsJSONLD) {
-            res.header(
-                'Link',
-                '<' + JSON_LD_CONTEXT + '>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
-            );
-        }
-
         if (transformFlags.keyValues) {
             ldPayload = body;
-            if (bodyIsJSONLD) {
-                ldPayload['@context'] = JSON_LD_CONTEXT;
-            }
         } else if (transformFlags.attrsOnly) {
-            ldPayload = convert.formatAttribute(body, transformFlags);
-            if (bodyIsJSONLD) {
-                ldPayload['@context'] = JSON_LD_CONTEXT;
-            }
+            ldPayload = NGSI_LD.formatAttribute(body, transformFlags);
         } else if (body instanceof Array) {
             ldPayload = _.map(body, (entity) => {
-                return convert.formatEntity(entity, bodyIsJSONLD, transformFlags);
+                return NGSI_LD.formatEntity(entity, bodyIsJSONLD, transformFlags);
             });
         } else {
-            ldPayload = convert.formatEntity(body, bodyIsJSONLD, transformFlags);
+            ldPayload = NGSI_LD.formatEntity(body, bodyIsJSONLD, transformFlags);
         }
+        ldPayload = Constants.appendContext(ldPayload, bodyIsJSONLD);
+        Constants.linkContext(res, bodyIsJSONLD);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
@@ -129,6 +108,7 @@ async function proxyResponse(req, res) {
         }
         return ldPayload ? res.send(ldPayload) : res.send();
     } catch (error) {
+        console.log(error)
         return error.code !== 'ENOTFOUND'
             ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
                   type: 'urn:ngsi-ld/errors/InternalError',

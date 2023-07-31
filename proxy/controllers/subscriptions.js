@@ -1,10 +1,12 @@
 const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
-const PROXY_URL = process.env.PROXY || 'http://localhost:1027/v2';
 const debug = require('debug')('proxy:subscriptions');
 const got = require('got');
-const convert = require('../lib/convert');
+
+const Constants = require('../lib/constants');
+const NGSI_LD = require('../lib/ngsi-ld');
+const NGSI_V2 = require('../lib/ngsi-v2');
 
 async function listSubscriptions(req, res) {
     const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
@@ -15,12 +17,13 @@ async function listSubscriptions(req, res) {
         retry: 0
     };
 
-    got(PROXY_URL + req.path, options)
+    got(Constants.v2BrokerURL() + req.path, options)
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
             res.headers['content-type'] = contentType;
             res.type(contentType);
+            Constants.linkContext(res, bodyIsJSONLD);
             let ldPayload = [];
             const body = JSON.parse(response.body);
 
@@ -29,7 +32,7 @@ async function listSubscriptions(req, res) {
                     return sub.notification.httpCustom;
                 });
                 ldPayload = _.map(filtered, (sub) => {
-                    return convert.formatSubscription(sub, bodyIsJSONLD);
+                    return NGSI_LD.formatSubscription(sub, bodyIsJSONLD);
                 });
             }
 
@@ -60,15 +63,16 @@ async function readSubscription(req, res) {
         retry: 0
     };
 
-    got(PROXY_URL + '/subscriptions/' + id, options)
+    got(Constants.v2BrokerURL() + '/subscriptions/' + id, options)
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
             res.headers['content-type'] = contentType;
             res.type(contentType);
+            Constants.linkContext(res, bodyIsJSONLD);
             let ldPayload = [];
             const body = JSON.parse(response.body);
-            ldPayload = convert.formatSubscription(body, bodyIsJSONLD);
+            ldPayload = NGSI_LD.formatSubscription(body, bodyIsJSONLD);
             return body ? res.send(ldPayload) : res.send();
         })
         .catch((error) => {
@@ -95,7 +99,7 @@ async function deleteSubscription(req, res) {
         retry: 0
     };
 
-    got(PROXY_URL + '/subscriptions/' + id, options)
+    got(Constants.v2BrokerURL() + '/subscriptions/' + id, options)
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
@@ -116,9 +120,19 @@ async function deleteSubscription(req, res) {
                   });
         });
 }
-function updateSubscription(req, res) {}
+
+function createSubscription(req, res) {
+    let v2Payload = NGSI_V2.formatSubscription(req.body);
+    return res.send(v2Payload);
+}
+
+function updateSubscription(req, res) {
+    let v2Payload = NGSI_V2.formatSubscription(req.body);
+    return res.send(v2Payload);
+}
 
 exports.list = listSubscriptions;
 exports.read = readSubscription;
+exports.create = createSubscription;
 exports.delete = deleteSubscription;
 exports.update = updateSubscription;

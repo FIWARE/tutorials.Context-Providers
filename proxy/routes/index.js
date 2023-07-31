@@ -23,7 +23,7 @@ router.route('/entities/:id/attrs').get(entities.response).all(methodNotAllowedH
 router.route('/entities/:id/attrs/:attr').get(entities.response).all(methodNotAllowedHandler);
 
 // Subscriptions
-router.route('/subscriptions').get(subscriptions.list).all(methodNotAllowedHandler);
+router.route('/subscriptions').get(subscriptions.list).post(subscriptions.create).all(methodNotAllowedHandler);
 router
     .route('/subscriptions/:id')
     .get(subscriptions.read)
