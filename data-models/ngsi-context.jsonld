@@ -134,6 +134,12 @@
         "verified": "fiware:verified",
         "species": "fiware:species",
         "sex": "fiware:sex",
-        "legalID": "fiware:legalID"
+        "legalID": "fiware:legalID",
+
+
+        "InventoryItem" : "fiware:InventoryItem",
+        "Product" : "fiware:Product",
+        "Shelf" : "fiware:Shelf",
+        "Store":  "fiware:Building"
     }
 }

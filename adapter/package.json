@@ -1,5 +1,5 @@
 {
-  "name": "proxy",
+  "name": "adapter",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -22,6 +22,7 @@
     "moment": "~2.29.2",
     "moment-timezone": "~0.5.40",
     "morgan": "~1.9.1",
+    "nocache": "^4.0.0",
     "parse-links": "^0.1.0",
     "uuid": "^9.0.0"
   },

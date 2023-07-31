@@ -1,18 +1,18 @@
 /*
  * Copyright 2023 -  FIWARE Foundation e.V.
  *
- * This file is part of NGSI-LD Proxy
+ * This file is part of NGSI-LD to NGSI-v2 Adapter
  *
  */
 
-const V2_BROKER_URL = process.env.PROXY || 'http://localhost:1027/v2';
+const V2_BROKER_URL = process.env.NGSI_V2_CONTEXT_BROKER || 'http://localhost:1027/v2';
 const DATETIME_DEFAULT = '1970-01-01T00:00:00.000Z';
 const ATTRIBUTE_DEFAULT = null;
 
 const JSON_LD_CONTEXT =
     process.env.CONTEXT_URL || 'https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld';
 
-const RELAY_URL = process.env.RELAY || 'https://localhost:3000/notify';
+const NOTIFICATION_RELAY_URL = process.env.NOTIFICATION_RELAY || 'https://localhost:3000/notify';
 
 function v2BrokerURL(path) {
     return V2_BROKER_URL + path;
@@ -66,5 +66,5 @@ module.exports = {
     getClientIp,
     DATETIME_DEFAULT,
     ATTRIBUTE_DEFAULT,
-    RELAY_URL
+    NOTIFICATION_RELAY_URL
 };

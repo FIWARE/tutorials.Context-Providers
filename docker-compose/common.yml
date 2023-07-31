@@ -147,15 +147,15 @@ services:
     healthcheck:
       interval: 5s
 
-  facade-for-orion-v2:
+  adapter-for-ngsi-v2:
     labels:
       org.fiware: 'tutorial'
-    image: quay.io/fiware/facade
+    image: quay.io/fiware/adapter
     build:
-      context: ../proxy
+      context: ../adapter
       dockerfile: Dockerfile
-    hostname: facade
-    container_name: facade-for-v2
+    hostname: adapter
+    container_name: adapter-for-v2
     networks:
       - default
     expose:
@@ -163,12 +163,12 @@ services:
     ports:
       - "3005:3000"
     environment:
-      - DEBUG=facade:*
-      - PROXY=http://orion2:1026/v2
+      - DEBUG=adapter:*
+      - NGSI_V2_CONTEXT_BROKER=http://orion2:1026/v2
       - CONTEXT_URL=https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld
-      - RELAY=http://facade:3000/notify
+      - NOTIFICATION_RELAY_URL=http://adapter:3000/notify
       
-  orion-v2:
+  ngsi-v2:
     labels:
       org.fiware: 'tutorial'
     image: quay.io/fiware/orion:${ORION_VERSION}

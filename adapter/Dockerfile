@@ -23,8 +23,8 @@ FROM node:${NODE_VERSION} AS builder
 # hadolint ignore=DL3008
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-COPY . /opt/proxy
-WORKDIR /opt/proxy
+COPY . /opt/adapter
+WORKDIR /opt/adapter
 
 # hadolint ignore=DL3008
 RUN \
@@ -41,7 +41,7 @@ USER node
 ENV NODE_ENV=development
 # Ports used by application
 EXPOSE ${WEB_APP_PORT:-3000} ${DUMMY_DEVICES_PORT:-3001}
-CMD ["node", "/opt/proxy/bin/www"]
+CMD ["node", "/opt/adapter/bin/www"]
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
    CMD npm run healthcheck
 
@@ -77,8 +77,8 @@ LABEL "org.opencontainers.image.description"="Simple Node.js express application
 LABEL "org.opencontainers.image.source"=https://github.com/${GITHUB_ACCOUNT}/${GITHUB_REPOSITORY}
 LABEL "org.nodejs.version"=${NODE_VERSION}
 
-COPY --from=builder /opt/proxy /opt/proxy
-WORKDIR /opt/proxy
+COPY --from=builder /opt/adapter /opt/adapter
+WORKDIR /opt/adapter
 
 USER nobody
 ENV NODE_ENV=production

@@ -1,11 +1,11 @@
 /*
  * Copyright 2023 -  FIWARE Foundation e.V.
  *
- * This file is part of NGSI-LD Proxy
+ * This file is part of NGSI-LD to NGSI-v2 Adapter
  *
  */
 
-const debug = require('debug')('proxy:entities');
+const debug = require('debug')('adapter:entities');
 const got = require('got');
 const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;

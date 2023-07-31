@@ -1,7 +1,7 @@
 /*
  * Copyright 2023 -  FIWARE Foundation e.V.
  *
- * This file is part of NGSI-LD Proxy
+ * This file is part of NGSI-LD to NGSI-v2 Adapter
  *
  */
 
@@ -56,7 +56,7 @@ function formatSubscription(json) {
         obj.notification = obj.notification || {};
         obj.notification.httpCustom = obj.notification.httpCustom || {};
         obj.notification.httpCustom.headers = obj.notification.httpCustom.headers || {};
-        obj.notification.httpCustom.url = Constants.RELAY_URL;
+        obj.notification.httpCustom.url = Constants.NOTIFICATION_RELAY_URL;
         obj.notification.httpCustom.headers.target = endpoint.uri;
     }
     if (endpoint.accept) {

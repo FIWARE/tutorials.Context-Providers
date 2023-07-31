@@ -1,14 +1,14 @@
 /*
  * Copyright 2023 -  FIWARE Foundation e.V.
  *
- * This file is part of NGSI-LD Proxy
+ * This file is part of NGSI-LD to NGSI-v2 Adapter
  *
  */
 
 const _ = require('lodash');
 const NGSI_LD = require('../lib/ngsi-ld');
 const Constants = require('../lib/constants');
-const debug = require('debug')('proxy:notify');
+const debug = require('debug')('adapter:notify');
 
 const got = require('got');
 const moment = require('moment-timezone');

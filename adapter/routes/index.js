@@ -1,7 +1,7 @@
 /*
  * Copyright 2023 -  FIWARE Foundation e.V.
  *
- * This file is part of NGSI-LD Proxy
+ * This file is part of NGSI-LD to NGSI-v2 Adapter
  *
  */
 

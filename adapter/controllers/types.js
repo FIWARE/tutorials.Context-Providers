@@ -1,7 +1,7 @@
 /*
  * Copyright 2023 -  FIWARE Foundation e.V.
  *
- * This file is part of NGSI-LD Proxy
+ * This file is part of NGSI-LD to NGSI-v2 Adapter
  *
  */
 
@@ -9,12 +9,12 @@ const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
 
-const debug = require('debug')('proxy:attributes');
+const debug = require('debug')('adapter:types');
 const got = require('got');
 const NGSI_LD = require('../lib/ngsi-ld');
 const Constants = require('../lib/constants');
 
-async function listAttributes(req, res) {
+async function listTypes(req, res) {
     const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
     const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
 
@@ -24,7 +24,7 @@ async function listAttributes(req, res) {
             throwHttpErrors: false,
             retry: 0
         };
-        const response = await got(Constants.v2BrokerURL('/types'), options);
+        const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
@@ -35,7 +35,7 @@ async function listAttributes(req, res) {
         let ldPayload = [];
         const body = JSON.parse(response.body);
 
-        ldPayload = NGSI_LD.formatEntityAttributeList(body, bodyIsJSONLD);
+        ldPayload = NGSI_LD.formatEntityTypeList(body, bodyIsJSONLD);
 
         return body ? res.send(ldPayload) : res.send();
     } catch (error) {
@@ -53,8 +53,8 @@ async function listAttributes(req, res) {
               });
     }
 }
-async function readAttribute(req, res) {
-    const attrName = req.params.attr;
+async function readType(req, res) {
+    const typeName = req.params.type;
     const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
     const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
 
@@ -64,17 +64,17 @@ async function readAttribute(req, res) {
             throwHttpErrors: false,
             retry: 0
         };
-        const response = await got(Constants.v2BrokerURL('/types'), options);
+        const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
         res.headers['content-type'] = contentType;
-        res.type(contentType);
         Constants.linkContext(res, bodyIsJSONLD);
 
+        res.type(contentType);
         let ldPayload = [];
         const body = JSON.parse(response.body);
-        ldPayload = NGSI_LD.formatEntityAttribute(body, bodyIsJSONLD, attrName);
+        ldPayload = NGSI_LD.formatEntityTypeInformation(body, bodyIsJSONLD, typeName);
 
         return body ? res.send(ldPayload) : res.send();
     } catch (error) {
@@ -93,5 +93,5 @@ async function readAttribute(req, res) {
     }
 }
 
-exports.list = listAttributes;
-exports.read = readAttribute;
+exports.list = listTypes;
+exports.read = readType;
