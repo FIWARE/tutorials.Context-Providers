@@ -249,7 +249,9 @@ case "${command}" in
 		export $(cat .env | grep "#" -v)
 		echo "Pulling Docker images"
 		docker pull curlimages/curl
-		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio-aaio.yml -f docker-compose/orion-ld.yml -f docker-compose/stellio.yml pull
+		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio-aaio.yml -f docker-compose/orion-ld.yml -f docker-compose/stellio.yml pull || true
+		echo "Rebuilding  adapter-for-ngsi-v2 Docker image"
+		${dockerCmd} -f docker-compose/common.yml build adapter-for-ngsi-v2 --no-cache
 		;;
 	*)
 		echo "Command not Found."
