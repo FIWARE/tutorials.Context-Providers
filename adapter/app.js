@@ -7,10 +7,9 @@ const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const nocache = require('nocache');
 
-
 const app = express();
 app.disable('x-powered-by');
-app.set("etag", false);
+app.set('etag', false);
 
 app.use(logger('dev'));
 const bodyParser = require('body-parser');

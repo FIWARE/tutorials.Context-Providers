@@ -9,7 +9,11 @@ const StatusCodes = require('http-status-codes').StatusCodes;
 const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
 const debug = require('debug')('adapter:subscriptions');
-const got = require('got');
+const got = require('got').extend({
+    timeout: {
+        request: 1000,
+    }
+});
 
 const Constants = require('../lib/constants');
 const NGSI_LD = require('../lib/ngsi-ld');
@@ -23,37 +27,44 @@ const NGSI_V2 = require('../lib/ngsi-v2');
  */
 
 async function listSubscriptions(req, res) {
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
-    const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+    headers.accept = 'application/json';
+    const isJSONLD = req.get('Accept') === 'application/ld+json';
+    const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
     const options = {
         method: req.method,
+        headers,
         throwHttpErrors: false,
         retry: 0
     };
 
-    got(Constants.v2BrokerURL(req.path), options)
+    got(Constants.v2BrokerURL('/subscriptions'), options)
         .then((response) => {
             res.statusCode = response.statusCode;
-            res.headers = response.headers;
-            res.headers['content-type'] = contentType;
-            res.type(contentType);
-            Constants.linkContext(res, bodyIsJSONLD);
-            const body = JSON.parse(response.body);
-            let ldPayload = body;
-
-            if (response.statusCode === 200) {
-                ldPayload = [];
-
-                if (body instanceof Array) {
-                    const filtered = _.filter(body || [], function (sub) {
-                        return sub.notification.httpCustom;
-                    });
-                    ldPayload = _.map(filtered, (sub) => {
-                        return NGSI_LD.formatSubscription(sub, bodyIsJSONLD);
-                    });
-                }
+            res.set('NGSILD-Tenant', tenant);
+            const v2Body = JSON.parse(response.body);
+            if (!Constants.is2xxSuccessful(res.statusCode)) {
+                return Constants.sendError(res, v2Body);
             }
-            return body ? res.send(ldPayload) : res.send();
+            res.headers = response.headers;
+            Constants.linkContext(res, isJSONLD);
+            let ldPayload = [];
+
+            if (v2Body instanceof Array) {
+                const filtered = _.filter(v2Body || [], function (sub) {
+                    return sub.notification.httpCustom;
+                });
+                ldPayload = _.map(filtered, (sub) => {
+                    return NGSI_LD.formatSubscription(sub, isJSONLD);
+                });
+            }
+            
+            return Constants.sendResponse(res, v2Body, ldPayload, contentType);
         })
         .catch((error) => {
             debug(error);
@@ -79,26 +90,35 @@ async function listSubscriptions(req, res) {
  */
 
 async function readSubscription(req, res) {
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
-    const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+    headers.accept = 'application/json';
+    const isJSONLD = req.get('Accept') === 'application/ld+json';
+    const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
     const id = req.params.id.replace(/urn:ngsi-ld:Subscription:/gi, '');
     const options = {
         method: req.method,
         throwHttpErrors: false,
+        headers,
         retry: 0
     };
 
     got(Constants.v2BrokerURL('/subscriptions/' + id), options)
         .then((response) => {
+            const v2Body = JSON.parse(response.body);
             res.statusCode = response.statusCode;
+            res.set('NGSILD-Tenant', tenant);
+            if (!Constants.is2xxSuccessful(res.statusCode)) {
+                return Constants.sendError(res, v2Body);
+            }
             res.headers = response.headers;
-            res.headers['content-type'] = contentType;
-            res.type(contentType);
-            Constants.linkContext(res, bodyIsJSONLD);
-            let ldPayload = [];
-            const body = JSON.parse(response.body);
-            ldPayload = NGSI_LD.formatSubscription(body, bodyIsJSONLD);
-            return body ? res.send(ldPayload) : res.send();
+            Constants.linkContext(res, isJSONLD);
+            const ldPayload = NGSI_LD.formatSubscription(v2Body, isJSONLD);
+            return Constants.sendResponse(res, v2Body, ldPayload, contentType);
         })
         .catch((error) => {
             debug(error);
@@ -124,9 +144,17 @@ async function readSubscription(req, res) {
  */
 
 async function deleteSubscription(req, res) {
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+
     const id = req.params.id.replace(/urn:ngsi-ld:Subscription:/gi, '');
     const options = {
         method: req.method,
+        headers,
         throwHttpErrors: false,
         retry: 0
     };
@@ -135,11 +163,13 @@ async function deleteSubscription(req, res) {
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
-            if (response.body) {
-                res.headers['content-type'] = 'application/ld+json';
-                res.type('application/ld+json');
+            res.set('NGSILD-Tenant', tenant);
+            if (!Constants.is2xxSuccessful(res.statusCode)) {
+                const v2Body = JSON.parse(response.body);
+                return Constants.sendError(res, v2Body);
             }
-            return res.send(response.body);
+            console.log(JSON.parse(response.body))
+            return res.send('done');
         })
         .catch((error) => {
             debug(error);
@@ -164,27 +194,38 @@ async function deleteSubscription(req, res) {
  * @param res - the response to return
  */
 
-function createSubscription(req, res) {
-    let v2Payload = NGSI_V2.formatSubscription(req.body);
+async function createSubscription(req, res) {
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+
+    const v2Payload = NGSI_V2.formatSubscription(req.body);
 
     const options = {
         method: req.method,
         throwHttpErrors: false,
+        headers,
         retry: 0,
         json: v2Payload
     };
 
-    got(Constants.v2BrokerURL('/subscriptions/'), options)
+
+    got(Constants.v2BrokerURL('/subscriptions'), options)
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
-            if (response.body) {
-                res.headers['content-type'] = 'application/ld+json';
-                res.type('application/ld+json');
+            res.set('NGSILD-Tenant', tenant);
+            if (!Constants.is2xxSuccessful(res.statusCode)) {
+                const v2Body = JSON.parse(response.body);
+                return Constants.sendError(res, v2Body);
             }
-            return res.send(response.body);
+            return res.send();
         })
         .catch((error) => {
+            console.log(options)
             debug(error);
             return error.code !== 'ENOTFOUND'
                 ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -201,6 +242,13 @@ function createSubscription(req, res) {
 }
 
 function updateSubscription(req, res) {
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+
     const id = req.params.id.replace(/urn:ngsi-ld:Subscription:/gi, '');
     let v2Payload = NGSI_V2.formatSubscription(req.body);
 
@@ -208,6 +256,7 @@ function updateSubscription(req, res) {
         method: req.method,
         throwHttpErrors: false,
         retry: 0,
+        headers,
         json: v2Payload
     };
 
@@ -215,11 +264,12 @@ function updateSubscription(req, res) {
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
-            if (response.body) {
-                res.headers['content-type'] = 'application/ld+json';
-                res.type('application/ld+json');
+            res.set('NGSILD-Tenant', tenant);
+            if (!Constants.is2xxSuccessful(res.statusCode)) {
+                const v2Body = JSON.parse(response.body);
+                return Constants.sendError(res, v2Body);
             }
-            return res.send(response.body);
+            return res.send();
         })
         .catch((error) => {
             debug(error);

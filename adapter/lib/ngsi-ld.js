@@ -221,9 +221,9 @@ function formatType(type) {
  * @return     {Object}               NGSI-LD payload
  */
 
-function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
+function formatEntity(json, isJSONLD, transformFlags = {}) {
     const obj = {};
-    if (bodyIsJSONLD) {
+    if (isJSONLD) {
         obj['@context'] = Constants.JSON_LD_CONTEXT;
     }
 
@@ -254,7 +254,7 @@ function formatEntity(json, bodyIsJSONLD, transformFlags = {}) {
     return obj;
 }
 
-function formatSubscription(json, bodyIsJSONLD) {
+function formatSubscription(json, isJSONLD) {
     const condition = json.subject.condition || {};
     const expression = condition.expression || {};
     const notification = json.notification || {};
@@ -276,10 +276,10 @@ function formatSubscription(json, bodyIsJSONLD) {
         }
     };
 
-    return Constants.appendContext(obj, bodyIsJSONLD);
+    return Constants.appendContext(obj, isJSONLD);
 }
 
-function formatEntityTypeList(json, bodyIsJSONLD) {
+function formatEntityTypeList(json, isJSONLD) {
     const typeList = _.map(json, (type) => {
         return type.type;
     });
@@ -290,10 +290,10 @@ function formatEntityTypeList(json, bodyIsJSONLD) {
         typeList
     };
 
-    return Constants.appendContext(obj, bodyIsJSONLD);
+    return Constants.appendContext(obj, isJSONLD);
 }
 
-function formatEntityTypeInformation(json, bodyIsJSONLD, typeName) {
+function formatEntityTypeInformation(json, isJSONLD, typeName) {
     const attributeDetails = [];
 
     _.forEach(json.attrs, (value, key) => {
@@ -315,10 +315,10 @@ function formatEntityTypeInformation(json, bodyIsJSONLD, typeName) {
         attributeDetails
     };
 
-    return Constants.appendContext(obj, bodyIsJSONLD);
+    return Constants.appendContext(obj, isJSONLD);
 }
 
-function formatEntityAttributeList(json, bodyIsJSONLD) {
+function formatEntityAttributeList(json, isJSONLD) {
     const attributeList = [];
 
     _.map(json, (type) => {
@@ -333,10 +333,10 @@ function formatEntityAttributeList(json, bodyIsJSONLD) {
         attributeList: _.uniq(attributeList)
     };
 
-    return Constants.appendContext(obj, bodyIsJSONLD);
+    return Constants.appendContext(obj, isJSONLD);
 }
 
-function formatEntityAttribute(json, bodyIsJSONLD, attributeName) {
+function formatEntityAttribute(json, isJSONLD, attributeName) {
     let attributeCount = 0;
     let attributeTypes = [];
     const typeNames = [];
@@ -364,7 +364,7 @@ function formatEntityAttribute(json, bodyIsJSONLD, attributeName) {
         attributeName
     };
 
-    return Constants.appendContext(obj, bodyIsJSONLD);
+    return Constants.appendContext(obj, isJSONLD);
 }
 
 exports.formatAttribute = formatAttribute;

@@ -10,34 +10,51 @@ const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
 
 const debug = require('debug')('adapter:types');
-const got = require('got');
+const got = require('got').extend({
+    timeout: {
+        request: 1000,
+    }
+});
 const NGSI_LD = require('../lib/ngsi-ld');
 const Constants = require('../lib/constants');
 
 async function listTypes(req, res) {
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
-    const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+    headers.accept = 'application/json';
+    const isJSONLD = req.get('Accept') === 'application/ld+json';
+    const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
 
     try {
         const options = {
             method: req.method,
             throwHttpErrors: false,
+            headers,
             retry: 0
         };
+
+
         const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
-        res.headers['content-type'] = contentType;
-        res.type(contentType);
-        Constants.linkContext(res, bodyIsJSONLD);
+        res.set('NGSILD-Tenant', tenant);
+        const v2Body = JSON.parse(response.body);
+        if (!Constants.is2xxSuccessful(res.statusCode)) {
+            return Constants.sendError(res, v2Body);
+        }
+
+        Constants.linkContext(res, isJSONLD);
 
         let ldPayload = [];
-        const body = JSON.parse(response.body);
 
-        ldPayload = NGSI_LD.formatEntityTypeList(body, bodyIsJSONLD);
+        ldPayload = NGSI_LD.formatEntityTypeList(v2Body, isJSONLD);
 
-        return body ? res.send(ldPayload) : res.send();
+        return Constants.sendResponse(res, v2Body, ldPayload, contentType);
     } catch (error) {
         debug(error);
         return error.code !== 'ENOTFOUND'
@@ -54,29 +71,38 @@ async function listTypes(req, res) {
     }
 }
 async function readType(req, res) {
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+    headers.accept = 'application/json';
     const typeName = req.params.type;
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
-    const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
+    const isJSONLD = req.get('Accept') === 'application/ld+json';
+    const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
+    const options = {
+        method: req.method,
+        throwHttpErrors: false,
+        headers,
+        retry: 0
+    };
 
     try {
-        const options = {
-            method: req.method,
-            throwHttpErrors: false,
-            retry: 0
-        };
         const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
+        res.set('NGSILD-Tenant', tenant);
+        const v2Body = JSON.parse(response.body);
+        if (!Constants.is2xxSuccessful(res.statusCode)) {
+            return Constants.sendError(res, v2Body);
+        }
         res.headers = response.headers;
-        res.headers['content-type'] = contentType;
-        Constants.linkContext(res, bodyIsJSONLD);
+        Constants.linkContext(res, isJSONLD);
 
-        res.type(contentType);
-        let ldPayload = [];
-        const body = JSON.parse(response.body);
-        ldPayload = NGSI_LD.formatEntityTypeInformation(body, bodyIsJSONLD, typeName);
+        const ldPayload = NGSI_LD.formatEntityTypeInformation(v2Body, isJSONLD, typeName);
 
-        return body ? res.send(ldPayload) : res.send();
+        return Constants.sendResponse(res, v2Body, ldPayload, contentType);
     } catch (error) {
         debug(error);
         return error.code !== 'ENOTFOUND'

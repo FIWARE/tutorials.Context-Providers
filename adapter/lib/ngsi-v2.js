@@ -65,9 +65,6 @@ function formatSubscription(json) {
         obj.notification.httpCustom.headers = obj.notification.httpCustom.headers || {};
         obj.notification.httpCustom.headers.target_accept = endpoint.accept;
     }
-
-    console.log(obj);
-
     return obj;
 }
 

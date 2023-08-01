@@ -10,7 +10,11 @@ const NGSI_LD = require('../lib/ngsi-ld');
 const Constants = require('../lib/constants');
 const debug = require('debug')('adapter:notify');
 
-const got = require('got');
+const got = require('got').extend({
+    timeout: {
+        request: 1000,
+    }
+});
 const moment = require('moment-timezone');
 const { v4: uuidv4 } = require('uuid');
 const util = require('util');
@@ -30,9 +34,9 @@ async function notify(req, res) {
         : Constants.NGSI_LD_URN + 'Subscription:' + body.subscriptionId;
 
     const contentType = req.get('Accept') || 'application/json';
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
+    const isJSONLD = req.get('Accept') === 'application/ld+json';
     const data = _.map(body.data, (entity) => {
-        return NGSI_LD.formatEntity(entity, bodyIsJSONLD, {});
+        return NGSI_LD.formatEntity(entity, isJSONLD, {});
     });
 
     const options = {
@@ -51,7 +55,7 @@ async function notify(req, res) {
         }
     };
 
-    if (!bodyIsJSONLD) {
+    if (!isJSONLD) {
         options.headers['Link'] =
             '<' + JSON_LD_CONTEXT + '>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"';
     }

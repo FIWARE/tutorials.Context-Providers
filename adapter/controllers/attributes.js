@@ -10,7 +10,11 @@ const getReasonPhrase = require('http-status-codes').getReasonPhrase;
 const _ = require('lodash');
 
 const debug = require('debug')('adapter:attributes');
-const got = require('got');
+const got = require('got').extend({
+    timeout: {
+        request: 1000,
+    }
+});
 const NGSI_LD = require('../lib/ngsi-ld');
 const Constants = require('../lib/constants');
 
@@ -22,29 +26,42 @@ const Constants = require('../lib/constants');
  */
 
 async function listAttributes(req, res) {
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
-    const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+    headers.accept = 'application/json';
+    const isJSONLD = req.get('Accept') === 'application/ld+json';
+    const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
 
     try {
         const options = {
             method: req.method,
             throwHttpErrors: false,
+            headers,
             retry: 0
         };
         const response = await got(Constants.v2BrokerURL('/types'), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
-        res.headers['content-type'] = contentType;
-        res.type(contentType);
-        Constants.linkContext(res, bodyIsJSONLD);
+        res.set('NGSILD-Tenant', tenant);
 
-        let ldPayload = [];
-        const body = JSON.parse(response.body);
+        const v2Body = JSON.parse(response.body);
+        const ldPayload = NGSI_LD.formatEntityAttributeList(v2Body, isJSONLD);
 
-        ldPayload = NGSI_LD.formatEntityAttributeList(body, bodyIsJSONLD);
-
-        return body ? res.send(ldPayload) : res.send();
+        if (_.isEmpty(ldPayload.attributeList)) {
+            res.statusCode = StatusCodes.NOT_FOUND;
+            return Constants.sendError(res, {
+                type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
+                title: getReasonPhrase(StatusCodes.NOT_FOUND),
+                detail: `${req.path}`
+            });
+        }
+        Constants.linkContext(res, isJSONLD);
+        return Constants.sendResponse(res, v2Body, ldPayload, contentType);
     } catch (error) {
         debug(error);
         return error.code !== 'ENOTFOUND'
@@ -69,29 +86,43 @@ async function listAttributes(req, res) {
  */
 
 async function readAttribute(req, res) {
+    const headers = req.headers;
+    const tenant = req.header('NGSILD-Tenant') || null;
+    headers['x-forwarded-for'] = Constants.getClientIp(req);
+    if (tenant) {
+        headers['fiware-service'] = tenant;
+    }
+    headers.accept = 'application/json';
     const attrName = req.params.attr;
-    const bodyIsJSONLD = req.get('Accept') === 'application/ld+json';
-    const contentType = bodyIsJSONLD ? 'application/ld+json' : 'application/json';
+    const isJSONLD = req.get('Accept') === 'application/ld+json';
+    const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
 
     try {
         const options = {
             method: req.method,
             throwHttpErrors: false,
+            headers,
             retry: 0
         };
         const response = await got(Constants.v2BrokerURL('/types'), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
-        res.headers['content-type'] = contentType;
-        res.type(contentType);
-        Constants.linkContext(res, bodyIsJSONLD);
+        res.set('NGSILD-Tenant', tenant);
 
-        let ldPayload = [];
-        const body = JSON.parse(response.body);
-        ldPayload = NGSI_LD.formatEntityAttribute(body, bodyIsJSONLD, attrName);
+        const v2Body = JSON.parse(response.body);
+        const ldPayload = NGSI_LD.formatEntityAttribute(v2Body, isJSONLD, attrName);
 
-        return body ? res.send(ldPayload) : res.send();
+        if (ldPayload.attributeCount === 0) {
+            res.statusCode = StatusCodes.NOT_FOUND;
+            return Constants.sendError(res, {
+                type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
+                title: getReasonPhrase(StatusCodes.NOT_FOUND),
+                detail: `${attrName}`
+            });
+        }
+        Constants.linkContext(res, isJSONLD);
+        return Constants.sendResponse(res, v2Body, ldPayload, contentType);
     } catch (error) {
         debug(error);
         return error.code !== 'ENOTFOUND'
