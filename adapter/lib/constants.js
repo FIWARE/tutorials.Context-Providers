@@ -16,7 +16,6 @@ const JSON_LD_CONTEXT =
 const NOTIFICATION_RELAY_URL = process.env.NOTIFICATION_RELAY || 'https://localhost:3000/notify';
 
 function v2BrokerURL(path) {
-    debug(V2_BROKER_URL + path)
     return V2_BROKER_URL + path;
 }
 
@@ -62,7 +61,7 @@ function getClientIp(req) {
 }
 
 function is2xxSuccessful(status) {
-    return status / 100 === 2;
+    return Math.floor(status / 100) == 2;
 }
 
 function sendResponse(res, v2Body, ldPayload, contentType) {

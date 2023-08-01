@@ -8,7 +8,7 @@
 const debug = require('debug')('adapter:entities');
 const got = require('got').extend({
     timeout: {
-        request: 1000,
+        request: 1000
     }
 });
 const StatusCodes = require('http-status-codes').StatusCodes;
@@ -45,7 +45,7 @@ async function proxyResponse(req, res) {
         v2queryOptions = _.without(queryOptions, 'concise', 'sysAttrs');
     }
 
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -88,8 +88,9 @@ async function proxyResponse(req, res) {
         const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
-        res.headers = response.headers;
-        res.set('NGSILD-Tenant', tenant);
+        if (tenant) {
+            res.set('NGSILD-Tenant', tenant);
+        }
         const v2Body = JSON.parse(response.body);
         const type = v2Body.type;
         if (!Constants.is2xxSuccessful(res.statusCode)) {

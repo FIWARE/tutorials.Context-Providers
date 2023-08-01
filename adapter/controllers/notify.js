@@ -12,7 +12,7 @@ const debug = require('debug')('adapter:notify');
 
 const got = require('got').extend({
     timeout: {
-        request: 1000,
+        request: 1000
     }
 });
 const moment = require('moment-timezone');
@@ -63,8 +63,8 @@ async function notify(req, res) {
     got(target, options)
         .then((response) => {
             res.statusCode = response.statusCode;
-            res.headers = response.headers;
             if (response.headers['content-type']) {
+                res.set('content-type', response.headers['content-type']);
                 res.type(response.headers['content-type']);
             }
             return res.status(response.statusCode).send(response.body);

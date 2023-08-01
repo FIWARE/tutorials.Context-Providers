@@ -12,7 +12,7 @@ const _ = require('lodash');
 const debug = require('debug')('adapter:attributes');
 const got = require('got').extend({
     timeout: {
-        request: 1000,
+        request: 1000
     }
 });
 const NGSI_LD = require('../lib/ngsi-ld');
@@ -26,7 +26,7 @@ const Constants = require('../lib/constants');
  */
 
 async function listAttributes(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -46,8 +46,9 @@ async function listAttributes(req, res) {
         const response = await got(Constants.v2BrokerURL('/types'), options);
 
         res.statusCode = response.statusCode;
-        res.headers = response.headers;
-        res.set('NGSILD-Tenant', tenant);
+        if (tenant) {
+            res.set('NGSILD-Tenant', tenant);
+        }
 
         const v2Body = JSON.parse(response.body);
         const ldPayload = NGSI_LD.formatEntityAttributeList(v2Body, isJSONLD);
@@ -86,7 +87,7 @@ async function listAttributes(req, res) {
  */
 
 async function readAttribute(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -107,8 +108,9 @@ async function readAttribute(req, res) {
         const response = await got(Constants.v2BrokerURL('/types'), options);
 
         res.statusCode = response.statusCode;
-        res.headers = response.headers;
-        res.set('NGSILD-Tenant', tenant);
+        if (tenant) {
+            res.set('NGSILD-Tenant', tenant);
+        }
 
         const v2Body = JSON.parse(response.body);
         const ldPayload = NGSI_LD.formatEntityAttribute(v2Body, isJSONLD, attrName);

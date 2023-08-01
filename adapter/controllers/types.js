@@ -12,14 +12,14 @@ const _ = require('lodash');
 const debug = require('debug')('adapter:types');
 const got = require('got').extend({
     timeout: {
-        request: 1000,
+        request: 1000
     }
 });
 const NGSI_LD = require('../lib/ngsi-ld');
 const Constants = require('../lib/constants');
 
 async function listTypes(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -37,12 +37,13 @@ async function listTypes(req, res) {
             retry: 0
         };
 
-
         const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
         res.headers = response.headers;
-        res.set('NGSILD-Tenant', tenant);
+        if (tenant) {
+            res.set('NGSILD-Tenant', tenant);
+        }
         const v2Body = JSON.parse(response.body);
         if (!Constants.is2xxSuccessful(res.statusCode)) {
             return Constants.sendError(res, v2Body);
@@ -71,7 +72,7 @@ async function listTypes(req, res) {
     }
 }
 async function readType(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -92,7 +93,9 @@ async function readType(req, res) {
         const response = await got(Constants.v2BrokerURL(req.path), options);
 
         res.statusCode = response.statusCode;
-        res.set('NGSILD-Tenant', tenant);
+        if (tenant) {
+            res.set('NGSILD-Tenant', tenant);
+        }
         const v2Body = JSON.parse(response.body);
         if (!Constants.is2xxSuccessful(res.statusCode)) {
             return Constants.sendError(res, v2Body);

@@ -11,7 +11,7 @@ const _ = require('lodash');
 const debug = require('debug')('adapter:subscriptions');
 const got = require('got').extend({
     timeout: {
-        request: 1000,
+        request: 1000
     }
 });
 
@@ -27,7 +27,7 @@ const NGSI_V2 = require('../lib/ngsi-v2');
  */
 
 async function listSubscriptions(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -46,7 +46,9 @@ async function listSubscriptions(req, res) {
     got(Constants.v2BrokerURL('/subscriptions'), options)
         .then((response) => {
             res.statusCode = response.statusCode;
-            res.set('NGSILD-Tenant', tenant);
+            if (tenant) {
+                res.set('NGSILD-Tenant', tenant);
+            }
             const v2Body = JSON.parse(response.body);
             if (!Constants.is2xxSuccessful(res.statusCode)) {
                 return Constants.sendError(res, v2Body);
@@ -63,7 +65,7 @@ async function listSubscriptions(req, res) {
                     return NGSI_LD.formatSubscription(sub, isJSONLD);
                 });
             }
-            
+
             return Constants.sendResponse(res, v2Body, ldPayload, contentType);
         })
         .catch((error) => {
@@ -90,7 +92,7 @@ async function listSubscriptions(req, res) {
  */
 
 async function readSubscription(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -111,7 +113,9 @@ async function readSubscription(req, res) {
         .then((response) => {
             const v2Body = JSON.parse(response.body);
             res.statusCode = response.statusCode;
-            res.set('NGSILD-Tenant', tenant);
+            if (tenant) {
+                res.set('NGSILD-Tenant', tenant);
+            }
             if (!Constants.is2xxSuccessful(res.statusCode)) {
                 return Constants.sendError(res, v2Body);
             }
@@ -144,7 +148,7 @@ async function readSubscription(req, res) {
  */
 
 async function deleteSubscription(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -163,13 +167,14 @@ async function deleteSubscription(req, res) {
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
-            res.set('NGSILD-Tenant', tenant);
+            if (tenant) {
+                res.set('NGSILD-Tenant', tenant);
+            }
             if (!Constants.is2xxSuccessful(res.statusCode)) {
                 const v2Body = JSON.parse(response.body);
                 return Constants.sendError(res, v2Body);
             }
-            console.log(JSON.parse(response.body))
-            return res.send('done');
+            return res.send();
         })
         .catch((error) => {
             debug(error);
@@ -195,7 +200,7 @@ async function deleteSubscription(req, res) {
  */
 
 async function createSubscription(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -207,17 +212,29 @@ async function createSubscription(req, res) {
     const options = {
         method: req.method,
         throwHttpErrors: false,
-        headers,
+
         retry: 0,
         json: v2Payload
     };
 
-
     got(Constants.v2BrokerURL('/subscriptions'), options)
         .then((response) => {
             res.statusCode = response.statusCode;
-            res.headers = response.headers;
-            res.set('NGSILD-Tenant', tenant);
+            if (response.headers.location) {
+                {
+                    res.set(
+                        'Location',
+                        response.headers.location.replace(
+                            /v2\/subscriptions\//gi,
+                            'ngsi-ld/v1/urn:ngsi-ld:Subscription:'
+                        )
+                    );
+                }
+            }
+            if (tenant) {
+                res.set('NGSILD-Tenant', tenant);
+            }
+
             if (!Constants.is2xxSuccessful(res.statusCode)) {
                 const v2Body = JSON.parse(response.body);
                 return Constants.sendError(res, v2Body);
@@ -225,7 +242,6 @@ async function createSubscription(req, res) {
             return res.send();
         })
         .catch((error) => {
-            console.log(options)
             debug(error);
             return error.code !== 'ENOTFOUND'
                 ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -242,7 +258,7 @@ async function createSubscription(req, res) {
 }
 
 function updateSubscription(req, res) {
-    const headers = req.headers;
+    const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
     if (tenant) {
@@ -264,7 +280,9 @@ function updateSubscription(req, res) {
         .then((response) => {
             res.statusCode = response.statusCode;
             res.headers = response.headers;
-            res.set('NGSILD-Tenant', tenant);
+            if (tenant) {
+                res.set('NGSILD-Tenant', tenant);
+            }
             if (!Constants.is2xxSuccessful(res.statusCode)) {
                 const v2Body = JSON.parse(response.body);
                 return Constants.sendError(res, v2Body);
