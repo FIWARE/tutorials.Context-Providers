@@ -178,7 +178,7 @@ stoppingContainers () {
 
 displayServices () {
 	echo ""
-	docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" --filter name=$1-*
+	docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" --filter name="$1"
 	echo ""
 }
 
@@ -196,14 +196,13 @@ case "${command}" in
 		echo -e "- Data models \033[1m@context\033[0m (Smart Supermarket) is supplied externally"
 		echo ""
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/orion-ld.yml up -d --remove-orphans --renew-anon-volumes
+		displayServices "orion|fiware"
 		waitForMongo
 		addDatabaseIndex
 		waitForOrionV2
 		waitForOrionLD
 		export CONTEXT_BROKER=orion:1026
 		loadData
-
-		displayServices fiware
 		;;
 	"scorpio")
 		export $(cat .env | grep "#" -v)
@@ -214,12 +213,12 @@ case "${command}" in
 		echo -e "- Data models \033[1m@context\033[0m (Smart Supermarket) is supplied externally"
 		echo ""
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio-aaio.yml up -d --remove-orphans --renew-anon-volumes
+		displayServices "scorpio|fiware"
 		waitForMongo
 		waitForOrionV2
 		waitForScorpio
 		export CONTEXT_BROKER=scorpio:9090
 		loadData
-		displayServices scorpio
 		;;
 	"stellio")
 		export $(cat .env | grep "#" -v)
@@ -230,12 +229,12 @@ case "${command}" in
 		echo -e "- Data models \033[1m@context\033[0m (Smart Supermarket) is supplied externally"
 		echo ""
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/stellio.yml up -d --remove-orphans --renew-anon-volumes
+		displayServices "stellio|fiware"
 		waitForMongo
 		waitForOrionV2
 		waitForStellio
 		export CONTEXT_BROKER=stellio:8080
 		loadData
-		displayServices stellio
 		;;
 	"stop")
 		export $(cat .env | grep "#" -v)
