@@ -60,29 +60,14 @@ async function notify(req, res) {
             '<' + JSON_LD_CONTEXT + '>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"';
     }
 
-    got(target, options)
-        .then((response) => {
-            res.statusCode = response.statusCode;
-            if (response.headers['content-type']) {
-                res.set('content-type', response.headers['content-type']);
-                res.type(response.headers['content-type']);
-            }
-            return res.status(response.statusCode).send(response.body);
-        })
-        .catch((error) => {
-            return (code =
-                error.code !== 'ENOTFOUND'
-                    ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                          type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                          title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                          message: `${target} caused an error: ${error.code}`
-                      })
-                    : res.status(StatusCodes.NOT_FOUND).send({
-                          type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                          title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                          message: `${target} is unavailable`
-                      }));
-        });
+    const response = await got(target, options);
+
+    res.statusCode = response.statusCode;
+    if (response.headers['content-type']) {
+        res.set('content-type', response.headers['content-type']);
+        res.type(response.headers['content-type']);
+    }
+    return res.status(response.statusCode).send(response.body);
 }
 
 exports.notify = notify;

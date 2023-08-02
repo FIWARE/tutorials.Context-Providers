@@ -36,47 +36,32 @@ async function listAttributes(req, res) {
     const isJSONLD = req.get('Accept') === 'application/ld+json';
     const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
 
-    try {
-        const options = {
-            method: req.method,
-            throwHttpErrors: false,
-            headers,
-            retry: 0
-        };
-        const response = await got(Constants.v2BrokerURL('/types'), options);
+    const options = {
+        method: req.method,
+        throwHttpErrors: false,
+        headers,
+        retry: 0
+    };
+    const response = await got(Constants.v2BrokerURL('/types'), options);
 
-        res.statusCode = response.statusCode;
-        if (tenant) {
-            res.set('NGSILD-Tenant', tenant);
-        }
-
-        const v2Body = JSON.parse(response.body);
-        const ldPayload = NGSI_LD.formatEntityAttributeList(v2Body, isJSONLD);
-
-        if (_.isEmpty(ldPayload.attributeList)) {
-            res.statusCode = StatusCodes.NOT_FOUND;
-            return Constants.sendError(res, {
-                type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                detail: `${req.path}`
-            });
-        }
-        Constants.linkContext(res, isJSONLD);
-        return Constants.sendResponse(res, v2Body, ldPayload, contentType);
-    } catch (error) {
-        debug(error);
-        return error.code !== 'ENOTFOUND'
-            ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                  type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                  title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                  message: `${req.path} caused an error:  ${error.code}`
-              })
-            : res.status(StatusCodes.NOT_FOUND).send({
-                  type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                  title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                  message: `${req.path} is unavailable`
-              });
+    res.statusCode = response.statusCode;
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
     }
+
+    const v2Body = JSON.parse(response.body);
+    const ldPayload = NGSI_LD.formatEntityAttributeList(v2Body, isJSONLD);
+
+    if (_.isEmpty(ldPayload.attributeList)) {
+        res.statusCode = StatusCodes.NOT_FOUND;
+        return Constants.sendError(res, {
+            type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
+            title: getReasonPhrase(StatusCodes.NOT_FOUND),
+            detail: `${req.path}`
+        });
+    }
+    Constants.linkContext(res, isJSONLD);
+    return Constants.sendResponse(res, v2Body, ldPayload, contentType);
 }
 
 /**
@@ -98,47 +83,32 @@ async function readAttribute(req, res) {
     const isJSONLD = req.get('Accept') === 'application/ld+json';
     const contentType = isJSONLD ? 'application/ld+json' : 'application/json';
 
-    try {
-        const options = {
-            method: req.method,
-            throwHttpErrors: false,
-            headers,
-            retry: 0
-        };
-        const response = await got(Constants.v2BrokerURL('/types'), options);
+    const options = {
+        method: req.method,
+        throwHttpErrors: false,
+        headers,
+        retry: 0
+    };
+    const response = await got(Constants.v2BrokerURL('/types'), options);
 
-        res.statusCode = response.statusCode;
-        if (tenant) {
-            res.set('NGSILD-Tenant', tenant);
-        }
-
-        const v2Body = JSON.parse(response.body);
-        const ldPayload = NGSI_LD.formatEntityAttribute(v2Body, isJSONLD, attrName);
-
-        if (ldPayload.attributeCount === 0) {
-            res.statusCode = StatusCodes.NOT_FOUND;
-            return Constants.sendError(res, {
-                type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                detail: `${attrName}`
-            });
-        }
-        Constants.linkContext(res, isJSONLD);
-        return Constants.sendResponse(res, v2Body, ldPayload, contentType);
-    } catch (error) {
-        debug(error);
-        return error.code !== 'ENOTFOUND'
-            ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                  type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                  title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                  message: `${req.path} caused an error:  ${error.code}`
-              })
-            : res.status(StatusCodes.NOT_FOUND).send({
-                  type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                  title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                  message: `${req.path} is unavailable`
-              });
+    res.statusCode = response.statusCode;
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
     }
+
+    const v2Body = JSON.parse(response.body);
+    const ldPayload = NGSI_LD.formatEntityAttribute(v2Body, isJSONLD, attrName);
+
+    if (ldPayload.attributeCount === 0) {
+        res.statusCode = StatusCodes.NOT_FOUND;
+        return Constants.sendError(res, {
+            type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
+            title: getReasonPhrase(StatusCodes.NOT_FOUND),
+            detail: `${attrName}`
+        });
+    }
+    Constants.linkContext(res, isJSONLD);
+    return Constants.sendResponse(res, v2Body, ldPayload, contentType);
 }
 
 exports.list = listAttributes;

@@ -84,59 +84,44 @@ async function proxyResponse(req, res) {
         options.searchParams.sysAttrs = 'true';
     }
 
-    try {
-        const response = await got(Constants.v2BrokerURL(req.path), options);
+    const response = await got(Constants.v2BrokerURL(req.path), options);
 
-        res.statusCode = response.statusCode;
-        if (tenant) {
-            res.set('NGSILD-Tenant', tenant);
-        }
-        const v2Body = JSON.parse(response.body);
-        const type = v2Body.type;
-        if (!Constants.is2xxSuccessful(res.statusCode)) {
-            return Constants.sendError(res, v2Body);
-        }
-
-        if (queryType.length > 1 && !queryType.includes(type)) {
-            res.set('Content-Type', 'application/json');
-            res.type('application/json');
-            return res.status(StatusCodes.NOT_FOUND).send({
-                type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                detail: `${req.path}`
-            });
-        }
-        if (transformFlags.keyValues) {
-            ldPayload = v2Body;
-        } else if (transformFlags.attrsOnly) {
-            ldPayload = NGSI_LD.formatAttribute(v2Body, transformFlags);
-        } else if (v2Body instanceof Array) {
-            ldPayload = _.map(v2Body, (entity) => {
-                return NGSI_LD.formatEntity(entity, isJSONLD, transformFlags);
-            });
-        } else {
-            ldPayload = NGSI_LD.formatEntity(v2Body, isJSONLD, transformFlags);
-        }
-        ldPayload = Constants.appendContext(ldPayload, isJSONLD);
-        Constants.linkContext(res, isJSONLD);
-        if (!isJSONLD) {
-            res.type(!isJSONLD ? 'application/json' : 'application/json');
-        }
-        return Constants.sendResponse(res, v2Body, ldPayload, contentType);
-    } catch (error) {
-        debug(error);
-        return error.code !== 'ENOTFOUND'
-            ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                  type: 'urn:ngsi-ld/errors/InternalError',
-                  title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                  message: `${req.path} caused an error:  ${error.code}`
-              })
-            : res.status(StatusCodes.NOT_FOUND).send({
-                  type: 'urn:ngsi-ld/errors/ResourceNotFound',
-                  title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                  message: `${req.path} is unavailable`
-              });
+    res.statusCode = response.statusCode;
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
     }
+    const v2Body = JSON.parse(response.body);
+    const type = v2Body.type;
+    if (!Constants.is2xxSuccessful(res.statusCode)) {
+        return Constants.sendError(res, v2Body);
+    }
+
+    if (queryType.length > 1 && !queryType.includes(type)) {
+        res.set('Content-Type', 'application/json');
+        res.type('application/json');
+        return res.status(StatusCodes.NOT_FOUND).send({
+            type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
+            title: getReasonPhrase(StatusCodes.NOT_FOUND),
+            detail: `${req.path}`
+        });
+    }
+    if (transformFlags.keyValues) {
+        ldPayload = v2Body;
+    } else if (transformFlags.attrsOnly) {
+        ldPayload = NGSI_LD.formatAttribute(v2Body, transformFlags);
+    } else if (v2Body instanceof Array) {
+        ldPayload = _.map(v2Body, (entity) => {
+            return NGSI_LD.formatEntity(entity, isJSONLD, transformFlags);
+        });
+    } else {
+        ldPayload = NGSI_LD.formatEntity(v2Body, isJSONLD, transformFlags);
+    }
+    ldPayload = Constants.appendContext(ldPayload, isJSONLD);
+    Constants.linkContext(res, isJSONLD);
+    if (!isJSONLD) {
+        res.type(!isJSONLD ? 'application/json' : 'application/json');
+    }
+    return Constants.sendResponse(res, v2Body, ldPayload, contentType);
 }
 
 exports.response = proxyResponse;

@@ -43,45 +43,30 @@ async function listSubscriptions(req, res) {
         retry: 0
     };
 
-    got(Constants.v2BrokerURL('/subscriptions'), options)
-        .then((response) => {
-            res.statusCode = response.statusCode;
-            if (tenant) {
-                res.set('NGSILD-Tenant', tenant);
-            }
-            const v2Body = JSON.parse(response.body);
-            if (!Constants.is2xxSuccessful(res.statusCode)) {
-                return Constants.sendError(res, v2Body);
-            }
-            res.headers = response.headers;
-            Constants.linkContext(res, isJSONLD);
-            let ldPayload = [];
+    const response = await got(Constants.v2BrokerURL('/subscriptions'), options);
 
-            if (v2Body instanceof Array) {
-                const filtered = _.filter(v2Body || [], function (sub) {
-                    return sub.notification.httpCustom;
-                });
-                ldPayload = _.map(filtered, (sub) => {
-                    return NGSI_LD.formatSubscription(sub, isJSONLD);
-                });
-            }
+    res.statusCode = response.statusCode;
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
+    }
+    const v2Body = JSON.parse(response.body);
+    if (!Constants.is2xxSuccessful(res.statusCode)) {
+        return Constants.sendError(res, v2Body);
+    }
+    res.headers = response.headers;
+    Constants.linkContext(res, isJSONLD);
+    let ldPayload = [];
 
-            return Constants.sendResponse(res, v2Body, ldPayload, contentType);
-        })
-        .catch((error) => {
-            debug(error);
-            return error.code !== 'ENOTFOUND'
-                ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                      title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                      message: `${req.path} caused an error:  ${error.code}`
-                  })
-                : res.status(StatusCodes.NOT_FOUND).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                      title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                      message: `${req.path} is unavailable`
-                  });
+    if (v2Body instanceof Array) {
+        const filtered = _.filter(v2Body || [], function (sub) {
+            return sub.notification.httpCustom;
         });
+        ldPayload = _.map(filtered, (sub) => {
+            return NGSI_LD.formatSubscription(sub, isJSONLD);
+        });
+    }
+
+    return Constants.sendResponse(res, v2Body, ldPayload, contentType);
 }
 
 /**
@@ -109,35 +94,19 @@ async function readSubscription(req, res) {
         retry: 0
     };
 
-    got(Constants.v2BrokerURL('/subscriptions/' + id), options)
-        .then((response) => {
-            const v2Body = JSON.parse(response.body);
-            res.statusCode = response.statusCode;
-            if (tenant) {
-                res.set('NGSILD-Tenant', tenant);
-            }
-            if (!Constants.is2xxSuccessful(res.statusCode)) {
-                return Constants.sendError(res, v2Body);
-            }
-            res.headers = response.headers;
-            Constants.linkContext(res, isJSONLD);
-            const ldPayload = NGSI_LD.formatSubscription(v2Body, isJSONLD);
-            return Constants.sendResponse(res, v2Body, ldPayload, contentType);
-        })
-        .catch((error) => {
-            debug(error);
-            return error.code !== 'ENOTFOUND'
-                ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                      title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                      message: `${req.path} caused an error:  ${error.code}`
-                  })
-                : res.status(StatusCodes.NOT_FOUND).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                      title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                      message: `${req.path} is unavailable`
-                  });
-        });
+    const response = await got(Constants.v2BrokerURL('/subscriptions/' + id), options);
+    const v2Body = JSON.parse(response.body);
+    res.statusCode = response.statusCode;
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
+    }
+    if (!Constants.is2xxSuccessful(res.statusCode)) {
+        return Constants.sendError(res, v2Body);
+    }
+    res.headers = response.headers;
+    Constants.linkContext(res, isJSONLD);
+    const ldPayload = NGSI_LD.formatSubscription(v2Body, isJSONLD);
+    return Constants.sendResponse(res, v2Body, ldPayload, contentType);
 }
 
 /**
@@ -163,33 +132,18 @@ async function deleteSubscription(req, res) {
         retry: 0
     };
 
-    got(Constants.v2BrokerURL('/subscriptions/' + id), options)
-        .then((response) => {
-            res.statusCode = response.statusCode;
-            res.headers = response.headers;
-            if (tenant) {
-                res.set('NGSILD-Tenant', tenant);
-            }
-            if (!Constants.is2xxSuccessful(res.statusCode)) {
-                const v2Body = JSON.parse(response.body);
-                return Constants.sendError(res, v2Body);
-            }
-            return res.send();
-        })
-        .catch((error) => {
-            debug(error);
-            return error.code !== 'ENOTFOUND'
-                ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                      title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                      message: `${req.path} caused an error:  ${error.code}`
-                  })
-                : res.status(StatusCodes.NOT_FOUND).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                      title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                      message: `${req.path} is unavailable`
-                  });
-        });
+    const response = await got(Constants.v2BrokerURL('/subscriptions/' + id), options);
+
+    res.statusCode = response.statusCode;
+    res.headers = response.headers;
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
+    }
+    if (!Constants.is2xxSuccessful(res.statusCode)) {
+        const v2Body = JSON.parse(response.body);
+        return Constants.sendError(res, v2Body);
+    }
+    return res.send();
 }
 
 /**
@@ -212,52 +166,34 @@ async function createSubscription(req, res) {
     const options = {
         method: req.method,
         throwHttpErrors: false,
-
+        headers,
         retry: 0,
         json: v2Payload
     };
 
-    got(Constants.v2BrokerURL('/subscriptions'), options)
-        .then((response) => {
-            res.statusCode = response.statusCode;
-            if (response.headers.location) {
-                {
-                    res.set(
-                        'Location',
-                        response.headers.location.replace(
-                            /v2\/subscriptions\//gi,
-                            'ngsi-ld/v1/urn:ngsi-ld:Subscription:'
-                        )
-                    );
-                }
-            }
-            if (tenant) {
-                res.set('NGSILD-Tenant', tenant);
-            }
+    const response = await got(Constants.v2BrokerURL('/subscriptions'), options);
 
-            if (!Constants.is2xxSuccessful(res.statusCode)) {
-                const v2Body = JSON.parse(response.body);
-                return Constants.sendError(res, v2Body);
-            }
-            return res.send();
-        })
-        .catch((error) => {
-            debug(error);
-            return error.code !== 'ENOTFOUND'
-                ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                      title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                      message: `${req.path} caused an error:  ${error.code}`
-                  })
-                : res.status(StatusCodes.NOT_FOUND).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                      title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                      message: `${req.path} is unavailable`
-                  });
-        });
+    res.statusCode = response.statusCode;
+    if (response.headers.location) {
+        {
+            res.set(
+                'Location',
+                response.headers.location.replace(/v2\/subscriptions\//gi, 'ngsi-ld/v1/urn:ngsi-ld:Subscription:')
+            );
+        }
+    }
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
+    }
+
+    if (!Constants.is2xxSuccessful(res.statusCode)) {
+        const v2Body = JSON.parse(response.body);
+        return Constants.sendError(res, v2Body);
+    }
+    return res.send();
 }
 
-function updateSubscription(req, res) {
+async function updateSubscription(req, res) {
     const headers = {};
     const tenant = req.header('NGSILD-Tenant') || null;
     headers['x-forwarded-for'] = Constants.getClientIp(req);
@@ -276,33 +212,18 @@ function updateSubscription(req, res) {
         json: v2Payload
     };
 
-    got(Constants.v2BrokerURL('/subscriptions/' + id), options)
-        .then((response) => {
-            res.statusCode = response.statusCode;
-            res.headers = response.headers;
-            if (tenant) {
-                res.set('NGSILD-Tenant', tenant);
-            }
-            if (!Constants.is2xxSuccessful(res.statusCode)) {
-                const v2Body = JSON.parse(response.body);
-                return Constants.sendError(res, v2Body);
-            }
-            return res.send();
-        })
-        .catch((error) => {
-            debug(error);
-            return error.code !== 'ENOTFOUND'
-                ? res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
-                      title: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR),
-                      message: `${req.path} caused an error:  ${error.code}`
-                  })
-                : res.status(StatusCodes.NOT_FOUND).send({
-                      type: 'https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound',
-                      title: getReasonPhrase(StatusCodes.NOT_FOUND),
-                      message: `${req.path} is unavailable`
-                  });
-        });
+    const response = await got(Constants.v2BrokerURL('/subscriptions/' + id), options);
+
+    res.statusCode = response.statusCode;
+    res.headers = response.headers;
+    if (tenant) {
+        res.set('NGSILD-Tenant', tenant);
+    }
+    if (!Constants.is2xxSuccessful(res.statusCode)) {
+        const v2Body = JSON.parse(response.body);
+        return Constants.sendError(res, v2Body);
+    }
+    return res.send();
 }
 
 exports.list = listSubscriptions;

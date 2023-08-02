@@ -5,7 +5,6 @@
  *
  */
 
-const debug = require('debug')('adapter:const');
 const V2_BROKER_URL = process.env.NGSI_V2_CONTEXT_BROKER || 'http://localhost:1027/v2';
 const DATETIME_DEFAULT = '1970-01-01T00:00:00.000Z';
 const ATTRIBUTE_DEFAULT = null;
@@ -30,7 +29,7 @@ function linkContext(res, isJSONLD) {
     if (!isJSONLD && is2xxSuccessful(res.statusCode)) {
         res.header(
             'Link',
-            '<' + JSON_LD_CONTEXT + '>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+            `<${JSON_LD_CONTEXT}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"`
         );
     }
 }
@@ -61,7 +60,7 @@ function getClientIp(req) {
 }
 
 function is2xxSuccessful(status) {
-    return Math.floor(status / 100) == 2;
+    return Math.floor(status / 100) === 2;
 }
 
 function sendResponse(res, v2Body, ldPayload, contentType) {
