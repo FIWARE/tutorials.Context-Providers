@@ -300,16 +300,10 @@ the payloads offered by the two subscriptions will be discussed below.
                 "type": "Shelf"
             }
         ],
-        "watchedAttributes": [
-            "numberOfItems"
-        ],
+        "watchedAttributes": ["numberOfItems"],
         "q": "https://fiware.github.io/tutorials.Step-by-Step/schema/numberOfItems<10;https://fiware.github.io/tutorials.Step-by-Step/schema/locatedIn==%22urn:ngsi-ld:Building:store001%22",
         "notification": {
-            "attributes": [
-                "numberOfItems",
-                "stocks",
-                "locatedIn"
-            ],
+            "attributes": ["numberOfItems", "stocks", "locatedIn"],
             "format": "keyValues",
             "endpoint": {
                 "uri": "http://tutorial:3000/subscription/low-stock-store001",
@@ -327,16 +321,10 @@ the payloads offered by the two subscriptions will be discussed below.
                 "type": "Shelf"
             }
         ],
-        "watchedAttributes": [
-            "numberOfItems"
-        ],
+        "watchedAttributes": ["numberOfItems"],
         "q": "https://fiware.github.io/tutorials.Step-by-Step/schema/numberOfItems<10;https://fiware.github.io/tutorials.Step-by-Step/schema/locatedIn==%22urn:ngsi-ld:Building:store002%22",
         "notification": {
-            "attributes": [
-                "numberOfItems",
-                "stocks",
-                "locatedIn"
-            ],
+            "attributes": ["numberOfItems", "stocks", "locatedIn"],
             "format": "keyValues",
             "endpoint": {
                 "uri": "http://tutorial:3000/subscription/low-stock-store002",
