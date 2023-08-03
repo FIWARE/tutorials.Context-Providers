@@ -148,16 +148,16 @@ tutorial:
     networks:
         - default
     expose:
-        - "3000"
+        - '3000'
     ports:
-        - "3000:3000"
+        - '3000:3000'
     environment:
-        - "DEBUG=tutorial:*"
-        - "PORT=3000"
-        - "CONTEXT_BROKER=http://orion:1026/v2"
-        - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
-        - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
-        - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
+        - 'DEBUG=tutorial:*'
+        - 'PORT=3000'
+        - 'CONTEXT_BROKER=http://orion:1026/v2'
+        - 'OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>'
+        - 'TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>'
+        - 'TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>'
 ```
 
 The `tutorial` container is driven by environment variables as shown:
@@ -228,11 +228,11 @@ application:
 
 ```yaml
 environment:
-    - "DEBUG=tutorial:*"
-    - "CONTEXT_BROKER=http://orion:1026/v2"
-    - "OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>"
-    - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
-    - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
+    - 'DEBUG=tutorial:*'
+    - 'CONTEXT_BROKER=http://orion:1026/v2'
+    - 'OPENWEATHERMAP_KEY_ID=<ADD_YOUR_KEY_ID>'
+    - 'TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>'
+    - 'TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>'
 ```
 
 If you do not wish to sign-up for an API key, you can use data from the random data context provider instead.
