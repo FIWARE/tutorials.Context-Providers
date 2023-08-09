@@ -185,11 +185,11 @@ Context Provider NGSI proxy  も追加されました。 コンテキストを�
 イメージを作成してください :
 
 ```bash
-git clone https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations.git
-cd tutorials.LD-Subscriptions-Registrations
-git checkout NGSI-v2
+git clone https://github.com/FIWARE/tutorials.Context-Providers.git
+cd tutorials.Context-Providers
+git checkout NGSI-LD
 
-./services orion
+./services [orion|scorpio|stellio]
 ```
 
 > **注:** クリーンアップして最初からやり直す場合は、次のコマンドで実行できます :

@@ -150,10 +150,7 @@ services:
   adapter-for-ngsi-v2:
     labels:
       org.fiware: 'tutorial'
-    image: quay.io/fiware/adapter
-    build:
-      context: ../adapter
-      dockerfile: Dockerfile
+    image: quay.io/fiware/lepus
     hostname: adapter
     container_name: adapter-for-v2
     networks:

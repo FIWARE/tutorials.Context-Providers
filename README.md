@@ -174,11 +174,11 @@ provided within the repository. Please clone the repository and create the neces
 shown:
 
 ```bash
-git clone https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations.git
-cd tutorials.LD-Subscriptions-Registrations
-git checkout NGSI-v2
+git clone https://github.com/FIWARE/tutorials.Context-Providers.git
+cd tutorials.Context-Providers
+git checkout NGSI-LD
 
-./services orion
+./services [orion|scorpio|stellio]
 ```
 
 > **Note:** If you want to clean up and start over again you can do so with the following command:

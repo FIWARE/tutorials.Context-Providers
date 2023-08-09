@@ -203,6 +203,7 @@ case "${command}" in
 		waitForOrionLD
 		export CONTEXT_BROKER=orion:1026
 		loadData
+		echo -e "\033[1;34m${command}\033[0m is now running and exposed on localhost:${EXPOSED_PORT}"
 		;;
 	"scorpio")
 		export $(cat .env | grep "#" -v)
@@ -219,6 +220,7 @@ case "${command}" in
 		waitForScorpio
 		export CONTEXT_BROKER=scorpio:9090
 		loadData
+		echo -e "\033[1;34m${command}\033[0m is now running and exposed on localhost:${EXPOSED_PORT}"
 		;;
 	"stellio")
 		export $(cat .env | grep "#" -v)
@@ -235,6 +237,7 @@ case "${command}" in
 		waitForStellio
 		export CONTEXT_BROKER=stellio:8080
 		loadData
+		echo -e "\033[1;34m${command}\033[0m is now running and exposed on localhost:${EXPOSED_PORT}"
 		;;
 	"stop")
 		export $(cat .env | grep "#" -v)
@@ -242,15 +245,13 @@ case "${command}" in
 		;;
 	"start")
 		export $(cat .env | grep "#" -v)
-		./services orion $2
+		./services ${CONTEXT_BROKER:=orion} $2
 		;;
 	"create")
 		export $(cat .env | grep "#" -v)
 		echo "Pulling Docker images"
 		docker pull curlimages/curl
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio-aaio.yml -f docker-compose/orion-ld.yml -f docker-compose/stellio.yml pull --ignore-buildable
-		echo "Rebuilding  adapter-for-ngsi-v2 Docker image"
-		${dockerCmd} -f docker-compose/common.yml build adapter-for-ngsi-v2 --no-cache
 		;;
 	*)
 		echo "Command not Found."
