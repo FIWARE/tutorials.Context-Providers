@@ -135,11 +135,6 @@ loadData () {
 		-e TUTORIAL_DATA_MODELS_CONTEXT=${CONTEXT} \
 		--entrypoint /bin/ash quay.io/curl/curl /import-data
 
-	docker run --rm -v $(pwd)/import-ngsi-ld:/import-ngsi-ld \
-		--network fiware_default \
-		-e CONTEXT_BROKER=${ORION2} \
-		-e TUTORIAL_DATA_MODELS_CONTEXT=${CONTEXT} \
-		--entrypoint /bin/ash quay.io/curl/curl /import-ngsi-ld
 }
 
 addDatabaseIndex () {
