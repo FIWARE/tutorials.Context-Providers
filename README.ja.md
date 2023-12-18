@@ -235,7 +235,7 @@ NGSI-LD サブスクリプション・リクエストの `type` は常に `type=
 Context Broker 自体への GET リクエストと同じように機能します。フラグが設定されていない場合、デフォルトで `@context`
 を含む完全な NGSI-LD レスポンスが返され、さらに制限を追加することでペイロードを削減および修正できます。
 
-#### :one: リクエスト:
+#### 1️⃣ リクエスト:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -266,7 +266,7 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 します。`notification.format=normalized` および `notification.endpoint.accept=application/ld+json` は、通知リクエストの
 ボディで `@context` が渡され、ペイロードが展開されたエンティティで構成されることを保証します。
 
-#### :two: リクエスト:
+#### 2️⃣ リクエスト:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -297,7 +297,7 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 サブスクリプション CRUD アクションは、以前と同じ HTTP 動詞に引き続きマップされます。`Accept:application/json` を追加
 すると、レスポンスボディから`@context` 要素が削除されます。
 
-#### :three: リクエスト:
+#### 3️⃣ リクエスト:
 
 ```console
 curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/subscriptions/'
@@ -468,7 +468,7 @@ Context Broker A にレジストレーションする循環依存関係を回避
 -   NGSI-v2 属性は、`properties` と `relationships` の個別の配列に分割されました
 -   NGSI-v2 `provider.url`が `endpoint` に移動しました
 
-#### :four: リクエスト:
+#### 4️⃣ リクエスト:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
@@ -505,7 +505,7 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 レジストレーションの詳細を取得するには、GETリクエストを `/ngsi-ld/v1/csourceRegistrations/` エンドポイントに送信し、
 `Link` ヘッダの適切な JSON-LD コンテキストとフィルタリングするエンティティの `type` を指定します。
 
-#### :five: リクエスト:
+#### 5️⃣ リクエスト:
 
 ```console
 curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
@@ -552,7 +552,7 @@ curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 レジストレーションされたエンドポイントにプロキシされます。部分的なレジストレーションの場合、プロパティと
 レジストレーションは Context Broker 内に保持されている既存のエンティティに追加されます。
 
-#### :six: リクエスト:
+#### 6️⃣ リクエスト:
 
 ```console
 curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001' \
@@ -650,7 +650,7 @@ curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:sto
 
 レジストレーションされた属性を照会するときに、同じリクエストが Context Broker 自体によって行われます。
 
-#### :seven: リクエスト:
+#### 7️⃣ リクエスト:
 
 ```console
 curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets' \
@@ -688,7 +688,7 @@ curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi
 読み取り/書き込みインターフェースの場合、関連する `ngsi-ld/v1/entities/<entity-id>/attrs` エンドポイントに PATCH
 リクエストを行うことで、コンテキスト・データを修正することもできます。
 
-#### :eight: リクエスト:
+#### 8️⃣ リクエスト:
 
 ```console
 curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs' \
@@ -706,7 +706,7 @@ curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ng
 }'
 ```
 
-#### :nine: リクエスト:
+#### 9️⃣ リクエスト:
 
 レジストレーションされた属性が Context Broker からリクエストされた場合、
 `http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001`
@@ -746,7 +746,7 @@ curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:s
 
 ### フォワード更新 (Forwarded-update)
 
-#### :one::zero: リクエスト:
+#### 1️⃣0️⃣ リクエスト:
 
 Context Broker への PATCH リクエスト (`ngsi-ld/v1/entities/<entity-id>/` または
 `ngsi-ld/v1/entities/<entity-id>/attrs`) は、レジストレーションが見つかった場合、レジストレーションされたコンテキスト
@@ -771,7 +771,7 @@ curl -L -X PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building
 } '
 ```
 
-#### :one::one: リクエスト:
+#### 1️⃣1️⃣ リクエスト:
 
 前の操作の結果は、GET リクエストを使用してエンティティ全体を取得することで確認できます。
 

@@ -20,7 +20,8 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 
 -   このチュートリアルは[日本語](README.ja.md)でもご覧いただけます。
 
-:warning: **Note:** This tutorial is designed for **NGSI-v2** developers looking to switch or upgrade systems to
+> [!NOTE]
+> This tutorial is designed for **NGSI-v2** developers looking to switch or upgrade systems to
 **NGSI-LD**, if you are building a linked data system from scratch or you are not already familiar with **NGSI-v2** then
 it is recommmended that you look directly at the
 [NGSI-LD developers tutorial](https://ngsi-ld-tutorials.readthedocs.io/) documentation.
@@ -218,7 +219,7 @@ lost, it is merely passed as a `Link` header. In summary, all of the flags withi
 as a GET request to the context broker itself. If no flags are set, a full NGSI-LD response including the `@context` is
 returned by default, and the payload can be reduced and amended by adding in further restrictions.
 
-#### :one: Request:
+#### 1️⃣ Request:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -248,7 +249,7 @@ This second request fires notifications to a different endpoint (URL
 `notification.endpoint.accept=application/ld+json` will ensure that the `@context` is passed in the body of the
 notification request and that the payload will consist of the expanded entities.
 
-#### :two: Request:
+#### 2️⃣ Request:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -277,7 +278,7 @@ Subscription details can be read by making a GET request to the `/ngsi-ld/v1/sub
 actions continue to be mapped to the same HTTP verbs as before. Adding the `Accept: application/json` will remove the
 `@context` element from the response body.
 
-#### :three: Request:
+#### 3️⃣ Request:
 
 ```console
 curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/subscriptions/'
@@ -481,7 +482,7 @@ The body of the request is similar to the **NGSI-v2** equivalent with the follow
 special key which fires a JSON-LD expansion/compaction operation to ensure that the attribute names within the request
 match the expected **NGSI-v2** attribute names.
 
-#### :four: Request:
+#### 4️⃣ Request:
 
 ```console
 curl -iX POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
@@ -516,7 +517,8 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 }'
 ```
 
-> **Note** that `propertyNames` and `relationshipNames` have replaced the older `properties` attribute that was is
+> [!NOTE]
+> that `propertyNames` and `relationshipNames` have replaced the older `properties` attribute that was is
 > defined in the 1.1.1 NGSI-LD core context. It was replaced in order to offer full GeoJSON-LD support. Your context
 > broker may or may not support the updated core context
 
@@ -525,7 +527,7 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 Retrieving the registration details can be made by sending a GET request to the `/ngsi-ld/v1/csourceRegistrations/`
 endpoint, along with an appropriate JSON-LD context in the `Link` header and the `type` of entity to filter
 
-#### :five: Request:
+#### 5️⃣ Request:
 
 ```console
 curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
@@ -580,7 +582,7 @@ returned when an requested entity is requested. For simple registrations, a requ
 proxied to the registered `endpoint`, for partial registrations the `properties` and `relationships` are added to the
 existing entity held within the context broker.
 
-#### :six: Request:
+#### 6️⃣ Request:
 
 ```console
 curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001' \
@@ -677,7 +679,7 @@ in this case a request is merely returning the full `tweets` attribute.
 
 The same request is made by the context broker itself when querying for registered attributes
 
-#### :seven: Request:
+#### 7️⃣ Request:
 
 ```console
 curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets' \
@@ -715,7 +717,7 @@ the response resembles any standard NGSI-LD request.
 For a read-write interface it is also possible to amend context data by making a PATCH request to the relevant
 `ngsi-ld/v1/entities/<entity-id>/attrs` endpoint.
 
-#### :eight: Request:
+#### 8️⃣ Request:
 
 ```console
 curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs' \
@@ -733,7 +735,7 @@ curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ng
 }'
 ```
 
-#### :nine: Request:
+#### 9️⃣ Request:
 
 If the regisitered attribute is requested from the context broker, it returns the _updated_ values obtained from
 `http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001` - i.e. the forwarding endpoint.
@@ -771,7 +773,7 @@ The context broker is therefore able to return a complete holistic picture of th
 
 ### Forwarded Update
 
-#### :one::zero: Request:
+#### 1️⃣0️⃣ Request:
 
 A PATCH request to the context broker ( either `ngsi-ld/v1/entities/<entity-id>/` or
 `ngsi-ld/v1/entities/<entity-id>/attrs`) will be forwarded to the registered context provider if a registration is
@@ -795,7 +797,7 @@ curl -L -X PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building
 } '
 ```
 
-#### :one::one: Request:
+#### 1️⃣1️⃣ Request:
 
 The result of the previous operation can be seen by retrieving the whole entity using a GET request.
 
