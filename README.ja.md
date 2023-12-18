@@ -332,7 +332,7 @@ nodejs proxy アプリケーションは、4 つのコンテキスト・プロ�
 エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値
 を返すことを示しています。各リクエストは同じデータを返します。
 
-#### :one: リクエスト :
+#### 1️⃣ リクエスト :
 
 ```console
 curl -X GET \
@@ -361,7 +361,7 @@ curl -X GET \
 エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値
 を返すことを示しています。各リクエストはランダムなダミー・データを返します。
 
-#### :two: リクエスト :
+#### 2️⃣ リクエスト :
 
 ```console
 curl -X GET \
@@ -401,7 +401,7 @@ Twitter API は OAuth2 を使用します :
     動します
 -   詳細は <https://developer.twitter.com/> を参照してください。
 
-#### :three: リクエスト :
+#### 3️⃣ リクエスト :
 
 ```console
 curl -X GET \
@@ -460,7 +460,7 @@ curl -X GET \
 エラーでないレスポンスの場合、NGSI プロキシがネットワーク上で利用可能であり、値
 を返すことを示しています。各リクエストは同じデータを返します。
 
-#### :four: リクエスト :
+#### 4️⃣ リクエスト :
 
 ```console
 curl -X GET \
@@ -542,7 +542,7 @@ docker run --network fiware_default --rm appropriate/curl \
 Orion Context Broker は、コンテキスト・プロバイダが登録されると、この
 `op/query` エンドポイントに同様のリクエストを行います。
 
-#### :five: リクエスト :
+#### 5️⃣ リクエスト :
 
 ```console
 curl -iX POST \
@@ -590,7 +590,7 @@ Orion Context Broker が複数のデータ値をリクエストすることは�
 リクエストします。リクエストされた属性は、POST ボディの `attributes` 配列内にあ
 ります。
 
-#### :six: リクエスト :
+#### 6️⃣ リクエスト :
 
 ```console
 curl -iX POST \
@@ -670,7 +670,7 @@ curl -iX POST \
 ンスの `Location` ヘッダには、Orion で保持されている登録レコードへのパスが含まれ
 ています :
 
-#### :seven: リクエスト :
+#### 7️⃣  リクエスト :
 
 ```console
 curl -iX POST \
@@ -701,7 +701,7 @@ curl -iX POST \
 使用して、**Store** エンティティのコンテキスト `urn:ngsi-ld:Store:001` がリクエ
 ストされた場合、新しいコンテキスト・データがインクルードされます :
 
-#### :eight: リクエスト :
+#### 8️⃣  リクエスト :
 
 ```console
 curl -X GET \
@@ -753,7 +753,7 @@ curl -X GET \
 同様に、単一の属性は、 `/entities/<entity-id>/attrs/<attribute>` にリクエストす
 ることで取得できます。
 
-#### :nine: リクエスト :
+#### 9️⃣ リクエスト :
 
 ```console
 curl -X GET \
@@ -776,7 +776,7 @@ curl -X GET \
 登録データは、`/v2/registrations/<entity>` エンドポイントに GET リクエストを行う
 ことで取得できます。
 
-#### :one::zero: リクエスト :
+#### 1️⃣0️⃣ リクエスト :
 
 ```console
 curl -X GET \
@@ -792,7 +792,7 @@ curl -X GET \
 指定されたエンティティ・タイプの完全なコンテキスト・データは
 、`/v2/registrations/` エンドポイントに GET リクエストを行うことで取得できます。
 
-#### :one::one: リクエスト :
+#### 1️⃣1️⃣ リクエスト :
 
 ```console
 curl -X GET \

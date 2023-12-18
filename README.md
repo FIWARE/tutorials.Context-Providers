@@ -279,7 +279,7 @@ This example returns the health of the Static Data Context Provider endpoint.
 A non-error response shows that an NGSI proxy is available on the network and returning values. Each Request will return
 the same data.
 
-#### :one: Request:
+#### 1️⃣ Request:
 
 ```console
 curl -X GET \
@@ -305,7 +305,7 @@ This example returns the health of the Random Data Generator Context Provider en
 A non-error response shows that an NGSI proxy is available on the network and returning values. Each Request will return
 some random dummy data.
 
-#### :two: Request:
+#### 2️⃣ Request:
 
 ```console
 curl -X GET \
@@ -339,7 +339,7 @@ The Twitter API uses OAuth2:
     Key & Consumer Secret.
 -   For more information see: [https://developer.twitter.com/](https://developer.twitter.com/)
 
-#### :three: Request:
+#### 3️⃣ Request:
 
 ```console
 curl -X GET \
@@ -395,7 +395,7 @@ This example returns the health of the Static Data Context Provider endpoint.
 A non-error response shows that an NGSI proxy is available on the network and returning values. Each Request will return
 the same data.
 
-#### :four: Request:
+#### 4️⃣ Request:
 
 ```console
 curl -X GET \
@@ -469,7 +469,7 @@ Context Provider. The requested attributes are found within the `attributes` arr
 The Orion Context Broker will make similar requests to this `op/query` endpoint once a context provider has been
 registered.
 
-#### :five: Request:
+#### 5️⃣ Request:
 
 ```console
 curl -iX POST \
@@ -513,7 +513,7 @@ It is possible for the Orion Context Broker to make a request for multiple data 
 `op/query` endpoint to request `temperature` and `relativeHumidity` readings from the Random Data Generator Context
 Provider. The requested attributes are found within the `attributes` array of the POST body.
 
-#### :six: Request:
+#### 6️⃣ Request:
 
 ```console
 curl -iX POST \
@@ -582,7 +582,7 @@ merely holds the registration information about which context providers can offe
 This request will return with a **201 - Created** response code. The `Location` Header of the response contains a path
 to the registration record held in Orion
 
-#### :seven: Request:
+#### 7️⃣  Request:
 
 ```console
 curl -iX POST \
@@ -612,7 +612,7 @@ curl -iX POST \
 Once a Context Provider has been registered, the new context data will be included if the context of the **Store**
 entity `urn:ngsi-ld:Store:001` is requested using the `/entities/<entity-id>` endpoint:
 
-#### :eight: Request:
+#### 8️⃣  Request:
 
 ```console
 curl -X GET \
@@ -663,7 +663,7 @@ curl -X GET \
 
 Similarly, a single attribute can be obtained by making a request to the `/entities/<entity-id>/attrs/<attribute>`
 
-#### :nine: Request:
+#### 9️⃣ Request:
 
 ```console
 curl -X GET \
@@ -682,7 +682,7 @@ This example reads the registration data with the ID 5addeffd93e53f86d8264521 fr
 
 Registration data can be obtained by making a GET request to the `/v2/registrations/<entity>` endpoint.
 
-#### :one::zero: Request:
+#### 1️⃣0️⃣ Request:
 
 ```console
 curl -X GET \
@@ -696,7 +696,7 @@ This example lists all registered context providers
 Full context data for a specified entity type can be retrieved by making a GET request to the `/v2/registrations/`
 endpoint.
 
-#### :one::one: Request:
+#### 1️⃣1️⃣ Request:
 
 ```console
 curl -X GET \
