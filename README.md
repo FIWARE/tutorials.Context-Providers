@@ -253,7 +253,8 @@ git checkout NGSI-v2
 This command will also import seed data from the previous
 [Stock Management example](https://github.com/FIWARE/tutorials.CRUD-Operations) on startup.
 
-> :information_source: **Note:** If you want to clean up and start over again you can do so with the following command:
+> [!NOTE]
+>  If you want to clean up and start over again you can do so with the following command:
 >
 > ```console
 > ./services stop
@@ -261,7 +262,8 @@ This command will also import seed data from the previous
 
 # Using a Context Provider
 
-> :information_source: **Tip** You can also watch the status of recent requests yourself by following the container logs
+> [!TIP]
+> You can also watch the status of recent requests yourself by following the container logs
 > or viewing information on `localhost:3000/app/monitor` on a web browser.
 >
 > ![FIWARE Monitor](https://fiware.github.io/tutorials.Context-Providers/img/monitor.png)
