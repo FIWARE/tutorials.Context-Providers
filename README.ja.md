@@ -265,7 +265,7 @@ Docker バージョン 20.10 以降と Docker Compose 1.29 以上を使用して
 、呼び出されるたびに値が変わるランダム・データのコンテキスト・プロバイダです。
 
 プロキシ・エンドポイントに関する詳細は
-、[こちら](https://github.com/FIWARE/tutorials.Step-by-Step/tree/master/context-provider)を
+、[こちら](https://github.com/FIWARE/tutorials.NGSI-v2/tree/master/context-provider)を
 参照してください。
 
 -   Open Weather Map API にアクセスするには、<`https://openweathermap.org/api`>
