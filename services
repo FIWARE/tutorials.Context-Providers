@@ -53,15 +53,6 @@ waitForOrionLD () {
 	done
 }
 
-waitForOrionV2 () {
-	echo -e "\n⏳ Waiting for \033[1;34mOrion\033[0m to be available\n"
-
-	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-orion-v2` == "healthy" ]
-	do
-	  echo -e "Context Broker HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:1026/version'` " (waiting for 200)"
-	  sleep 1
-	done
-}
 
 waitForScorpio () {
 	echo -e "\n⏳ Waiting for \033[1;34mScorpio\033[0m to respond\n"
@@ -93,7 +84,7 @@ waitForStellio () {
 }
 
 waitForUserContext () {
-	echo -e "\n⏳ Waiting for the data models \033[1m@context\033[0m to be available (Smart Supermarket)\n"
+	echo -e "\n⏳ Waiting for user \033[1m@context\033[0m to be available\n"
 	getHeartbeat "${CONTEXT}"
 	while [ "${response}" -eq 000 ]
 	do
@@ -123,10 +114,6 @@ waitForMongo () {
 }
 
 loadData () {
-	echo ""
-	docker run --rm -v $(pwd)/import-ngsi-v2:/import-ngsi-v2 \
-		--network fiware_default \
-		--entrypoint /bin/ash quay.io/curl/curl:${CURL_VERSION} /import-ngsi-v2
 	echo ""
 	waitForUserContext
 	docker run --rm -v $(pwd)/import-data:/import-data \
@@ -194,7 +181,6 @@ case "${command}" in
 		displayServices "orion|fiware"
 		waitForMongo
 		addDatabaseIndex
-		waitForOrionV2
 		waitForOrionLD
 		export CONTEXT_BROKER=orion:1026
 		loadData
@@ -211,7 +197,6 @@ case "${command}" in
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio.yml up -d --remove-orphans --renew-anon-volumes
 		displayServices "scorpio|fiware"
 		waitForMongo
-		waitForOrionV2
 		waitForScorpio
 		export CONTEXT_BROKER=scorpio:9090
 		loadData
@@ -228,7 +213,6 @@ case "${command}" in
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/stellio.yml up -d --remove-orphans --renew-anon-volumes
 		displayServices "stellio|fiware"
 		waitForMongo
-		waitForOrionV2
 		waitForStellio
 		export CONTEXT_BROKER=stellio:8080
 		loadData

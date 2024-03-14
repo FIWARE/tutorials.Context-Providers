@@ -56,34 +56,6 @@ services:
         mongo --quiet $host/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' && echo 0 || echo 1
       interval: 5s
 
-  mongo-for-orion-v2:
-    labels:
-      org.fiware: 'tutorial'
-    image: mongo:${MONGO_DB_VERSION}
-    hostname: mongo-db2
-    container_name: db-mongo-2
-    volumes:
-      - mongo-db2:/data
-    ports:
-      - 27018:27017 # localhost:27017
-    networks:
-      - default
-
-
-  mongo-for-orion-ld:
-    labels:
-      org.fiware: 'tutorial'
-    image: mongo:${MONGO_DB_VERSION}
-    hostname: mongo-db3
-    container_name: db-mongo-3
-    volumes:
-      - mongo-db3:/data
-    ports:
-      - 27019:27017 # localhost:27017
-    networks:
-      - default
-
-
   
   # Tutorial acts as a series of dummy IoT Sensors over HTTP
   tutorial:
@@ -151,58 +123,6 @@ services:
     healthcheck:
       interval: 5s
 
-  adapter-for-ngsi-v2:
-    labels:
-      org.fiware: 'tutorial'
-    image: quay.io/fiware/lepus
-    hostname: adapter
-    container_name: adapter-for-v2
-    networks:
-      - default
-    expose:
-      - "3005"
-    ports:
-      - "3005:3000"
-    environment:
-      - DEBUG=adapter:*
-      - NGSI_V2_CONTEXT_BROKER=http://orion2:1026/v2
-      - CONTEXT_URL=https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld
-      - NOTIFICATION_RELAY_URL=http://adapter:3000/notify
-      
-  ngsi-v2:
-    labels:
-      org.fiware: 'tutorial'
-    image: quay.io/fiware/orion:${ORION_VERSION}
-    hostname: orion2
-    container_name: fiware-orion-v2
-    depends_on:
-      - mongo-for-orion-v2
-    networks:
-      - default
-    expose:
-      - "${ORION_PORT}"
-    ports:
-      - "${ORION_PORT}:1026" # localhost:1026
-    command: -dbhost mongo-db2 -logLevel DEBUG
-    healthcheck:
-      test: curl --fail -s http://orion2:1026/version || exit 1
-      interval: 5s
-
-  orion-ld:
-    labels:
-      org.fiware: 'tutorial'
-    image: quay.io/fiware/orion-ld:${ORION_LD_VERSION}
-    hostname: context-broker
-    container_name: fiware-orion-ld2
-    depends_on:
-      - mongo-for-orion-ld
-    networks:
-      - default
-    ports:
-      - "1028:1026" # localhost:1026
-    command: -dbhost mongo-db -logLevel DEBUG
-
-
 networks:
   default:
     labels:
@@ -210,8 +130,6 @@ networks:
 
 volumes:
   mongo-db1: ~
-  mongo-db2: ~
-  mongo-db3: ~
   mongo-config: ~
   data-models:
     driver: local

@@ -1,3 +1,4 @@
+
 #!/bin/bash
 #
 #  curl commands to reload the data from the previous tutorial
@@ -9,6 +10,538 @@ set -e
 echo -e "⏳ Loading context data in \033[1mNGSI-LD\033[0m format"
 echo -e "    - all entity data models are defined referencing the" 
 echo -e "      \033[1m"${TUTORIAL_DATA_MODELS_CONTEXT}"\033[0m JSON-LD context"
+echo -e "\nCreating animals for the farmer ...\n"
+
+
+curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert?options=update' \
+-H 'Content-Type: application/json' \
+-H 'Link: <'"${TUTORIAL_DATA_MODELS_CONTEXT}"'>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Accept: application/ld+json' \
+-H 'NGSILD-Tenant: farmer' \
+-d '[
+  {
+    "id": "urn:ngsi-ld:Animal:cow001",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Beany"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Male"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "maleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "M-bull001-Beany"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:pig001",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "pig"
+    },
+    "name": {
+      "type": "Property", "value": "Bubblegum"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Male"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "maleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "M-boar001-Bubblegum"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow002",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Trotter"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow002-Trotter"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:pig002",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "pig"
+    },
+    "name": {
+      "type": "Property", "value": "Fuchshia"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "M-sow002-Fuchshia"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow003",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Petal"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow003-Petal"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:pig003",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "pig"
+    },
+    "name": {
+      "type": "Property", "value": "Flamingo"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Male"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "maleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "M-boar003-Flamingo"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow004",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "River"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow004-River"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:pig004",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "pig"
+    },
+    "name": {
+      "type": "Property", "value": "Salmon"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "M-sow004-Salmon"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow005",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Sun"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow005-Sun"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow006",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Twilight"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "healthCondition": {
+      "type": "VocabularyProperty", "vocab": "inTreatment",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "inCalf",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow006-Twilight"
+    },
+    "comment": {
+      "type": "Property", "value": "Needs to see the vet.",
+      "observedAt": "2024-02-02T15:00:00.000Z"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow007",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Diamond"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow007-Diamond"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow008",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Pollen"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "inHeat",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow008-Pollen"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow009",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Juicey"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow009-Juicey"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow010",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Tulip"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "active",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow010-Tulip"
+    }
+  }
+]'
+
+
+
+echo -e "\n\nCreating Animals for the vet ...\n"
+curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert?options=update' \
+-H 'Content-Type: application/json' \
+-H 'Link: <'"${TUTORIAL_DATA_MODELS_CONTEXT}"'>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Accept: application/ld+json' \
+-H 'NGSILD-Tenant: vet' \
+-d '[
+  {
+    "id": "urn:ngsi-ld:Animal:cow101",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Bumble"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Male"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "grazingBaby"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "noStatus"
+    },
+    "legalID": {
+      "type": "Property", "value": "M-bull101-Bumble"
+    },
+    "weight": {
+      "type": "Property", "value": 50, "unitCode": "KGM"
+    },
+    "calvedBy": {
+      "type": "Relationship", "object": "urn:ngsi-ld:Animal:cow002"
+    },
+    "siredBy": {
+      "type": "Relationship", "object": "urn:ngsi-ld:Animal:cow001"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow102",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Grass"
+    },
+    "name": {
+      "type": "Property", "value": "Blossom"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "grazingBaby"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "noStatus"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow102-Blossom"
+    },
+    "weight": {
+      "type": "Property", "value": 30, "unitCode": "KGM"
+    },
+    "calvedBy": {
+      "type": "Relationship", "object": "urn:ngsi-ld:Animal:cow004"
+    },
+    "siredBy": {
+      "type": "Relationship", "object": "urn:ngsi-ld:Animal:cow001"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow103",
+    "type": "Animal",
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "fedWith" : {
+      "type": "Property", "value": "Milk"
+    },
+    "name": {
+      "type": "Property", "value": "Buttercup"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "lactatingBaby"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "noStatus"
+    },
+    "legalID": {
+      "type": "Property", "value": "F-cow103-Buttercup"
+    },
+    "calvedBy": {
+      "type": "Relationship", "object": "urn:ngsi-ld:Animal:cow006"
+    },
+    "siredBy": {
+      "type": "Relationship", "object": "urn:ngsi-ld:Animal:cow001"
+    },
+    "weight": {
+      "type": "Property", "value": 20, "unitCode": "KGM"
+    },
+    "comment": {
+      "type": "Property", "value": "Buttercup was born today."
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow006",
+    "type": "Animal",
+    "fedWith" : {
+      "type": "Property", "value": "Oats"
+    },
+    "species": {
+      "type": "Property", "value": "dairy cattle"
+    },
+    "name": {
+      "type": "Property", "value": "Twilight"
+    },
+    "sex": {
+      "type": "VocabularyProperty", "vocab": "Female"
+    },
+    "phenologicalCondition": {
+      "type": "VocabularyProperty", "vocab": "femaleAdult"
+    },
+    "healthCondition": {
+      "type": "VocabularyProperty", "vocab": "healthy",
+      "observedAt": "2024-02-02T15:00:00.000Z"
+    },
+    "reproductiveCondition": {
+      "type": "VocabularyProperty", "vocab": "noStatus",
+      "observedAt": "2024-02-02T15:00:00.000Z"
+    }
+  }
+]'
+
+
+echo -e "\n\nCreating animals for the contractor labourer ... \n"
+curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert?options=update' \
+-H 'Content-Type: application/json' \
+-H 'Link: <'"${TUTORIAL_DATA_MODELS_CONTEXT}"'>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Accept: application/ld+json' \
+-H 'NGSILD-Tenant: contractor' \
+-d '[
+  {
+    "id": "urn:ngsi-ld:Animal:cow001",
+    "type": "Animal",
+    "comment": {
+      "type": "Property", "value": "Checked Hooves, Bull is OK.",
+      "observedAt": "2024-02-02T15:00:00.000Z"
+    }
+  }
+]'
+
 
 #
 # Create four Store Entities in various locations across Berlin
@@ -23,7 +556,7 @@ curl -s -o /dev/null -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOper
     "type": "Building",
     "category": {"type": "Property", "value": ["farm"]},
     "address": {
-        "type": "Property",
+        "type": "Property",   
         "value": { "streetAddress": "Großer Stern 1", "addressRegion": "Berlin", "addressLocality": "Tiergarten", "postalCode": "10557"},
         "verified": { "type": "Property", "value": true}
     },
@@ -98,7 +631,7 @@ curl -s -o /dev/null -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOper
   {
     "id": "urn:ngsi-ld:Person:person002",
     "type": "Person",
-    "gender": {"type": "Property","value": "male"},
+    "gender": {"type": "Property","value": "Male"},
     "givenName": {"type": "Property","value": "Napoleon"},
     "name": {"type": "Property","value": "Napoleon the Pig"},
     "jobTitle": {"type": "Property","value": {
@@ -116,7 +649,7 @@ curl -s -o /dev/null -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOper
   {
     "id": "urn:ngsi-ld:Person:person003",
     "type": "Person",
-    "gender": {"type": "Property","value": "male"},
+    "gender": {"type": "Property","value": "Male"},
     "givenName": {"type": "Property","value": "Squealer"},
     "name": {"type": "Property","value": "Squealer the Pig"},
     "jobTitle": {"type": "Property","value": {
@@ -133,7 +666,7 @@ curl -s -o /dev/null -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOper
   {
     "id": "urn:ngsi-ld:Person:person004",
     "type": "Person",
-    "gender": {"type": "Property","value": "male"},
+    "gender": {"type": "Property","value": "Male"},
     "givenName": {"type": "Property","value": "Snowball"},
     "name": {"type": "Property","value": "Snowball the Pig"},
     "jobTitle": {"type": "Property","value": {
@@ -149,4 +682,4 @@ curl -s -o /dev/null -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOper
   }
 ]'
 
-echo -e " \033[1;32mdone\033[0m"
+echo -e "\n \033[1;32mdone\033[0m"

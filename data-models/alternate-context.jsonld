@@ -4,6 +4,7 @@
         "id": "@id",
         "ngsi-ld": "https://uri.etsi.org/ngsi-ld/",
         "fiware": "https://uri.fiware.org/ns/dataModels#",
+        "agrifood": "https://smartdatamodels.org/dataModel.Agrifood/",
         "schema": "https://schema.org/",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
@@ -133,9 +134,34 @@
         "ein": "https://w3id.org/saref#on",
         "aus": "https://w3id.org/saref#off",
 
-        "spezies": "fiware:species",
-        "sex": "fiware:sex",
-        "rechtlicheIdentität": "fiware:legalID"
+
+        "rasse": "agrifood:breed",
+        "gekalbtVon": "agrifood:calvedBy",
+        "gefüttertMit": "agrifood:fedWith",
+        "futtermittelverbrauch": "agrifood:feedConsumption",
+        "gesundheitszustand": "agrifood:healthCondition",
+        "rechtlicheIdentität": "agrifood:legalId",
+        "fortpflanzungszustand": "agrifood:reproductiveCondition",
+        "sex": "agrifood:sex",
+        "gezeugtVon": "agrifood:siredBy",
+        "spezies": "agrifood:species",
+        "tierarzt": "agrifood:veterinarian",
+        "kommentar": "schema:comment",
+
+        "gesunde": "agrifood:healthy", 
+        "kranke": "agrifood:sick", 
+        "inBehandlung": "agrifood:inTreatment",
+        "laktierendesBaby": "agrifood:lactatingBaby", 
+        "grasendesBaby": "agrifood:grazingBaby", 
+        "männlichErwachsener": "agrifood:maleAdult", 
+        "weiblichErwachsener": "agrifood:femaleAdult", 
+        "männlichJunge": "agrifood:maleYoung", 
+        "weiblichJunge": "agrifood:femaleYoung",
+        "keinStatus": "agrifood:noStatus", 
+        "inaktive": "agrifood:inactive", 
+        "trächtig": "agrifood:inCalf", 
+        "läufig": "agrifood:inHeat", 
+        "active": "agrifood:active"
     },
     "@graph": [
         {
