@@ -41,7 +41,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "M-bull001-Beany"
     }
   },
@@ -64,7 +64,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "M-boar001-Bubblegum"
     }
   },
@@ -90,7 +90,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow002-Trotter"
     }
   },
@@ -113,7 +113,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "M-sow002-Fuchshia"
     }
   },
@@ -139,7 +139,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow003-Petal"
     }
   },
@@ -162,7 +162,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "M-boar003-Flamingo"
     }
   },
@@ -188,7 +188,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow004-River"
     }
   },
@@ -211,7 +211,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "M-sow004-Salmon"
     }
   },
@@ -237,7 +237,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow005-Sun"
     }
   },
@@ -267,7 +267,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "inCalf",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow006-Twilight"
     },
     "comment": {
@@ -297,7 +297,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow007-Diamond"
     }
   },
@@ -323,7 +323,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "inHeat",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow008-Pollen"
     }
   },
@@ -349,7 +349,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow009-Juicey"
     }
   },
@@ -375,8 +375,46 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "active",
       "observedAt": "2024-01-01T15:00:00.000Z"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow010-Tulip"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:AgriParcel:001",
+    "type": "AgriParcel",
+    "name": {
+      "type": "Property", "value": "Wheatfield"
+    },
+    "cropType": {
+      "type": "Relationship", 
+      "object": "urn:ngsi-ld:AgriCrop:BuckWheat"
+    },
+    "temperature": {
+      "type": "Property",  
+      "value": 15.4, "unitCode": "CEL",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:AgriParcel:002",
+    "type": "AgriParcel",
+    "name": {
+      "type": "Property", "value": "Cornfield"
+    },
+    "cropType": {
+      "type": "Relationship", 
+      "object": "urn:ngsi-ld:AgriCrop:Corn"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:AgriParcel:003",
+    "type": "AgriParcel",
+    "name": {
+      "type": "Property", "value": "Pasture"
+    },
+    "cropType": {
+      "type": "Relationship", 
+      "object": "urn:ngsi-ld:AgriCrop:Grass"
     }
   }
 ]'
@@ -411,7 +449,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
     "reproductiveCondition": {
       "type": "VocabularyProperty", "vocab": "noStatus"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "M-bull101-Bumble"
     },
     "weight": {
@@ -445,7 +483,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
     "reproductiveCondition": {
       "type": "VocabularyProperty", "vocab": "noStatus"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow102-Blossom"
     },
     "weight": {
@@ -479,7 +517,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
     "reproductiveCondition": {
       "type": "VocabularyProperty", "vocab": "noStatus"
     },
-    "legalID": {
+    "legalId": {
       "type": "Property", "value": "F-cow103-Buttercup"
     },
     "calvedBy": {
@@ -538,10 +576,81 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
     "comment": {
       "type": "Property", "value": "Checked Hooves, Bull is OK.",
       "observedAt": "2024-02-02T15:00:00.000Z"
+    },
+    "locatedAt": {
+      "type": "Relationship", 
+      "object": "urn:ngsi-ld:AgriParcel:003"
     }
   }
 ]'
 
+echo -e "\n\nCreating temperature readings ... \n"
+curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert?options=update' \
+-H 'Content-Type: application/json' \
+-H 'Link: <'"${TUTORIAL_DATA_MODELS_CONTEXT}"'>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Accept: application/ld+json' \
+-H 'NGSILD-Tenant: weather' \
+-d '[
+  {
+    "id": "urn:ngsi-ld:AgriParcel:001",
+    "type": "AgriParcel",
+    "temperature": {
+      "type": "Property",  
+      "value": 10.4, "unitCode": "CEL",
+      "observedAt": "2024-02-02T15:00:00.000Z"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:AgriParcel:002",
+    "type": "AgriParcel",
+    "temperature": {
+      "type": "Property",  
+      "value": 10.4, "unitCode": "CEL",
+      "observedAt": "2024-02-02T15:00:00.000Z"
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:AgriParcel:003",
+    "type": "AgriParcel",
+    "temperature": {
+      "type": "Property",  
+      "value": 10.4, "unitCode": "CEL",
+      "observedAt": "2024-02-02T15:00:00.000Z"
+    }
+  }
+]'
+
+
+echo -e "\n\nCreating heart rate monitor ... \n"
+curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert?options=update' \
+-H 'Content-Type: application/json' \
+-H 'Link: <'"${TUTORIAL_DATA_MODELS_CONTEXT}"'>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-H 'Accept: application/ld+json' \
+-H 'NGSILD-Tenant: openiot' \
+-d '[
+  {
+    "id": "urn:ngsi-ld:Animal:cow001",
+    "type": "Animal",
+    "heartRate": {
+      "type": "Property",  
+      "value": 10.4, "unitCode": "CEL",
+      "observedAt": "2024-02-02T15:00:00.000Z",
+      "providedBy": {
+        "object": "urn:ngsi-ld:Device:cow001", "type": "Relationship"
+      }
+    },
+    "location":  {
+      "type": "GeoProperty",
+      "value": {
+          "type": "Point", "coordinates": [13.404, 52.47, 0.0]
+      },
+      "observedAt": "2024-02-02T15:00:00.000Z",
+      "providedBy": {
+          "object": "urn:ngsi-ld:Device:cow001", "type": "Relationship"
+      }
+    } 
+  }
+]'
 
 #
 # Create four Store Entities in various locations across Berlin
