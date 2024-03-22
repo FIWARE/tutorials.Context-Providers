@@ -519,7 +519,7 @@ curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 レスポンスはレジストレーションの詳細を返します。この場合、`properties` の短い名前が `@context`
 とともに返されています。
 
-```jsonld
+```json
 [
     {
         "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
@@ -570,7 +570,7 @@ curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:sto
 `http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001`
 から取得した値を返します。例えば、フォワーディング・エンドポイント
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
@@ -663,7 +663,7 @@ curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi
 ご覧のように、`@context` はリクエストで返されています (`Content-Type` ヘッダが設定されているため) 。
 残りのレスポンスは、標準の NGSI-LD リクエストに似ています。
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
@@ -721,7 +721,7 @@ curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:s
 
 これにより、前の PATCH リクエストで更新された値と一致するようにレスポンスが変更されます。
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
@@ -786,7 +786,7 @@ curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:s
 これにより、Context Broker に送信されてからコンテキスト・プロバイダのエンドポイントにフォワーディングされた前の
 PATCH リクエストで更新された値と一致するようにレスポンスが変更されます。
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",

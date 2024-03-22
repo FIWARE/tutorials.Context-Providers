@@ -541,7 +541,7 @@ curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 The response returns the details of the registration. In this case the short names of the `properties` have been
 returned, along with the `@context`.
 
-```jsonld
+```json
 [
     {
         "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
@@ -599,7 +599,7 @@ curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:sto
 The response now holds an additional `tweets` Property, which returns the values obtained from
 `http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001` - i.e. the forwarding endpoint.
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
@@ -692,7 +692,7 @@ curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi
 As can be seen the `@context` has been returned in the request (since the `Content-Type` header was set). The rest of
 the response resembles any standard NGSI-LD request.
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
@@ -749,7 +749,7 @@ curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:s
 
 This alters the response to match the values updated in the previous PATCH request.
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
@@ -812,7 +812,7 @@ curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:s
 This alters the response to match the values updated in the previous PATCH request which was sent to the context broker
 and then forwarded to the context provider endpoint.
 
-```jsonld
+```json
 {
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
