@@ -1,11 +1,9 @@
-[![FIWARE Banner](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/fiware.png)](https://www.fiware.org/developers)
-[![NGSI v2](https://img.shields.io/badge/NGSI-v2-5dc0cf.svg)](https://fiware-ges.github.io/orion/api/v2/stable/)
+# Context Providers and Data Spaces [<img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"  align="left" />](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.08.01_60/gs_cim009v010801p.pdf)[<img src="https://fiware.github.io/tutorials.Context-Providers/img/fiware.png" align="left" width="162">](https://www.fiware.org/)<br/>
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
-[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Relationships-Linked-Data.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
 [![Support badge](https://img.shields.io/badge/tag-fiware-orange.svg?logo=stackoverflow)](https://stackoverflow.com/questions/tagged/fiware)
-[![NGSI LD](https://img.shields.io/badge/NGSI-LD-d6604d.svg)](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.04.02_60/gs_cim009v010402p.pdf)
-[![JSON LD](https://img.shields.io/badge/JSON--LD-1.1-f06f38.svg)](https://w3c.github.io/json-ld-syntax/) <br/>
+[![JSON LD](https://img.shields.io/badge/JSON--LD-1.1-f06f38.svg)](https://w3c.github.io/json-ld-syntax/)<br/>
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
 This tutorial discusses the use of registrations within an NGSI-LD data space. The four different forms of registration are explained and detailed
@@ -25,12 +23,12 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 
 </details>
 
-# Registrations
+# NGSI-LD Registrations
 
 >  “It is a capital mistake to theorize before one has data. Insensibly one begins to twist facts to suit theories, instead
 >  of theories to suit facts.”
 >
-> ―  Sir Arthur Conan Doyle (A Scandal in Bohemia) 
+> ―  Sherlock Holmes (A Scandal in Bohemia by Sir Arthur Conan Doyle) 
 
 ―
 NGSI-LD Registrations provide the basic mechanism to allow the components within a Smart Linked Data
@@ -102,10 +100,9 @@ to provide a command-line functionality similar to a Linux distribution on Windo
 
 # Architecture
 
-The demo Supermarket application will send and receive NGSI-LD calls to a compliant context broker. Since the NGSI-LD
-interface is available on an experimental version of the
-[Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/), the demo application will only make use of one
-FIWARE component.
+The demo Farm Management Information System (FMIS) application will send and receive NGSI-LD calls using a compliant context broker.
+To keep the archirecture simple, the demo will make use of only one FIWARE component, with data from a single context broker
+being split across a series of subsystems each using a different tenant in emulation of a full data space.
 
 Currently, the Orion Context Broker relies on open source [MongoDB](https://www.mongodb.com/) technology to keep
 persistence of the context data it holds. To request context data from external sources, a simple Context Provider NGSI
@@ -137,7 +134,7 @@ Therefore the overall architecture will consist of the following elements:
         using the
         [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
         protocol running over HTTP.
-    -   Displays a running Farm Management Information System FMIS
+    -   Displays a running Farm Management Information System (FMIS)
 
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run
 from exposed ports.
