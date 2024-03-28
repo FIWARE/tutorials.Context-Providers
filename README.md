@@ -9,8 +9,8 @@
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
 This tutorial discusses the use of registrations within an NGSI-LD data space. The four different forms of registration are explained and detailed
-examples given. Based on a simple data space the Farm Management Information System is created using the _System-of-Systems_ approach, displaying
-a holistic overview of the entire farm.
+examples given. Based on a simple data space of interacting context brokers, a complete Farm Management Information System is created using 
+the _System-of-Systems_ approach, displaying a holistic overview of the entire farm.
 
 The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as
 [Postman documentation](https://fiware.github.io/tutorials.Context-Providers/ngsi-ld.html)
@@ -111,24 +111,33 @@ Currently, the Orion Context Broker relies on open source [MongoDB](https://www.
 persistence of the context data it holds. To request context data from external sources, a simple Context Provider NGSI
 proxy has also been added. To visualize and interact with the Context we will add a simple Express application
 
-Therefore, the architecture will consist of four elements:
+Therefore the overall architecture will consist of the following elements:
 
--   The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using
+-   The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will send and receive requests using
+    [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json).
+    This is split into the following systems, each running on their own tenant:
+    -   The default tenant which holds **Building** data and is used for collating data from all systems
+    -   The `farmer` tenant which holds **Animal**, **Device** and **AgriParcel** information
+    -   The `contractor` tenant holds **Animal** data about animals needing additional care. 
+    -   The `vet` tenant which holds **Animal** data about new-born animals
+    
+-   The FIWARE [IoT Agent for UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) which will receive
+    southbound requests using
     [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
+    and convert them to
+    [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+    commands for the devices
 -   The underlying [MongoDB](https://www.mongodb.com/) database :
-    -   Used by the Orion Context Broker to hold context data information such as data entities, subscriptions and
+    -   Used by the **Orion Context Broker** to hold context data information such as data entities, subscriptions and
         registrations
--   The **Context Provider NGSI** proxy which will:
-    -   receive requests using
-        [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json#/)
-    -   makes requests to publicly available data sources using their own APIs in a proprietary format
-    -   returns context data back to the Orion Context Broker in
-        [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json#/)
-        format.
--   The **Stock Management Frontend** which will:
-    -   Display store information
-    -   Show which products can be bought at each store
-    -   Allow users to "buy" products and reduce the stock count.
+    -   Used by the **IoT Agent** to hold device information such as device URLs and Keys
+-   An HTTP **Web-Server** which offers static `@context` files defining the context entities within the system.
+-   The **Tutorial Application** does the following:    
+    -   Acts as set of dummy [agricultural IoT devices](https://github.com/FIWARE/tutorials.IoT-Sensors/tree/NGSI-LD)
+        using the
+        [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+        protocol running over HTTP.
+    -   Displays a running Farm Management Information System FMIS
 
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run
 from exposed ports.
@@ -141,7 +150,7 @@ has been described in a [previous tutorial](https://github.com/FIWARE/tutorials.
 # Start Up
 
 All services can be initialised from the command-line by running the
-[services](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/blob/NGSI-v2/services) Bash script
+[services](https://github.com/FIWARE/tutorials.Context-Providers/blob/NGSI-LD/services) Bash script
 provided within the repository. Please clone the repository and create the necessary images by running the commands as
 shown:
 
