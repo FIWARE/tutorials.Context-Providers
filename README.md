@@ -8,61 +8,32 @@
 [![JSON LD](https://img.shields.io/badge/JSON--LD-1.1-f06f38.svg)](https://w3c.github.io/json-ld-syntax/) <br/>
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
-This tutorial discusses the usage of subscriptions and registrations within NGSI-LD and highlights the similarities and
-differences between the equivalent NGSI-v2 and NGSI-LD operations. The tutorial is an analogue of the original
-context-provider and subscriptions tutorials but uses API calls from the **NGSI-LD** interface throughout.
+This tutorial discusses the use of registrations within an NGSI-LD data space. The four different forms of registration are explained and detailed
+examples given. Based on a simple data space the Farm Management Information System is created using the _System-of-Systems_ approach, displaying
+a holistic overview of the entire farm.
 
 The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as
-[Postman documentation](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/)
+[Postman documentation](https://fiware.github.io/tutorials.Context-Providers/ngsi-ld.html)
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/2c53b7c2bce9fd7b7b47)
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/tree/NGSI-LD)
-
--   このチュートリアルは[日本語](README.ja.md)でもご覧いただけます。
-
-> [!NOTE]
-> This tutorial is designed for **NGSI-v2** developers looking to switch or upgrade systems to
-**NGSI-LD**, if you are building a linked data system from scratch or you are not already familiar with **NGSI-v2** then
-it is recommmended that you look directly at the
-[NGSI-LD developers tutorial](https://ngsi-ld-tutorials.readthedocs.io/) documentation.
 
 ## Contents
 
 <details>
 <summary><strong>Details</strong></summary>
 
--   [Understanding Linked Data Subscriptions and Registrations](#understanding-linked-data-subscriptions-and-registrations)
-    -   [Entities within a stock management system](#entities-within-a-stock-management-system)
-    -   [Stock Management frontend](#stock-management-frontend)
--   [Prerequisites](#prerequisites)
-    -   [Docker](#docker)
-    -   [Cygwin](#cygwin)
--   [Architecture](#architecture)
--   [Start Up](#start-up)
--   [Interactions between Components](#interactions-between-components)
-    -   [Using Subscriptions with NGSI-LD](#using-subscriptions-with-ngsi-ld)
-        -   [Create a Subscription (Store 1) - Low Stock](#create-a-subscription-store-1---low-stock)
-        -   [Create a Subscription (Store 2) - Low Stock](#create-a-subscription-store-2---low-stock)
-        -   [Read Subscription Details](#read-subscription-details)
-        -   [Retrieving Subscription Events](#retrieving-subscription-events)
-    -   [Using Registrations with NGSI-LD](#using-registrations-with-ngsi-ld)
-        -   [Create a Registration](#create-a-registration)
-        -   [Read Registration Details](#read-registration-details)
-        -   [Read from Store 1](#read-from-store-1)
-        -   [Read direct from the Context Provider](#read-direct-from-the-context-provider)
-        -   [Direct update of the Context Provider](#direct-update-of-the-context-provider)
-        -   [Forwarded Update](#forwarded-update)
-
 </details>
 
-# Understanding Linked Data Subscriptions and Registrations
+# Registrations
 
-> “Do not repeat after me words that you do not understand. Do not merely put on a mask of my ideas, for it will be an
-> illusion and you will thereby deceive yourself.”
+>  “It is a capital mistake to theorize before one has data. Insensibly one begins to twist facts to suit theories, instead
+>  of theories to suit facts.”
 >
-> ― Jiddu Krishnamurti
+> ―  Sir Arthur Conan Doyle (A Scandal in Bohemia) 
 
-NGSI-LD Subscriptions and Registrations provide the basic mechanism to allow the components within a Smart Linked Data
+―
+NGSI-LD Registrations provide the basic mechanism to allow the components within a Smart Linked Data
 Solution to interact with each other.
 
 As a brief reminder, within a distributed system, subscriptions inform a third party component that a change in the
@@ -162,7 +133,7 @@ Therefore, the architecture will consist of four elements:
 Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run
 from exposed ports.
 
-![](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/architecture.png)
+![](https://fiware.github.io/tutorials.Context-Providers/img/architecture-ngsi-ld.png)
 
 The necessary configuration information can be seen in the services section of the associated `orion-ld.yml` file. It
 has been described in a [previous tutorial](https://github.com/FIWARE/tutorials.Working-with-Linked-Data/)
