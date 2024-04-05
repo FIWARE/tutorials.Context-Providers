@@ -35,46 +35,60 @@ NGSI-LD Registrations provide the basic mechanism to allow the components within
 Solution to interact with each other.
 
 As a brief reminder, within a distributed system, subscriptions inform a third party component that a change in the
-context data has occurred (and the component needs to take further actions), whereas registrations tell the context
-broker that additional context information is available from another source.
+context data has occurred (and the component needs to take further actions), whereas registrations inform the context
+broker that additional context information is available from another context source.
 
-Both of these operations require that the receiving component fully understands the requests it receives, and is capable
-of creating and interpreting the resultant payloads. The differences here between NGSI-v2 and NGSI-LD operations is
-small, but there has been a minor amendment to facilite the incorporation of linked data concepts, and therefore the
-contract between the various components has changed to include minor updates.
 
-## Entities within a stock management system
+## Entities within a Farm Information Management System
 
-The relationship between our Linked Data entities is defined as shown, in addition to the existing data, the `tweets`
-attribute will be supplied by a _Context Provider_. In all other respects this model remains the same as the
-[previous tutorial](https://github.com/FIWARE/tutorials.Working-with-Linked-Data/) :
+-   An animal is livestock found on the farm. Each **Animal** entity would have properties
+    such as:
+    -   A name of the Animal e.g. "Twilight the Cow"
+    -   A physical location e.g. _52.5075 N, 13.3903 E_
+    -   The weight of the Animal
+    -   An association to the store in which the shelf is present
+    -   Relationships to their parental lineage `calvedBy` / `siredBy`
+    -   Relationship to their feedstock e.g. "Oats"
 
-![](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/entities.png)
+An **Animal** can be `locatedAt` either a **Building** or an **AgriParcel**
 
-## Stock Management frontend
+-   A building is a real world bricks and mortar farm building. **Building** entities would have properties such as:
+    -   A name of the store e.g. "Checkpoint Markt"
+    -   An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
+    -   A physical location e.g. _52.5075 N, 13.3903 E_
+    -   A relationship to the owner of the building.
+
+-   An AgriParcel is a plot of land on the farm, sometimes called a partfield. **AgriParcel** entities would have properties such as:
+    -   A name of the store e.g. "Checkpoint Markt"
+    -   An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
+    -   A physical location e.g. _52.5075 N, 13.3903 E_
+    -   A relationship to the owner of the building.
+
+Additionally devices such as a **TemperatureSensor** can be placed in a **Building** or an **AgriParcel** to measuer the `temperature` 
+
+![](https://fiware.github.io/tutorials.Context-Providers/img/ngsi-ld-entities.png)
+
+## Farm Management Information System frontend
 
 The simple Node.js Express application has updated to use NGSI-LD in the previous
-[tutorial](https://github.com/FIWARE/tutorials.Working-with-Linked-Data/). We will use the monitor page to watch the
-status of recent requests, and a two store pages to buy products. Once the services are running these pages can be
-accessed from the following URLs:
+[tutorial](https://github.com/FIWARE/tutorials.Getting-Started/). We will use the application to
+monitor the data being received from the data space as a whole. It can accessed from the following URLs:
 
-#### Event Monitor
+The FMIS can be found at: `http://localhost:3000/`
 
-The event monitor can be found at: `http://localhost:3000/app/monitor`
+![FIWARE Monitor](https://fiware.github.io/tutorials.Context-Providers/img/fmis.png)
 
-![FIWARE Monitor](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/monitor.png)
+#### Animals
 
-#### Store 001
+Animals can be under `http://localhost:3000/app/animal/<urn>`
 
-Store001 can be found at: `http://localhost:3000/app/store/urn:ngsi-ld:Building:store001`
+![Store](https://fiware.github.io/tutorials.Context-Providers/img/cow-101-buttercup.png)
 
-![Store](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/store.png)
+#### Buildings
 
-#### Store 002
+Animals can be under `http://localhost:3000/app/building/<urn>`
 
-Store002 can be found at: `http://localhost:3000/app/store/urn:ngsi-ld:Building:store002`
-
-![Store2](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/store2.png)
+![Store2](https://fiware.github.io/tutorials.Context-Providers/img/animal-farm.png)
 
 # Prerequisites
 
@@ -93,10 +107,6 @@ is used configure the required services for the application. This means all cont
 single command. Docker Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux
 users will need to follow the instructions found [here](https://docs.docker.com/compose/install/)
 
-## Cygwin
-
-We will start up our services using a simple bash script. Windows users should download [cygwin](http://www.cygwin.com/)
-to provide a command-line functionality similar to a Linux distribution on Windows.
 
 # Architecture
 
