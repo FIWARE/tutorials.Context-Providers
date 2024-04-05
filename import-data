@@ -530,7 +530,8 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "Property", "value": 20, "unitCode": "KGM"
     },
     "comment": {
-      "type": "Property", "value": "Buttercup was born today."
+      "type": "Property", "value": "Buttercup was born today.",
+      "observedAt": "2024-01-01T15:00:00.000Z"
     }
   },
   {
@@ -633,7 +634,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
     "type": "Animal",
     "heartRate": {
       "type": "Property",  
-      "value": 10.4, "unitCode": "CEL",
+      "value": 10.4, "unitCode": "5K",
       "observedAt": "2024-02-02T15:00:00.000Z",
       "providedBy": {
         "object": "urn:ngsi-ld:Device:cow001", "type": "Relationship"
@@ -642,7 +643,7 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
     "location":  {
       "type": "GeoProperty",
       "value": {
-          "type": "Point", "coordinates": [13.404, 52.47, 0.0]
+          "type": "Point", "coordinates": [13.404, 52.47]
       },
       "observedAt": "2024-02-02T15:00:00.000Z",
       "providedBy": {

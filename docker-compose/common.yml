@@ -120,8 +120,45 @@ services:
       - IOTA_CB_NGSI_VERSION=ld # use NGSI-LD when sending updates for active attributes
       - IOTA_JSON_LD_CONTEXT=http://context/ngsi-context.jsonld
       - IOTA_FALLBACK_TENANT=openiot
+      - IOTA_MULTI_CORE=true
     healthcheck:
       interval: 5s
+
+  farmer:
+    labels:
+      org.fiware: 'tutorial'
+    image: quay.io/fiware/tutorials.forwarder
+    hostname: 'farmer'
+    container_name: cb-farmer
+    ports:
+      - 1027:80
+    environment:
+      - TENANT=farmer
+      - DEBUG=broker:*
+
+  labourer:
+    labels:
+      org.fiware: 'tutorial'
+    image: quay.io/fiware/tutorials.forwarder
+    hostname: 'labourer'
+    container_name: cb-labourer
+    ports:
+      - 1028:80
+    environment:
+      - TENANT=labourer
+      - DEBUG=broker:*
+
+  vet:
+    labels:
+      org.fiware: 'tutorial'
+    image: quay.io/fiware/tutorials.forwarder
+    hostname: 'vet'
+    container_name: cb-vet
+    ports:
+      - 1029:80
+    environment:
+      - TENANT=vet
+      - DEBUG=broker:*
 
 networks:
   default:

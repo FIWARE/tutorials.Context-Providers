@@ -45,3 +45,13 @@ services:
       - DUMMY_DEVICES_PAYLOAD=ULTRALIGHT
       - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}/ngsi-ld/v1 # URL of the context broker to update context
 
+
+  farmer:
+    environment:
+      - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}
+  labourer:
+    environment:
+      - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}
+  vet:
+    environment:
+      - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}
