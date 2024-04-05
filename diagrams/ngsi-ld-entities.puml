@@ -1,0 +1,67 @@
+@startuml
+skinparam object {
+  BackgroundColor #f5f5f5
+  ArrowColor #4c4c4c
+  BorderColor #233c68
+}
+
+
+
+
+object AgriParcel
+AgriParcel : id 
+AgriParcel : ~location
+AgriParcel : ~cropType
+AgriParcel : ~temperature
+
+object TemperatureSensor
+TemperatureSensor : id 
+TemperatureSensor : ~temperature 
+TemperatureSensor : ~category 
+TemperatureSensor : ~description 
+TemperatureSensor : ~controlledProperty 
+TemperatureSensor : -controllingAsset 
+
+
+object Animal
+Animal : id 
+Animal : ~species
+Animal : ~name 
+Animal : ~legalId 
+Animal : ~location
+Animal : ~fedWith
+Animal : ~phenologicalCondition
+Animal : ~reproductiveCondition
+Animal : ~sex
+Animal : ~weight
+Animal : -locatedIn
+Animal : -calvedBy
+Animal : -siredBy
+
+object Building
+Building : id 
+Building : ~category
+Building : ~name 
+Building : ~address 
+Building : ~location
+Building : ~temperature
+Building : -owner 
+
+object Person
+Person : id 
+Person : ~name 
+Person : ~jobTitle
+Person : -owns 
+
+object Crop
+Crop : id 
+Crop : ~name
+
+Animal "*" *-- "1" Building : locatedIn 
+Animal "*" *-- "1" AgriParcel : locatedIn 
+Animal  ---  Animal : calvedBy/siredBy 
+Animal  ---  Crop : fedWith 
+
+Building "*" *-up- "1" Person : owns 
+Building "1" -down-o " *" TemperatureSensor :  contains
+@enduml
