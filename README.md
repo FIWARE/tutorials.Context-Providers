@@ -38,6 +38,44 @@ As a brief reminder, within a distributed system, subscriptions inform a third p
 context data has occurred (and the component needs to take further actions), whereas registrations inform the context
 broker that additional context information is available from another context source.
 
+In constrast to NGSI-v2, NGSI-LD is designed to supports federated, distributed deployments with multiple context sources, 
+which can also be full context brokers forming a data space, and potentially coming from external systems not under the control 
+of the implementor themselves. NGSI-LD context sources, may be context brokers, but they may also be IoT agents or other context
+sources which only implement part of the NGSI-LD API. For example an IoT Actuator may only support a single **PATCH** endpoint
+to alter the status of the device and nothing more.
+
+A context broker uses an internal registry to understand what information is available, which entity types can be found where and
+which NGSI-LD API endpoints (or subset of endpoints) are available from each context source. The context broker then uses
+this information from the registry to access and aggregate information to be returned - for example merging two views of an
+entity to retrieve the full information when making a **GET** request.
+
+The actual source of any context data is hidden from the end-user since NGSI-LD interactions are purely based around interfaces, 
+this enables the creation of a hierarchy of context brokers - **Broker A** requests data from **Broker B** which in turn requests
+data from **Broker C** and so on. Securing the data space using distribute trust mechanisms is vital since no central control that
+can be assumed. Furthermore the standard JSON-LD concepts of `@context` and expansion/compaction operations mean that data can 
+always be retrieved using the preferred terminology of the end-user.
+
+There are four basic types of registration in NGSI-LD - these are described in more detail below:
+
+### Additive Registrations
+
+With additive registrations, a Context Broker is permitted to hold context data about the Entities and Attributes locally itself, 
+and also obtain data from (possibly multiple) external sources:
+
+-  An **inclusive** Context Source Registration specifies that the Context Broker considers all registered Context Sources as equals and will distribute operations to those Context Sources even if relevant context data is available directly within the Context Broker itself (in which case, all results will be integrated in the final response). This is the default mode of operation.
+-  An **auxiliary** Context Source Registration never overrides data held directly within a Context Broker. Auxiliary distributed operations are limited to context information consumption operations (see clause 5.7). Context data from auxiliary context sources is only included if it is supplementary to the context data otherwise available to the Context Broker.
+
+### Proxied Registrations
+With proxied registrations, Context Broker is **not permitted** to hold context data about the Entities and Attributes locally itself. All context data is obtained from the external registered sources.
+
+- An **exclusive** Context Source Registration specifies that all of the registered context data is held in a single location external to the Context Broker.  The Context Broker itself holds no data locally about the registered Attributes and no overlapping proxied Context Source Registrations shall be supported for the same combination of registered Attributes on the Entity. 
+An exclusive registration must be fully specified. It always relates to specific Attributes found on a single Entity. It can be used for actuations
+- A **redirect** Context Source Registration also specifies that the registered context data is held in a location external to the Context Broker, but potentially multiple distinct redirect registrations can apply at the same time. 
+
+> [!NOTE]
+> **Exclusive** registrations are the default operation mode for NGSI-v2 context brokers. NGSI-v2 is JSON based (not JSON-LD)
+> and an NGSI-v2 context broker is always a leaf node in a hierarchy. A compare and contrast between NGSI-v2 and NGSI-LD
+> registrations can be found [here](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/)
 
 ## Entities within a Farm Information Management System
 
