@@ -73,9 +73,9 @@ An exclusive registration must be fully specified. It always relates to specific
 - A **redirect** Context Source Registration also specifies that the registered context data is held in a location external to the Context Broker, but potentially multiple distinct redirect registrations can apply at the same time. 
 
 > [!NOTE]
-> **Exclusive** registrations remain as the default operation mode for NGSI-v2 simpler systems. However, since NGSI-v2 uses JSON,
-> not JSON-LD, it is unable to function within a federated data space without the concept of `@context`. An NGSI-v2 context broker
-> always forms the leaf node in a hierarchy. A comparision between NGSI-v2 and NGSI-LD registrations can be
+> **Exclusive** registrations remain as the default operation mode for simpler NGSI-v2-based systems. However, since NGSI-v2 uses JSON -
+> not JSON-LD - it is unable to function within a federated data space without the concept of `@context`. An NGSI-v2 context broker
+> always forms the leaf node in a broker hierarchy. A comparision between NGSI-v2 and NGSI-LD registrations can be
 > found [here](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/).
 >
 > It remains possible to attach NGSI-v2 data sources into an NGSI-LD data space using a proxy serving a fixed `@context` - this is
