@@ -30,9 +30,8 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 >
 > ―  Sherlock Holmes (A Scandal in Bohemia by Sir Arthur Conan Doyle) 
 
-―
 NGSI-LD Registrations provide the basic mechanism to allow the components within a Smart Linked Data
-Solution to interact with each other.
+Solution to share information and interact with each other.
 
 As a brief reminder, within a distributed system, subscriptions inform a third party component that a change in the
 context data has occurred (and the component needs to take further actions), whereas registrations inform the context
@@ -74,7 +73,7 @@ An exclusive registration must be fully specified. It always relates to specific
 
 > [!NOTE]
 > **Exclusive** registrations remain as the default operation mode for simpler NGSI-v2-based systems. However, since NGSI-v2 uses JSON -
-> not JSON-LD - it is unable to function within a federated data space without the concept of `@context`. An NGSI-v2 context broker
+> not JSON-LD - it is unable to freely function within a federated data space without the concept of `@context`. An NGSI-v2 context broker
 > always forms the leaf node in a broker hierarchy. A comparision between NGSI-v2 and NGSI-LD registrations can be
 > found [here](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/).
 >
@@ -219,87 +218,143 @@ git checkout NGSI-LD
 
 ---
 
-# Interactions between Components
+# Creating a Redirection Registration
 
-## Using Subscriptions with NGSI-LD
+Before adding the registration, goto `http://localhost:3000/` to display and interact with the FMIS data. Initially, only the Building data
+from the previous tutorial is available, since this has been loaded onto the default tenant. 
 
-Goto `http://localhost:3000/app/store/urn:ngsi-ld:Building:store001` to display and interact with the Supermarket data.
+### Reading Animal data
 
-### Create a Subscription (Store 1) - Low Stock
-
-NGSI-LD subscriptions can be set up using the `/ngsi-ld/v1/subscriptions/` endpoint and in a similar manner to the
-NGSI-v2 `/v2/subscriptions` endpoint. The payload body is slightly different however. Firstly the linked data `@context`
-must be present either as an attribute or in the `Link` header. If the `@context` is placed in the body the
-`Context-Type` header must state that the payload is `application/ld+json` - i.e. Linked Data plus JSON. The supplied
-`@context` will also be used when making notifications as part of the notification request.
-
-The `type` of the NGSI-LD subscription request is always `type=Subscription`. The structure of the subscription has
-changed. When setting up a subscription, there is no longer a separate `subject` section to the payload, entities to
-watch and trigger conditions are now set at the same level as the `description` of the subscription.
-
--   `condition.attrs` has been moved up a level and renamed to `watchedAttributes`
--   `condition.expression` has been moved up a level and renamed to `q`
-
-The `notification` section of the body states that once the conditions of the subscription have been met, a POST request
-containing all affected Shelf entities will be sent to the URL `http://tutorial:3000/subscription/low-stock-store001`.
-It is now possible to amend the notification payload by requesting `notification.format=keyValues` and remove the
-`@context` from the notification body by stating `notification.endpoint.accept=application/json`. The `@context` is not
-lost, it is merely passed as a `Link` header. In summary, all of the flags within a subscription work in the same manner
-as a GET request to the context broker itself. If no flags are set, a full NGSI-LD response including the `@context` is
-returned by default, and the payload can be reduced and amended by adding in further restrictions.
+The farmer's data about animals on the farm has been preloaded onto the `farmer` tenant and a simple forwarding proxy set up on port 1027.
+The farmer's data can be read as shown:
 
 #### 1️⃣ Request:
 
 ```console
-curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
--H 'Content-Type: application/ld+json' \
---data-raw '{
-  "description": "Notify me of low stock in Store 001",
-  "type": "Subscription",
-  "entities": [{"type": "Shelf"}],
-  "watchedAttributes": ["numberOfItems"],
-  "q": "numberOfItems<10;locatedIn==%22urn:ngsi-ld:Building:store001%22",
-  "notification": {
-    "attributes": ["numberOfItems", "stocks", "locatedIn"],
-    "format": "keyValues",
-    "endpoint": {
-      "uri": "http://tutorial:3000/subscription/low-stock-store001",
-      "accept": "application/json"
-    }
-  },
-   "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
-}'
+curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
+-H 'Content-Type: application/json' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
 ```
 
-### Create a Subscription (Store 2) - Low Stock
+#### Response:
 
-This second request fires notifications to a different endpoint (URL
-`http://tutorial:3000/subscription/low-stock-store002`.) The `notification.format=normalized` and
-`notification.endpoint.accept=application/ld+json` will ensure that the `@context` is passed in the body of the
-notification request and that the payload will consist of the expanded entities.
+The response consists of the details of the subscriptions within the system. The parameters within the `q` attribute
+have been expanded to use the full URIs, as internally the broker consistently uses long names. The differences between
+the payloads offered by the two subscriptions will be discussed below.
+
+```json
+[
+    {
+        "id": "urn:ngsi-ld:Animal:cow001",
+        "type": "Animal",
+        "name": "Beany",
+        "fedWith": "Grass",
+        "legalId": "M-bull001-Beany",
+        "phenologicalCondition": {
+            "vocab": "maleAdult"
+        },
+        "reproductiveCondition": {
+            "vocab": "active",
+            "observedAt": "2024-01-01T15:00:00.000Z"
+        },
+        "sex": {
+            "vocab": "Male"
+        },
+        "species": "dairy cattle"
+    },
+   ...etc
+```
+
+
 
 #### 2️⃣ Request:
 
 ```console
-curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
---data-raw '{
-  "description": "LD Notify me of low stock in Store 002",
-  "type": "Subscription",
-  "entities": [{"type": "Shelf"}],
-  "watchedAttributes": ["numberOfItems"],
-  "q": "numberOfItems<10;locatedIn==%22urn:ngsi-ld:Building:store002%22",
-  "notification": {
-    "attributes": ["numberOfItems", "stocks", "locatedIn"],
-    "format": "normalized",
-    "endpoint": {
-      "uri": "http://tutorial:3000/subscription/low-stock-store002",
-      "accept": "application/ld+json"
-    }
-  }
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+```
+
+
+#### Response:
+
+The equivalent request on the default tenant FMIS system initially returns no data
+
+```json
+[]
+```
+
+
+### Creating a redirection registration
+
+A redirection registration informs a context broker that all data for a given `type` is held in another context source.
+
+#### 2️⃣ Request:
+
+```console
+curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'Content-Type: application/json' \
+-d '{
+    "type": "ContextSourceRegistration",
+    "information": [
+        {
+            "entities": [
+                {
+                    "type": "Animal"
+                }
+            ]
+        }
+    ],
+    "mode": "redirect",
+    "operations": [
+        "redirectionOps"
+    ],
+    "endpoint": "http://farmer"
 }'
 ```
+
+`"mode":"redirect"` prevents the FMIS context broker from holding any `type=Animal` data whatsoever. All `type=Animal` requests are forwarded
+elsewhere. `operations": "redirectionOps"` is a short-hand for all NGSI-LD endpoints - any CRUD operations will now affect the farmer
+sub-system (i.e. the farmer tenant), not the FMIS system (i.e. the default tenant). Effectively this registration has ceded the control of `type=Animal`
+to the farmer subsystem. After creating the registration, resending the  `type=Animal` request on the FMIS system (the default tenant) now returns all the 
+animals from the farmer subsystem:
+
+#### 3️⃣ Request:
+
+```console
+curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
+-H 'Content-Type: application/json' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+```
+
+#### Response:
+
+```json
+[
+    {
+        "id": "urn:ngsi-ld:Animal:cow001",
+        "type": "Animal",
+        "name": "Beany",
+        "fedWith": "Grass",
+        "legalId": "M-bull001-Beany",
+        "phenologicalCondition": {
+            "vocab": "maleAdult"
+        },
+        "reproductiveCondition": {
+            "vocab": "active",
+            "observedAt": "2024-01-01T15:00:00.000Z"
+        },
+        "sex": {
+            "vocab": "Male"
+        },
+        "species": "dairy cattle"
+    },
+   ...etc
+```
+
+The animals can now aslo be found within the tutorial application `http://localhost:3000/` .
+
 
 ### Read Subscription Details
 
