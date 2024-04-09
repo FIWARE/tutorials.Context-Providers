@@ -136,6 +136,18 @@ services:
       - TENANT=farmer
       - DEBUG=broker:*
 
+  devices:
+    labels:
+      org.fiware: 'tutorial'
+    image: quay.io/fiware/tutorials.forwarder
+    hostname: 'farmer'
+    container_name: cb-devices
+    ports:
+      - 1028:80
+    environment:
+      - TENANT=openiot
+      - DEBUG=broker:*
+
   labourer:
     labels:
       org.fiware: 'tutorial'
