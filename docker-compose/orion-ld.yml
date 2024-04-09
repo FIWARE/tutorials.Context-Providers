@@ -55,3 +55,6 @@ services:
   vet:
     environment:
       - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}
+  devices:
+    environment:
+      - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}

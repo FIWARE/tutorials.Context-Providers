@@ -131,7 +131,19 @@ services:
       retries: 20
       start_period: 10s
 
-     
+  farmer:
+    environment:
+      - CONTEXT_BROKER=http://stellio:${STELLIO_PORT}
+  labourer:
+    environment:
+      - CONTEXT_BROKER=http://stellio:${STELLIO_PORT}
+  vet:
+    environment:
+      - CONTEXT_BROKER=http://stellio:${STELLIO_PORT}
+  devices:
+    environment:
+      - CONTEXT_BROKER=http://stellio:${STELLIO_PORT}  
+      
   # Tutorial acts as a series of dummy IoT Sensors over HTTP and connects to the Stellio Broker
   tutorial:
     environment:

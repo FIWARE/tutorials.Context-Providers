@@ -143,7 +143,7 @@ services:
     hostname: 'labourer'
     container_name: cb-labourer
     ports:
-      - 1028:80
+      - 1029:80
     environment:
       - TENANT=labourer
       - DEBUG=broker:*
@@ -155,7 +155,7 @@ services:
     hostname: 'vet'
     container_name: cb-vet
     ports:
-      - 1029:80
+      - 1030:80
     environment:
       - TENANT=vet
       - DEBUG=broker:*
