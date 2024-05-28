@@ -4,9 +4,8 @@
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
 [![Support badge](https://img.shields.io/badge/tag-fiware-orange.svg?logo=stackoverflow)](https://stackoverflow.com/questions/tagged/fiware)
 
-These tutorial teach FIWARE users about context data and context providers. The tutorial builds on existing entities
-created in the previous tutorials and enables a
-user to retrieve data about a store which is not held directly within the Context Broker.
+These tutorials teach FIWARE users about context data and context providers. The tutorial builds on existing entities
+created in the previous tutorials and enables a user to retrieve data about a store which is not held directly within the Context Broker.
 
 The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as
 [Postman documentation](https://fiware.github.io/tutorials.Context-Providers/).
