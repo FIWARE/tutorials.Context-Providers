@@ -1,4 +1,9 @@
-# Context Providers and Data Spaces [<img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"  align="left" />](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.08.01_60/gs_cim009v010801p.pdf)[<img src="https://fiware.github.io/tutorials.Context-Providers/img/fiware.png" align="left" width="162">](https://www.fiware.org/)<br/>
+<h1  align="center">
+    <img src="https://fiware.github.io/tutorials.Step-by-Step/img/fiware-farm.png" />
+    <img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"/>
+</h1>
+
+## Context Providers and Data Spaces
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Context-Providers.svg)](https://opensource.org/licenses/MIT)
