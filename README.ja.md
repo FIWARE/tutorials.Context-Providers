@@ -31,7 +31,7 @@
 -   [アーキテクチャ](#architecture)
 -   [前提条件](#prerequisites)
     -   [Docker](#docker)
-    -   [Cygwin](#cygwin)
+    -   [WSL](#wsl)
     -   [コンテキスト・プロバイダ NGSI プロキシ](#context-provider-ngsi-proxy)
 -   [起動](#start-up)
 -   [コンテキスト・プロバイダの使用](#using-a-context-provider)
@@ -245,12 +245,10 @@ docker version
 Docker バージョン 20.10 以降と Docker Compose 1.29 以上を使用していることを確認
 し、必要に応じてアップグレードしてください。
 
-<A name="cygwin"></A>
-
-## Cygwin
+## WSL
 
 シンプルな Bash スクリプトを使用してサービスを開始します。Windows ユーザは
-[cygwin](http://www.cygwin.com/) をダウンロードして、Windows の Linux ディストリ
+[を使用して Windows に Linux をインストールする方法](https://learn.microsoft.com/ja-jp/windows/wsl/install) をダウンロードして、Windows の Linux ディストリ
 ビューションに似たコマンドライン機能を提供する必要があります。
 
 <A name="context-provider-ngsi-proxy"></A>
