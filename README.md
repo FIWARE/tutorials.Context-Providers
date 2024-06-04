@@ -11,9 +11,10 @@
 [![JSON LD](https://img.shields.io/badge/JSON--LD-1.1-f06f38.svg)](https://w3c.github.io/json-ld-syntax/)<br/>
 [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
-This tutorial discusses the use of registrations within an NGSI-LD data space. The four different forms of registration are explained and detailed
-examples given. Based on a simple data space of interacting context brokers, a complete Farm Management Information System is created using 
-the _System-of-Systems_ approach, displaying a holistic overview of the entire farm.
+This tutorial discusses the use of registrations within an NGSI-LD data space. The four different forms of registration
+are explained and detailed examples given. Based on a simple data space of interacting context brokers, a complete Farm
+Management Information System is created using the _System-of-Systems_ approach, displaying a holistic overview of the
+entire farm.
 
 The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as
 [Postman documentation](https://fiware.github.io/tutorials.Context-Providers/ngsi-ld.html)
@@ -30,65 +31,76 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 
 # NGSI-LD Registrations
 
->  “It is a capital mistake to theorize before one has data. Insensibly one begins to twist facts to suit theories, instead
->  of theories to suit facts.”
+> “It is a capital mistake to theorize before one has data. Insensibly one begins to twist facts to suit theories,
+> instead of theories to suit facts.”
 >
-> ―  Sherlock Holmes (A Scandal in Bohemia by Sir Arthur Conan Doyle) 
+> ― Sherlock Holmes (A Scandal in Bohemia by Sir Arthur Conan Doyle)
 
-NGSI-LD Registrations provide the basic mechanism to allow the components within a Smart Linked Data
-Solution to share information and interact with each other.
+NGSI-LD Registrations provide the basic mechanism to allow the components within a Smart Linked Data Solution to share
+information and interact with each other.
 
 As a brief reminder, within a distributed system, subscriptions inform a third party component that a change in the
 context data has occurred (and the component needs to take further actions), whereas registrations inform the context
 broker that additional context information is available from another context source.
 
-In constrast to NGSI-v2, NGSI-LD is designed to supports federated, distributed deployments with multiple context sources, 
-which can also be full context brokers forming a data space, and potentially coming from external systems not under the control 
-of the implementor themselves. NGSI-LD context sources, may be context brokers, but they may also be IoT agents or other context
-sources which only implement part of the NGSI-LD API. For example an IoT Actuator may only support a single **PATCH** endpoint
-to alter the status of the device and nothing more.
+In constrast to NGSI-v2, NGSI-LD is designed to supports federated, distributed deployments with multiple context
+sources, which can also be full context brokers forming a data space, and potentially coming from external systems not
+under the control of the implementor themselves. NGSI-LD context sources, may be context brokers, but they may also be
+IoT agents or other context sources which only implement part of the NGSI-LD API. For example an IoT Actuator may only
+support a single **PATCH** endpoint to alter the status of the device and nothing more.
 
-A context broker uses an internal registry to understand what information is available, which entity types can be found where and
-which NGSI-LD API endpoints (or subset of endpoints) are available from each context source. The context broker then uses
-this information from the registry to access and aggregate information to be returned - for example merging two views of an
-entity to retrieve the full information when making a **GET** request.
+A context broker uses an internal registry to understand what information is available, which entity types can be found
+where and which NGSI-LD API endpoints (or subset of endpoints) are available from each context source. The context
+broker then uses this information from the registry to access and aggregate information to be returned - for example
+merging two views of an entity to retrieve the full information when making a **GET** request.
 
-The actual source of any context data is hidden from the end-user since NGSI-LD interactions are purely based around interfaces, 
-this enables the creation of a hierarchy of context brokers - **Broker A** requests data from **Broker B** which in turn requests
-data from **Broker C** and so on. Securing the data space using distribute trust mechanisms is vital since no central control that
-can be assumed. Furthermore the standard JSON-LD concepts of `@context` and expansion/compaction operations mean that data can 
-always be retrieved using the preferred terminology of the end-user.
+The actual source of any context data is hidden from the end-user since NGSI-LD interactions are purely based around
+interfaces, this enables the creation of a hierarchy of context brokers - **Broker A** requests data from **Broker B**
+which in turn requests data from **Broker C** and so on. Securing the data space using distribute trust mechanisms is
+vital since no central control that can be assumed. Furthermore the standard JSON-LD concepts of `@context` and
+expansion/compaction operations mean that data can always be retrieved using the preferred terminology of the end-user.
 
 There are four basic types of registration in NGSI-LD - these are described in more detail below:
 
 ### Additive Registrations
 
-With additive registrations, a Context Broker is permitted to hold context data about the Entities and Attributes locally itself, 
-and also obtain data from (possibly multiple) external sources:
+With additive registrations, a Context Broker is permitted to hold context data about the Entities and Attributes
+locally itself, and also obtain data from (possibly multiple) external sources:
 
--  An **inclusive** Context Source Registration specifies that the Context Broker considers all registered Context Sources as equals and will distribute operations to those Context Sources even if relevant context data is available directly within the Context Broker itself (in which case, all results will be integrated in the final response). This is the default mode of operation.
--  An **auxiliary** Context Source Registration never overrides data held directly within a Context Broker. Auxiliary distributed operations are limited to context information consumption operations (see clause 5.7). Context data from auxiliary context sources is only included if it is supplementary to the context data otherwise available to the Context Broker.
+-   An **inclusive** Context Source Registration specifies that the Context Broker considers all registered Context
+    Sources as equals and will distribute operations to those Context Sources even if relevant context data is available
+    directly within the Context Broker itself (in which case, all results will be integrated in the final response).
+    This is the default mode of operation.
+-   An **auxiliary** Context Source Registration never overrides data held directly within a Context Broker. Auxiliary
+    distributed operations are limited to context information consumption operations (see clause 5.7). Context data from
+    auxiliary context sources is only included if it is supplementary to the context data otherwise available to the
+    Context Broker.
 
 ### Proxied Registrations
-With proxied registrations, Context Broker is **not permitted** to hold context data about the Entities and Attributes locally itself. All context data is obtained from the external registered sources.
 
-- An **exclusive** Context Source Registration specifies that all of the registered context data is held in a single location external to the Context Broker.  The Context Broker itself holds no data locally about the registered Attributes and no overlapping proxied Context Source Registrations shall be supported for the same combination of registered Attributes on the Entity. 
-An exclusive registration must be fully specified. It always relates to specific Attributes found on a single Entity. It can be used for actuations
-- A **redirect** Context Source Registration also specifies that the registered context data is held in a location external to the Context Broker, but potentially multiple distinct redirect registrations can apply at the same time. 
+With proxied registrations, Context Broker is **not permitted** to hold context data about the Entities and Attributes
+locally itself. All context data is obtained from the external registered sources.
 
-> [!NOTE]
-> **Exclusive** registrations remain as the default operation mode for simpler NGSI-v2-based systems. However, since NGSI-v2 uses JSON -
-> not JSON-LD - it is unable to freely function within a federated data space without the concept of `@context`. An NGSI-v2 context broker
-> always forms the leaf node in a broker hierarchy. A comparision between NGSI-v2 and NGSI-LD registrations can be
-> found [here](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/).
+-   An **exclusive** Context Source Registration specifies that all of the registered context data is held in a single
+    location external to the Context Broker. The Context Broker itself holds no data locally about the registered
+    Attributes and no overlapping proxied Context Source Registrations shall be supported for the same combination of
+    registered Attributes on the Entity. An exclusive registration must be fully specified. It always relates to
+    specific Attributes found on a single Entity. It can be used for actuations
+-   A **redirect** Context Source Registration also specifies that the registered context data is held in a location
+    external to the Context Broker, but potentially multiple distinct redirect registrations can apply at the same time.
+
+> [!NOTE] > **Exclusive** registrations remain as the default operation mode for simpler NGSI-v2-based systems. However,
+> since NGSI-v2 uses JSON - not JSON-LD - it is unable to freely function within a federated data space without the
+> concept of `@context`. An NGSI-v2 context broker always forms the leaf node in a broker hierarchy. A comparision
+> between NGSI-v2 and NGSI-LD registrations can be found
+> [here](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/).
 >
-> It remains possible to attach NGSI-v2 data sources into an NGSI-LD data space using a proxy serving a fixed `@context` - this is
-> described in more detail [here](https://github.com/FIWARE/tutorials.Linked-Data/tree/NGSI-LD)
+> It remains possible to attach NGSI-v2 data sources into an NGSI-LD data space using a proxy serving a fixed
+> `@context` - this is described in more detail [here](https://github.com/FIWARE/tutorials.Linked-Data/tree/NGSI-LD)
 
 ## Entities within a Farm Information Management System
 
--   An animal is livestock found on the farm. Each **Animal** entity would have properties
-    such as:
+-   An animal is livestock found on the farm. Each **Animal** entity would have properties such as:
     -   A name of the Animal e.g. "Twilight the Cow"
     -   A physical location e.g. _52.5075 N, 13.3903 E_
     -   The weight of the Animal
@@ -99,26 +111,29 @@ An exclusive registration must be fully specified. It always relates to specific
 An **Animal** can be `locatedAt` either a **Building** or an **AgriParcel**
 
 -   A building is a real world bricks and mortar farm building. **Building** entities would have properties such as:
+
     -   A name of the store e.g. "Checkpoint Markt"
     -   An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
     -   A physical location e.g. _52.5075 N, 13.3903 E_
     -   A relationship to the owner of the building.
 
--   An AgriParcel is a plot of land on the farm, sometimes called a partfield. **AgriParcel** entities would have properties such as:
+-   An AgriParcel is a plot of land on the farm, sometimes called a partfield. **AgriParcel** entities would have
+    properties such as:
     -   A name of the store e.g. "Checkpoint Markt"
     -   An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
     -   A physical location e.g. _52.5075 N, 13.3903 E_
     -   A relationship to the owner of the building.
 
-Additionally devices such as a **TemperatureSensor** can be placed in a **Building** or an **AgriParcel** to measuer the `temperature` 
+Additionally devices such as a **TemperatureSensor** can be placed in a **Building** or an **AgriParcel** to measuer the
+`temperature`
 
 ![](https://fiware.github.io/tutorials.Context-Providers/img/ngsi-ld-entities.png)
 
 ## Farm Management Information System frontend
 
 The simple Node.js Express application has updated to use NGSI-LD in the previous
-[tutorial](https://github.com/FIWARE/tutorials.Getting-Started/). We will use the application to
-monitor the data being received from the data space as a whole. It can accessed from the following URLs:
+[tutorial](https://github.com/FIWARE/tutorials.Getting-Started/). We will use the application to monitor the data being
+received from the data space as a whole. It can accessed from the following URLs:
 
 The FMIS can be found at: `http://localhost:3000/`
 
@@ -153,12 +168,12 @@ is used configure the required services for the application. This means all cont
 single command. Docker Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux
 users will need to follow the instructions found [here](https://docs.docker.com/compose/install/)
 
-
 # Architecture
 
-The demo Farm Management Information System (FMIS) application will send and receive NGSI-LD calls using a compliant context broker.
-To keep the archirecture simple, the demo will make use of only one FIWARE component, with data from a single context broker
-being split across a series of subsystems each using a different tenant in emulation of a full data space.
+The demo Farm Management Information System (FMIS) application will send and receive NGSI-LD calls using a compliant
+context broker. To keep the archirecture simple, the demo will make use of only one FIWARE component, with data from a
+single context broker being split across a series of subsystems each using a different tenant in emulation of a full
+data space.
 
 Currently, the Orion Context Broker relies on open source [MongoDB](https://www.mongodb.com/) technology to keep
 persistence of the context data it holds. To request context data from external sources, a simple Context Provider NGSI
@@ -166,14 +181,14 @@ proxy has also been added. To visualize and interact with the Context we will ad
 
 Therefore the overall architecture will consist of the following elements:
 
--   The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will send and receive requests using
+-   The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will send and receive requests
+    using
     [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json).
     This is split into the following systems, each running on their own tenant:
     -   The default tenant which holds **Building** data and is used for collating data from all systems
     -   The `farmer` tenant which holds **Animal**, **Device** and **AgriParcel** information
-    -   The `contractor` tenant holds **Animal** data about animals needing additional care. 
+    -   The `contractor` tenant holds **Animal** data about animals needing additional care.
     -   The `vet` tenant which holds **Animal** data about new-born animals
-    
 -   The FIWARE [IoT Agent for UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) which will receive
     southbound requests using
     [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
@@ -185,7 +200,7 @@ Therefore the overall architecture will consist of the following elements:
         registrations
     -   Used by the **IoT Agent** to hold device information such as device URLs and Keys
 -   An HTTP **Web-Server** which offers static `@context` files defining the context entities within the system.
--   The **Tutorial Application** does the following:    
+-   The **Tutorial Application** does the following:
     -   Acts as set of dummy [agricultural IoT devices](https://github.com/FIWARE/tutorials.IoT-Sensors/tree/NGSI-LD)
         using the
         [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
@@ -203,9 +218,8 @@ has been described in a [previous tutorial](https://github.com/FIWARE/tutorials.
 # Start Up
 
 All services can be initialised from the command-line by running the
-[services](https://github.com/FIWARE/tutorials.Context-Providers/blob/NGSI-LD/services) Bash script
-provided within the repository. Please clone the repository and create the necessary images by running the commands as
-shown:
+[services](https://github.com/FIWARE/tutorials.Context-Providers/blob/NGSI-LD/services) Bash script provided within the
+repository. Please clone the repository and create the necessary images by running the commands as shown:
 
 ```bash
 git clone https://github.com/FIWARE/tutorials.Context-Providers.git
@@ -225,13 +239,13 @@ git checkout NGSI-LD
 
 # Creating a Redirection Registration
 
-Before adding the registration, goto `http://localhost:3000/` to display and interact with the FMIS data. Initially, only the Building data
-from the previous tutorial is available, since this has been loaded onto the default tenant. 
+Before adding the registration, goto `http://localhost:3000/` to display and interact with the FMIS data. Initially,
+only the Building data from the previous tutorial is available, since this has been loaded onto the default tenant.
 
 ### Reading Animal data
 
-The farmer's data about animals on the farm has been preloaded onto the `farmer` tenant and a simple forwarding proxy set up on port 1027.
-The farmer's data can be read as shown:
+The farmer's data about animals on the farm has been preloaded onto the `farmer` tenant and a simple forwarding proxy
+set up on port 1027. The farmer's data can be read as shown:
 
 #### 1️⃣ Request:
 
@@ -270,8 +284,6 @@ the payloads offered by the two subscriptions will be discussed below.
    ...etc
 ```
 
-
-
 #### 2️⃣ Request:
 
 ```console
@@ -280,7 +292,6 @@ curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&option
 -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
 ```
 
-
 #### Response:
 
 The equivalent request on the default tenant FMIS system initially returns no data
@@ -288,7 +299,6 @@ The equivalent request on the default tenant FMIS system initially returns no da
 ```json
 []
 ```
-
 
 ### Creating a redirection registration
 
@@ -319,10 +329,11 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 }'
 ```
 
-`"mode":"redirect"` prevents the FMIS context broker from holding any `type=Animal` data whatsoever. All `type=Animal` requests are forwarded
-elsewhere. `operations": "redirectionOps"` is a short-hand for all NGSI-LD endpoints - any CRUD operations will now affect the farmer
-sub-system (i.e. the farmer tenant), not the FMIS system (i.e. the default tenant). Effectively this registration has ceded the control of `type=Animal`
-to the farmer subsystem. After creating the registration, resending the  `type=Animal` request on the FMIS system (the default tenant) now returns all the 
+`"mode":"redirect"` prevents the FMIS context broker from holding any `type=Animal` data whatsoever. All `type=Animal`
+requests are forwarded elsewhere. `operations": "redirectionOps"` is a short-hand for all NGSI-LD endpoints - any CRUD
+operations will now affect the farmer sub-system (i.e. the farmer tenant), not the FMIS system (i.e. the default
+tenant). Effectively this registration has ceded the control of `type=Animal` to the farmer subsystem. After creating
+the registration, resending the `type=Animal` request on the FMIS system (the default tenant) now returns all the
 animals from the farmer subsystem:
 
 #### 3️⃣ Request:
@@ -359,7 +370,6 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&option
 ```
 
 The animals can now aslo be found within the tutorial application `http://localhost:3000/` .
-
 
 ### Read Subscription Details
 
@@ -607,9 +617,10 @@ curl -iX POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 ```
 
 > [!NOTE]
-> that `propertyNames` and `relationshipNames` have replaced the older `properties` attribute that was is
-> defined in the 1.1.1 NGSI-LD core context. It was replaced in order to offer full GeoJSON-LD support. Your context
-> broker may or may not support the updated core context
+>
+> that `propertyNames` and `relationshipNames` have replaced the older `properties` attribute that was is defined in the
+> 1.1.1 NGSI-LD core context. It was replaced in order to offer full GeoJSON-LD support. Your context broker may or may
+> not support the updated core context
 
 ### Read Registration Details
 
@@ -645,21 +656,17 @@ returned, along with the `@context`.
                         "type": "Building"
                     }
                 ],
-                "properties": [
-                    "tweets"
-                ]
+                "properties": ["tweets"]
             }
         ],
-        "contextSourceInfo":[
+        "contextSourceInfo": [
             {
                 "key": "jsonldContext",
                 "value": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
             }
         ],
         "mode": "exclusive",
-        "operations": [
-            "updateOps", "retrieveOps"
-        ]
+        "operations": ["updateOps", "retrieveOps"]
     }
 ]
 ```
@@ -695,11 +702,7 @@ The response now holds an additional `tweets` Property, which returns the values
     "type": "Building",
     "furniture": {
         "type": "Relationship",
-        "object": [
-            "urn:ngsi-ld:Shelf:unit001",
-            "urn:ngsi-ld:Shelf:unit002",
-            "urn:ngsi-ld:Shelf:unit003"
-        ]
+        "object": ["urn:ngsi-ld:Shelf:unit001", "urn:ngsi-ld:Shelf:unit002", "urn:ngsi-ld:Shelf:unit003"]
     },
     "address": {
         "type": "Property",
@@ -726,10 +729,7 @@ The response now holds an additional `tweets` Property, which returns the values
         "type": "GeoProperty",
         "value": {
             "type": "Point",
-            "coordinates": [
-                13.3986,
-                52.5547
-            ]
+            "coordinates": [13.3986, 52.5547]
         }
     },
     "tweets": {
@@ -906,10 +906,7 @@ and then forwarded to the context provider endpoint.
     "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
     "id": "urn:ngsi-ld:Building:store001",
     "type": "Building",
-    "tweets": [
-        "This must be Thursday",
-        "I never could get the hang of Thursdays."
-    ]
+    "tweets": ["This must be Thursday", "I never could get the hang of Thursdays."]
 }
 ```
 
