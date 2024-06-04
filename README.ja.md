@@ -32,7 +32,7 @@
     -   [在庫管理フロントエンド](#stock-management-frontend)
 -   [前提条件](#prerequisites)
     -   [Docker](#docker)
-    -   [Cygwin](#cygwin)
+    -   [WSL](#wsl)
 -   [アーキテクチャ](#architecture)
 -   [起動](#start-up)
 -   [コンポーネント間の相互作用](#interactions-between-components)
@@ -129,12 +129,10 @@ Store002 は次の場所にあります: `http:/localhost:3000/app/store/urn:ngs
 できることを意味します。Docker Compose は、Docker for Windows および Docker for Mac の一部としてデフォルトでインストール
 されますが、Linux ユーザは[こちら](https://docs.docker.com/compose/install/)にある手順に従う必要があります。
 
-<a name="cygwin"/>
-
-## Cygwin
+## WSL
 
 簡単な bash スクリプトを使ってサービスを開始します。Windows ユーザは、Windows 上の Linux ディストリビューションに
-似たコマンドライン機能を提供するために [cygwin](http://www.cygwin.com/) をダウンロードするべきです。
+似たコマンドライン機能を提供するために [を使用して Windows に Linux をインストールする方法](https://learn.microsoft.com/ja-jp/windows/wsl/install) をダウンロードするべきです。
 
 <a name="architecture"/>
 
