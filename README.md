@@ -258,7 +258,8 @@ This command will also import seed data from the previous
 [Stock Management example](https://github.com/FIWARE/tutorials.CRUD-Operations) on startup.
 
 > [!NOTE]
->  If you want to clean up and start over again you can do so with the following command:
+>
+> If you want to clean up and start over again you can do so with the following command:
 >
 > ```console
 > ./services stop
@@ -266,9 +267,8 @@ This command will also import seed data from the previous
 
 # Using a Context Provider
 
-> [!TIP]
-> You can also watch the status of recent requests yourself by following the container logs
-> or viewing information on `localhost:3000/app/monitor` on a web browser.
+> [!TIP] You can also watch the status of recent requests yourself by following the container logs or viewing
+> information on `localhost:3000/app/monitor` on a web browser.
 >
 > ![FIWARE Monitor](https://fiware.github.io/tutorials.Context-Providers/img/monitor.png)
 
@@ -588,7 +588,7 @@ merely holds the registration information about which context providers can offe
 This request will return with a **201 - Created** response code. The `Location` Header of the response contains a path
 to the registration record held in Orion
 
-#### 7️⃣  Request:
+#### 7️⃣ Request:
 
 ```console
 curl -iX POST \
@@ -618,7 +618,7 @@ curl -iX POST \
 Once a Context Provider has been registered, the new context data will be included if the context of the **Store**
 entity `urn:ngsi-ld:Store:001` is requested using the `/entities/<entity-id>` endpoint:
 
-#### 8️⃣  Request:
+#### 8️⃣ Request:
 
 ```console
 curl -X GET \
