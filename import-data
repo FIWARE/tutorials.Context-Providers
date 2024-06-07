@@ -560,6 +560,14 @@ curl -s -X POST 'http://'"${CONTEXT_BROKER}"'/ngsi-ld/v1/entityOperations/upsert
       "type": "VocabularyProperty", "vocab": "noStatus",
       "observedAt": "2024-02-02T15:00:00.000Z"
     }
+  },
+  {
+    "id": "urn:ngsi-ld:Animal:cow001",
+    "type": "Animal",
+    "comment": {
+      "type": "Property", "value": "Please check hooves.",
+      "observedAt": "2024-01-01T15:00:00.000Z"
+    }
   }
 ]'
 

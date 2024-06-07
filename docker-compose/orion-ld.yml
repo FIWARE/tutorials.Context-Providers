@@ -31,10 +31,10 @@ services:
       - default
     ports:
       - ${EXPOSED_PORT:-1026}:${ORION_LD_PORT:-1026}
-    command: -dbhost mongo-db -logLevel DEBUG -forwarding -experimental -wip entityMaps
+    command: -dbhost mongo-db -logLevel INFO -forwarding -experimental -wip entityMaps
     healthcheck:
       test: curl --fail -s http://orion:${ORION_LD_PORT}/version || exit 1
-      interval: 5s
+      interval: 30s
      
   # Tutorial connects to the Orion-LD Broker
   tutorial:
@@ -49,7 +49,7 @@ services:
   farmer:
     environment:
       - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}
-  labourer:
+  contractor:
     environment:
       - CONTEXT_BROKER=http://orion:${ORION_LD_PORT}
   vet:

@@ -53,7 +53,7 @@ services:
   farmer:
     environment:
       - CONTEXT_BROKER=http://scorpio:${SCORPIO_PORT}
-  labourer:
+  contractor:
     environment:
       - CONTEXT_BROKER=http://scorpio:${SCORPIO_PORT}
   vet:

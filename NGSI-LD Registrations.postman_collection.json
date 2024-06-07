@@ -1,0 +1,713 @@
+{
+	"info": {
+		"_postman_id": "c41ead05-48b8-4f30-9460-d921a817ebec",
+		"name": "NGSI-LD Registrations",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "513743",
+		"_collection_link": "https://fiware.postman.co/workspace/NGSI-LD-tutorials~60157bf9-a93f-4c6e-90d1-0917133c1872/collection/513743-c41ead05-48b8-4f30-9460-d921a817ebec?action=share&source=collection_link&creator=513743"
+	},
+	"item": [
+		{
+			"name": "Farmer - Get Animals",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer"
+					},
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"entities",
+						""
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Animal"
+						},
+						{
+							"key": "limit",
+							"value": "100"
+						},
+						{
+							"key": "options",
+							"value": "concise"
+						}
+					]
+				},
+				"description": "A new subscription can be added by making a POST request to the `/ngsi-ld/v1/subscriptions/` endpoint as shown below.\n\nThe body of the POST request consists of two parts, the first section of the request (consisting of `entities`, `type`, `watchedAttributes` and\n`q`)states that the subscription will be checked whenever the `filling`  attribute of  a **FillingSensor** entity is altered. This is further refined by the `q` parameter so that the actual subscription is only fired for any **FillingSensor** entity linked to the **Building** `urn:ngsi-ld:Building:farm001`  and only when the `filling` attribute drops below 0.8\n\nThe notification section of the body states that once the conditions of the subscription have been met, a POST\nrequest containing all affected **FillingSensor** entities will be sent to the URL\n`http://tutorial:3000/subscription/low-stock-farm001` which is handled by the contractor's own system.\n\nIt should be noted that the subscription is using the `NGSILD-Tenant` header because the IoT Devices have been provisioned using a separate tenant to the buildings for now. Tenants allow for context data to be distributed across separate databases and allow multiple application clients to access the same context broker but keep their own data sets apart.\n\nGo to the Device Monitor `http://localhost:3000/app/farm/urn:ngsi-ld:Building:farm001` and start removing hay from the barn. Nothing happens until the barn is half-empty, then a request is sent to\n`subscription/low-stock-farm001` as shown:\n\n#### `http://localhost:3000/app/monitor`\n\n![](https://fiware.github.io/tutorials.Subscriptions/img/low-stock-farm.png)\n\n#### Subscription Payload:\n\n```json\n{\n \"id\": \"urn:ngsi-ld:Notification:5fd0f3824eb81930c97005d8\",\n \"type\": \"Notification\",\n \"subscriptionId\": \"urn:ngsi-ld:Subscription:5fd0ee554eb81930c97005c1\",\n \"notifiedAt\": \"2020-12-09T15:55:46.520Z\",\n \"data\": [\n  {\n   \"id\": \"urn:ngsi-ld:Device:filling001\",\n   \"type\": \"FillingSensor\",\n   \"controllingAsset\": \"urn:ngsi-ld:Building:farm001\",\n   \"filling\": 0.59\n  }\n ]\n}\n```\n\nCode within the Farm Management Information System handles received the POST request as shown:\n\n```javascript\nconst NOTIFY_ATTRIBUTES = ['controllingAsset', 'type', 'filling', 'humidity', 'temperature'];\n\nrouter.post('/subscription/:type', (req, res) => {\n    monitor('notify', req.params.type + ' received', req.body);\n    _.forEach(req.body.data, (item) => {\n        broadcastEvents(req, item, NOTIFY_ATTRIBUTES);\n    });\n    res.status(204).send();\n});\n\nfunction broadcastEvents(req, item, types) {\n    const message = req.params.type + \" received\";\n    _.forEach(types, (type) => {\n        if (item[type]) {\n            req.app.get(\"io\").emit(item[type], message);\n        }\n    });\n}\n```\n\nThis business logic emits socket I/O events to any registered parties (such as the contractor who will then refill the barn.)"
+			},
+			"response": []
+		},
+		{
+			"name": "Farmer - Cow001",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/ld+json"
+					},
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001?attrs=name,comment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"entities",
+						"urn:ngsi-ld:Animal:cow001"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Store",
+							"description": "Entity type, to avoid ambiguity in case there are several entities with the same entity id",
+							"disabled": true
+						},
+						{
+							"key": "attrs",
+							"value": "name,comment",
+							"description": "Ordered list of attribute names to display"
+						},
+						{
+							"key": "local",
+							"value": "true",
+							"disabled": true
+						},
+						{
+							"key": "attrs",
+							"value": "comment",
+							"disabled": true
+						}
+					]
+				},
+				"description": "This example returns the data of `urn:ngsi-ld:Building:farm001`. The NGSI-LD `@context` is supplied as a [`Link` header](https://www.w3.org/wiki/LinkHeader) to define the entities returned. The `ngsi-context.jsonld` `@context` file is just supplying short names for every attribute.\n\nThe full link header syntax can be seen below:\n\n```text\nLink: <https://fiware.github.io/data-models/context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\n```\n\nThe standard HTTP `Link` header allows metadata (in this case the `@context`) to be passed in without actually touching\nthe resource in question. In the case of NGSI-LD, the metadata is a file in `application/ld+json` format."
+			},
+			"response": []
+		},
+		{
+			"name": "FMIS - Get Animals",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"entities",
+						""
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Animal"
+						},
+						{
+							"key": "limit",
+							"value": "100"
+						},
+						{
+							"key": "options",
+							"value": "concise"
+						}
+					]
+				},
+				"description": "A new subscription can be added by making a POST request to the `/ngsi-ld/v1/subscriptions/` endpoint as shown below.\n\nThe body of the POST request consists of two parts, the first section of the request (consisting of `entities`, `type`, `watchedAttributes` and\n`q`)states that the subscription will be checked whenever the `filling`  attribute of  a **FillingSensor** entity is altered. This is further refined by the `q` parameter so that the actual subscription is only fired for any **FillingSensor** entity linked to the **Building** `urn:ngsi-ld:Building:farm001`  and only when the `filling` attribute drops below 0.8\n\nThe notification section of the body states that once the conditions of the subscription have been met, a POST\nrequest containing all affected **FillingSensor** entities will be sent to the URL\n`http://tutorial:3000/subscription/low-stock-farm001` which is handled by the contractor's own system.\n\nIt should be noted that the subscription is using the `NGSILD-Tenant` header because the IoT Devices have been provisioned using a separate tenant to the buildings for now. Tenants allow for context data to be distributed across separate databases and allow multiple application clients to access the same context broker but keep their own data sets apart.\n\nGo to the Device Monitor `http://localhost:3000/app/farm/urn:ngsi-ld:Building:farm001` and start removing hay from the barn. Nothing happens until the barn is half-empty, then a request is sent to\n`subscription/low-stock-farm001` as shown:\n\n#### `http://localhost:3000/app/monitor`\n\n![](https://fiware.github.io/tutorials.Subscriptions/img/low-stock-farm.png)\n\n#### Subscription Payload:\n\n```json\n{\n \"id\": \"urn:ngsi-ld:Notification:5fd0f3824eb81930c97005d8\",\n \"type\": \"Notification\",\n \"subscriptionId\": \"urn:ngsi-ld:Subscription:5fd0ee554eb81930c97005c1\",\n \"notifiedAt\": \"2020-12-09T15:55:46.520Z\",\n \"data\": [\n  {\n   \"id\": \"urn:ngsi-ld:Device:filling001\",\n   \"type\": \"FillingSensor\",\n   \"controllingAsset\": \"urn:ngsi-ld:Building:farm001\",\n   \"filling\": 0.59\n  }\n ]\n}\n```\n\nCode within the Farm Management Information System handles received the POST request as shown:\n\n```javascript\nconst NOTIFY_ATTRIBUTES = ['controllingAsset', 'type', 'filling', 'humidity', 'temperature'];\n\nrouter.post('/subscription/:type', (req, res) => {\n    monitor('notify', req.params.type + ' received', req.body);\n    _.forEach(req.body.data, (item) => {\n        broadcastEvents(req, item, NOTIFY_ATTRIBUTES);\n    });\n    res.status(204).send();\n});\n\nfunction broadcastEvents(req, item, types) {\n    const message = req.params.type + \" received\";\n    _.forEach(types, (type) => {\n        if (item[type]) {\n            req.app.get(\"io\").emit(item[type], message);\n        }\n    });\n}\n```\n\nThis business logic emits socket I/O events to any registered parties (such as the contractor who will then refill the barn.)"
+			},
+			"response": []
+		},
+		{
+			"name": "FMIS - Cow001",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/ld+json"
+					},
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"entities",
+						"urn:ngsi-ld:Animal:cow001"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Store",
+							"description": "Entity type, to avoid ambiguity in case there are several entities with the same entity id",
+							"disabled": true
+						},
+						{
+							"key": "local",
+							"value": "true",
+							"disabled": true
+						},
+						{
+							"key": "attrs",
+							"value": "comment",
+							"disabled": true
+						}
+					]
+				},
+				"description": "This example returns the data of `urn:ngsi-ld:Building:farm001`. The NGSI-LD `@context` is supplied as a [`Link` header](https://www.w3.org/wiki/LinkHeader) to define the entities returned. The `ngsi-context.jsonld` `@context` file is just supplying short names for every attribute.\n\nThe full link header syntax can be seen below:\n\n```text\nLink: <https://fiware.github.io/data-models/context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\n```\n\nThe standard HTTP `Link` header allows metadata (in this case the `@context`) to be passed in without actually touching\nthe resource in question. In the case of NGSI-LD, the metadata is a file in `application/ld+json` format."
+			},
+			"response": []
+		},
+		{
+			"name": "FMIS to Farmer - Redirect registration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"type\": \"ContextSourceRegistration\",\n    \"information\": [\n        {\n            \"entities\": [\n                {\n                    \"type\": \"AgriParcel\"\n                },\n                {\n                    \"type\": \"Animal\"\n                }\n            ]\n        }\n    ],\n    \"mode\": \"redirect\",\n    \"management\": {\n        \"timeout\": 1000\n    },\n    \"operations\": [\n        \"redirectionOps\"\n    ],\n    \"endpoint\": \"http://farmer\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/csourceRegistrations/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"csourceRegistrations",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FMIS - Check Registrations",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/csourceRegistrations/?type=Animal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"csourceRegistrations",
+						""
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Animal"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vet - Get Animals",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "vet"
+					},
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					}
+				],
+				"url": {
+					"raw": "http://{{orion}}/ngsi-ld/v1/entities/?type=Animal",
+					"protocol": "http",
+					"host": [
+						"{{orion}}"
+					],
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"entities",
+						""
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Animal"
+						}
+					]
+				},
+				"description": "A new subscription can be added by making a POST request to the `/ngsi-ld/v1/subscriptions/` endpoint as shown below.\n\nThe body of the POST request consists of two parts, the first section of the request (consisting of `entities`, `type`, `watchedAttributes` and\n`q`)states that the subscription will be checked whenever the `filling`  attribute of  a **FillingSensor** entity is altered. This is further refined by the `q` parameter so that the actual subscription is only fired for any **FillingSensor** entity linked to the **Building** `urn:ngsi-ld:Building:farm001`  and only when the `filling` attribute drops below 0.8\n\nThe notification section of the body states that once the conditions of the subscription have been met, a POST\nrequest containing all affected **FillingSensor** entities will be sent to the URL\n`http://tutorial:3000/subscription/low-stock-farm001` which is handled by the contractor's own system.\n\nIt should be noted that the subscription is using the `NGSILD-Tenant` header because the IoT Devices have been provisioned using a separate tenant to the buildings for now. Tenants allow for context data to be distributed across separate databases and allow multiple application clients to access the same context broker but keep their own data sets apart.\n\nGo to the Device Monitor `http://localhost:3000/app/farm/urn:ngsi-ld:Building:farm001` and start removing hay from the barn. Nothing happens until the barn is half-empty, then a request is sent to\n`subscription/low-stock-farm001` as shown:\n\n#### `http://localhost:3000/app/monitor`\n\n![](https://fiware.github.io/tutorials.Subscriptions/img/low-stock-farm.png)\n\n#### Subscription Payload:\n\n```json\n{\n \"id\": \"urn:ngsi-ld:Notification:5fd0f3824eb81930c97005d8\",\n \"type\": \"Notification\",\n \"subscriptionId\": \"urn:ngsi-ld:Subscription:5fd0ee554eb81930c97005c1\",\n \"notifiedAt\": \"2020-12-09T15:55:46.520Z\",\n \"data\": [\n  {\n   \"id\": \"urn:ngsi-ld:Device:filling001\",\n   \"type\": \"FillingSensor\",\n   \"controllingAsset\": \"urn:ngsi-ld:Building:farm001\",\n   \"filling\": 0.59\n  }\n ]\n}\n```\n\nCode within the Farm Management Information System handles received the POST request as shown:\n\n```javascript\nconst NOTIFY_ATTRIBUTES = ['controllingAsset', 'type', 'filling', 'humidity', 'temperature'];\n\nrouter.post('/subscription/:type', (req, res) => {\n    monitor('notify', req.params.type + ' received', req.body);\n    _.forEach(req.body.data, (item) => {\n        broadcastEvents(req, item, NOTIFY_ATTRIBUTES);\n    });\n    res.status(204).send();\n});\n\nfunction broadcastEvents(req, item, types) {\n    const message = req.params.type + \" received\";\n    _.forEach(types, (type) => {\n        if (item[type]) {\n            req.app.get(\"io\").emit(item[type], message);\n        }\n    });\n}\n```\n\nThis business logic emits socket I/O events to any registered parties (such as the contractor who will then refill the barn.)"
+			},
+			"response": []
+		},
+		{
+			"name": "Vet - Cow001",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "vet"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001?local=true&attrs=name,comment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"entities",
+						"urn:ngsi-ld:Animal:cow001"
+					],
+					"query": [
+						{
+							"key": "local",
+							"value": "true"
+						},
+						{
+							"key": "attrs",
+							"value": "name,comment"
+						}
+					]
+				},
+				"description": "A new subscription can be added by making a POST request to the `/ngsi-ld/v1/subscriptions/` endpoint as shown below.\n\nThe body of the POST request consists of two parts, the first section of the request (consisting of `entities`, `type`, `watchedAttributes` and\n`q`)states that the subscription will be checked whenever the `filling`  attribute of  a **FillingSensor** entity is altered. This is further refined by the `q` parameter so that the actual subscription is only fired for any **FillingSensor** entity linked to the **Building** `urn:ngsi-ld:Building:farm001`  and only when the `filling` attribute drops below 0.8\n\nThe notification section of the body states that once the conditions of the subscription have been met, a POST\nrequest containing all affected **FillingSensor** entities will be sent to the URL\n`http://tutorial:3000/subscription/low-stock-farm001` which is handled by the contractor's own system.\n\nIt should be noted that the subscription is using the `NGSILD-Tenant` header because the IoT Devices have been provisioned using a separate tenant to the buildings for now. Tenants allow for context data to be distributed across separate databases and allow multiple application clients to access the same context broker but keep their own data sets apart.\n\nGo to the Device Monitor `http://localhost:3000/app/farm/urn:ngsi-ld:Building:farm001` and start removing hay from the barn. Nothing happens until the barn is half-empty, then a request is sent to\n`subscription/low-stock-farm001` as shown:\n\n#### `http://localhost:3000/app/monitor`\n\n![](https://fiware.github.io/tutorials.Subscriptions/img/low-stock-farm.png)\n\n#### Subscription Payload:\n\n```json\n{\n \"id\": \"urn:ngsi-ld:Notification:5fd0f3824eb81930c97005d8\",\n \"type\": \"Notification\",\n \"subscriptionId\": \"urn:ngsi-ld:Subscription:5fd0ee554eb81930c97005c1\",\n \"notifiedAt\": \"2020-12-09T15:55:46.520Z\",\n \"data\": [\n  {\n   \"id\": \"urn:ngsi-ld:Device:filling001\",\n   \"type\": \"FillingSensor\",\n   \"controllingAsset\": \"urn:ngsi-ld:Building:farm001\",\n   \"filling\": 0.59\n  }\n ]\n}\n```\n\nCode within the Farm Management Information System handles received the POST request as shown:\n\n```javascript\nconst NOTIFY_ATTRIBUTES = ['controllingAsset', 'type', 'filling', 'humidity', 'temperature'];\n\nrouter.post('/subscription/:type', (req, res) => {\n    monitor('notify', req.params.type + ' received', req.body);\n    _.forEach(req.body.data, (item) => {\n        broadcastEvents(req, item, NOTIFY_ATTRIBUTES);\n    });\n    res.status(204).send();\n});\n\nfunction broadcastEvents(req, item, types) {\n    const message = req.params.type + \" received\";\n    _.forEach(types, (type) => {\n        if (item[type]) {\n            req.app.get(\"io\").emit(item[type], message);\n        }\n    });\n}\n```\n\nThis business logic emits socket I/O events to any registered parties (such as the contractor who will then refill the barn.)"
+			},
+			"response": []
+		},
+		{
+			"name": "Farmer to Vet - Federative registration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"type\": \"ContextSourceRegistration\",\n    \"information\": [\n        {\n            \"entities\": [\n                {\n                    \"type\": \"Animal\"\n                }\n            ]\n        }\n    ],\n    \"mode\": \"inclusive\",\n    \"operations\": [\n        \"federationOps\"\n    ],\n    \"management\": {\n        \"timeout\": 1000\n    },\n    \"endpoint\": \"http://vet\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/csourceRegistrations/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"csourceRegistrations",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contractor - Cow001",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/ld+json"
+					},
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "contractor"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001?attrs=name,comment&local=true&attrs=comment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"entities",
+						"urn:ngsi-ld:Animal:cow001"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Store",
+							"description": "Entity type, to avoid ambiguity in case there are several entities with the same entity id",
+							"disabled": true
+						},
+						{
+							"key": "attrs",
+							"value": "name,comment",
+							"description": "Ordered list of attribute names to display"
+						},
+						{
+							"key": "local",
+							"value": "true"
+						},
+						{
+							"key": "attrs",
+							"value": "comment"
+						}
+					]
+				},
+				"description": "This example returns the data of `urn:ngsi-ld:Building:farm001`. The NGSI-LD `@context` is supplied as a [`Link` header](https://www.w3.org/wiki/LinkHeader) to define the entities returned. The `ngsi-context.jsonld` `@context` file is just supplying short names for every attribute.\n\nThe full link header syntax can be seen below:\n\n```text\nLink: <https://fiware.github.io/data-models/context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\n```\n\nThe standard HTTP `Link` header allows metadata (in this case the `@context`) to be passed in without actually touching\nthe resource in question. In the case of NGSI-LD, the metadata is a file in `application/ld+json` format."
+			},
+			"response": []
+		},
+		{
+			"name": "Farmer to Contractor - Federative registration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"type\": \"ContextSourceRegistration\",\n    \"information\": [\n        {\n            \"entities\": [\n                {\n                    \"type\": \"Animal\"\n                }\n            ]\n        }\n    ],\n    \"mode\": \"inclusive\",\n    \"operations\": [\n        \"federationOps\"\n    ],\n    \"endpoint\": \"http://contractor\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/csourceRegistrations/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"csourceRegistrations",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Farmer - Check Registrations",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/csourceRegistrations/?type=Animal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"csourceRegistrations",
+						""
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Animal"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FMIS -types",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/types",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FMIS - attributes",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/attributes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"attributes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Farmer -types Animal",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/types/Animal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"types",
+						"Animal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Farmer - attributes species",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Link",
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+					},
+					{
+						"key": "NGSILD-Tenant",
+						"value": "farmer"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1026/ngsi-ld/v1/attributes/species",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1026",
+					"path": [
+						"ngsi-ld",
+						"v1",
+						"attributes",
+						"species"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ngsi-context.jsonld",
+			"value": "http://context/ngsi-context.jsonld"
+		},
+		{
+			"key": "orion",
+			"value": "localhost:1026"
+		}
+	]
+}

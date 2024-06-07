@@ -140,7 +140,7 @@ services:
     labels:
       org.fiware: 'tutorial'
     image: quay.io/fiware/tutorials.forwarder
-    hostname: 'farmer'
+    hostname: 'openiot'
     container_name: cb-devices
     ports:
       - 1028:80
@@ -148,16 +148,16 @@ services:
       - TENANT=openiot
       - DEBUG=broker:*
 
-  labourer:
+  contractor:
     labels:
       org.fiware: 'tutorial'
     image: quay.io/fiware/tutorials.forwarder
-    hostname: 'labourer'
-    container_name: cb-labourer
+    hostname: 'contractor'
+    container_name: cb-contractor
     ports:
       - 1029:80
     environment:
-      - TENANT=labourer
+      - TENANT=contractor
       - DEBUG=broker:*
 
   vet:
