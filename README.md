@@ -254,7 +254,7 @@ set up on port 1027. The farmer's data can be read as shown:
 ```console
 curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
 ```
 
 #### Response:
@@ -291,7 +291,7 @@ the payloads offered by the two subscriptions will be discussed below.
 ```console
 curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
 ```
 
 #### Response:
@@ -310,7 +310,7 @@ A redirection registration informs a context broker that all data for a given `t
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
 -H 'Content-Type: application/json' \
 -d '{
     "type": "ContextSourceRegistration",
@@ -343,7 +343,7 @@ animals from the farmer subsystem:
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
 ```
 
 #### Response:
