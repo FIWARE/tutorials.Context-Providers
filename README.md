@@ -91,9 +91,13 @@ locally itself. All context data is obtained from the external registered source
 -   A **redirect** Context Source Registration also specifies that the registered context data is held in a location
     external to the Context Broker, but potentially multiple distinct redirect registrations can apply at the same time.
 
-> [!NOTE] > **Exclusive** registrations remain as the default operation mode for simpler NGSI-v2-based systems. However,
-> since NGSI-v2 uses JSON - not JSON-LD - it is unable to freely function within a federated data space without the
-> concept of `@context`. An NGSI-v2 context broker always forms the leaf node in a broker hierarchy. A comparision
+> [!NOTE]
+>
+> - **Inclusive** registrations are the default operation mode for NGSI-LD systems.
+> - **Exclusive** registrations remain as the default operation mode for simpler NGSI-v2 systems.
+>
+> This is because NGSI-v2 uses JSON - not JSON-LD. JSON-based systems NGSI-v2 are unable to freely function within a federated data space
+> without the concept of `@context`. Therefore an NGSI-v2 context broker always forms the leaf node in a broker hierarchy. A comparision
 > between NGSI-v2 and NGSI-LD registrations can be found
 > [here](https://github.com/FIWARE/tutorials.LD-Subscriptions-Registrations/).
 >
@@ -114,19 +118,19 @@ An **Animal** can be `locatedAt` either a **Building** or an **AgriParcel**
 
 -   A building is a real world bricks and mortar farm building. **Building** entities would have properties such as:
 
-    -   A name of the store e.g. "Checkpoint Markt"
+    -   A name of the building e.g. "The Big Red Barn"
     -   An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
     -   A physical location e.g. _52.5075 N, 13.3903 E_
     -   A relationship to the owner of the building.
 
 -   An AgriParcel is a plot of land on the farm, sometimes called a partfield. **AgriParcel** entities would have
     properties such as:
-    -   A name of the store e.g. "Checkpoint Markt"
-    -   An address "Friedrichstraße 44, 10969 Kreuzberg, Berlin"
+    -   A name of the parcel e.g. "The Northern Hay Meadow"
     -   A physical location e.g. _52.5075 N, 13.3903 E_
-    -   A relationship to the owner of the building.
+    -   A crop type - e.g. _Pasture_
+    -   A soil temperature.
 
-Additionally devices such as a **TemperatureSensor** can be placed in a **Building** or an **AgriParcel** to measuer the
+Additionally devices such as a **TemperatureSensor** can be placed in a **Building** or an **AgriParcel** to measure the
 `temperature`
 
 ![](https://fiware.github.io/tutorials.Context-Providers/img/ngsi-ld-entities.png)
@@ -143,15 +147,19 @@ The FMIS can be found at: `http://localhost:3000/`
 
 #### Animals
 
-Animals can be under `http://localhost:3000/app/animal/<urn>`
+Animals can be found under `http://localhost:3000/app/animal/<urn>`
 
 ![Store](https://fiware.github.io/tutorials.Context-Providers/img/cow-101-buttercup.png)
 
 #### Buildings
 
-Animals can be under `http://localhost:3000/app/building/<urn>`
+Animals can be found under `http://localhost:3000/app/building/<urn>`
 
 ![Store2](https://fiware.github.io/tutorials.Context-Providers/img/animal-farm.png)
+
+#### AgriParcels
+
+Animals can be found under `http://localhost:3000/app/agriparcel/<urn>`
 
 # Prerequisites
 
@@ -244,10 +252,10 @@ git checkout NGSI-LD
 Before adding the registration, goto `http://localhost:3000/` to display and interact with the FMIS data. Initially,
 only the Building data from the previous tutorial is available, since this has been loaded onto the default tenant.
 
-### Reading Animal data
+### Reading Animal data from a Tenant
 
-The farmer's data about animals on the farm has been preloaded onto the `farmer` tenant and a simple forwarding proxy
-set up on port 1027. The farmer's data can be read as shown:
+The **farmer's context broker** data about animals on the farm has been preloaded onto the `farmer` tenant and a simple forwarding proxy
+set up on port `1027`. The farmer's data can be read as shown:
 
 #### 1️⃣ Request:
 
@@ -259,9 +267,7 @@ curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&option
 
 #### Response:
 
-The response consists of the details of the subscriptions within the system. The parameters within the `q` attribute
-have been expanded to use the full URIs, as internally the broker consistently uses long names. The differences between
-the payloads offered by the two subscriptions will be discussed below.
+The response consists of the details of the **Animal** entities held within the system. 
 
 ```json
 [
@@ -289,14 +295,14 @@ the payloads offered by the two subscriptions will be discussed below.
 #### 2️⃣ Request:
 
 ```console
-curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
+curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
 -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
 ```
 
 #### Response:
 
-The equivalent request on the default tenant FMIS system initially returns no data
+The equivalent request on the **default tenant** FMIS system initially returns no data
 
 ```json
 []
@@ -331,7 +337,7 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 }'
 ```
 
-`"mode":"redirect"` prevents the FMIS context broker from holding any `type=Animal` data whatsoever. All `type=Animal`
+`"mode":"redirect"` prevents the **FMIS context broker** from holding any `type=Animal` data whatsoever. All `type=Animal`
 requests are forwarded elsewhere. `operations": "redirectionOps"` is a short-hand for all NGSI-LD endpoints - any CRUD
 operations will now affect the farmer sub-system (i.e. the farmer tenant), not the FMIS system (i.e. the default
 tenant). Effectively this registration has ceded the control of `type=Animal` to the farmer subsystem. After creating
