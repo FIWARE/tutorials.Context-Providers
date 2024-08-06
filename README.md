@@ -326,7 +326,10 @@ In the case that multiple redirection registrations have been set up on the same
 | **PATCH**  | Pass request to the **Context Consumers**, proxy back the HTTP back status code. | Update the entity within the **Context Source**, Respond to the context broker with a status code |
 | **DELETE** | Pass request to the **Context Consumers**                                        | Delete the entity within the **Context Source**, Respond to the context broker with a status code |
 
-There result is that each of the registered **Context Sources** should end up with a duplicate copy of the data, and no data is held in the primary context broker.
+
+Similarly, if a subscription CRUD request is passed into the primary context broker, it is passed onto the secondary sources to deal with.
+
+There result is a hierarchy in that each of the registered **Context Sources** should end up with a duplicate copy of the data, and no data is held in the primary context broker.
 
 
 #### 3️⃣ Request:
@@ -444,19 +447,27 @@ registration will wait to receive a response.
 ]
 ```
 
-### Creating a redirection registration
+### Creating a federative registration
 
+With the **NGSI-LD** `inclusive` mode, data from all context sources is considered to be equally valid. `inclusive`  is typically used
+to create a federation of peers (i.e. ``"operations": "federationOps"`) where context brokers are able to augment their understanding of the
+world with data from other sources, but more often than not are unable to **PATCH** or **POST** onto each other.
 
+Imagine the situation where the farmer has his own animal data, but wishes to add additional data from the vet and the contract labourer.
+In this case there is data within the farmer's context broker, as well as the other context sources.
 
-With the **NGSI-LD** `exclusive` mode, all registrations can be subdivided into one of two types. Simple registrations
-where a single context provider is responsible for the maintenance of the whole entity, and partial registrations where
-attributes are spread across multiple context providers. For a simple registration, all context requests are forwarded
+In the case of inclusive registrations have been set up on the same entity `type`, the following occurs:
 
-| Request    | Action at **Context Broker**                                                | Action at **Context Provider**                                                                      |
+| Request    | Action at **Context Broker** (Primary)                                                 | Action at **Context Source** (Secondary)                                                                      |
 | ---------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **GET**    | Pass request to **Context Provider**, proxy the response back unaltered.    | Respond to context broker with the result of the GET request based on the entities held internally  |
-| **PATCH**  | Pass request to **Context Provider**, proxy back the HTTP back status code. | Update the entity within the **Context Provider**, Respond to the context broker with a status code |
-| **DELETE** | Pass request to **Context Provider**                                        | Delete the entity within the **Context Provider**, Respond to the context broker with a status code |
+| **GET**    | Pass request to the **Context Providers**, merge the responses based on the data held locally and the data received from elsewhere using the most recent `observedAt` timestamp as the arbiter of freshness  | Each provider responds to context broker with the result of the GET request based on the entities held internally  |
+| **PATCH**  | Update the data locally and pass request to the **Context Consumers**, proxy back the HTTP back status code. | Update the entity within the **Context Source**, Respond to the context broker with a status code |
+| **DELETE** | Delete the data locally, pass request to the **Context Consumers**                                        | Delete the entity within the **Context Source**, Respond to the context broker with a status code |
+
+
+
+
+Similarly, if a subscription CRUD request is passed into the primary context broker, it is passed onto the secondary sources to deal with.
 
 Effectively every simple registration is saying _"this entity is held elsewhere"_, but the entity data can be requested
 and modified via requests to this context broker. All context brokers should support simple registrations, and indeed,
