@@ -231,7 +231,7 @@ All services can be initialised from the command-line by running the
 [services](https://github.com/FIWARE/tutorials.Context-Providers/blob/NGSI-LD/services) Bash script provided within the
 repository. Please clone the repository and create the necessary images by running the commands as shown:
 
-```bash
+```console
 git clone https://github.com/FIWARE/tutorials.Context-Providers.git
 cd tutorials.Context-Providers
 git checkout NGSI-LD
@@ -252,7 +252,7 @@ git checkout NGSI-LD
 Before adding the registration, goto `http://localhost:3000/` to display and interact with the FMIS data. Initially,
 only the Building data from the previous tutorial is available, since this has been loaded onto the default tenant.
 
-### Reading Animal data from a Tenant
+### Reading Animal data
 
 The **farmer's context broker** data about animals on the farm has been preloaded onto the `farmer` tenant and a simple forwarding proxy
 set up on port `1027`. The farmer's data can be read as shown:
@@ -302,7 +302,7 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&option
 
 #### Response:
 
-The equivalent request on the **default tenant** FMIS system initially returns no data
+Since no registrations have been created yet, the equivalent request on the **FMIS system context broker** initially returns no data
 
 ```json
 []
@@ -310,9 +310,26 @@ The equivalent request on the **default tenant** FMIS system initially returns n
 
 ### Creating a redirection registration
 
-A redirection registration informs a context broker that all data for a given `type` is held in another context source.
+A redirection registration informs a context broker that all data for a given `type` is held externally in another context source.
 
-#### 2️⃣ Request:
+| Request    | Action at **Context Broker** (Primary)                                               | Action at **Context Source** (Secondary)                                                                     |
+| ---------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **GET**    | Pass request to **Context Provider**, proxy the response back unaltered.    | Respond to context broker with the result of the GET request based on the entities held internally  |
+| **PATCH**  | Pass request to **Context Consumer**, proxy back the HTTP back status code. | Update the entity within the **Context Source**, Respond to the context broker with a status code |
+| **DELETE** | Pass request to **Context Consumer**                                        | Delete the entity within the **Context Source**, Respond to the context broker with a status code |
+
+In the case that multiple redirection registrations have been set up on the same entity `type`, the following occurs:
+
+| Request    | Action at **Context Broker** (Primary)                                                 | Action at **Context Source** (Secondary)                                                                      |
+| ---------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **GET**    | Pass request to the **Context Providers**, merge the responses based on the most recent `observedAt` timestamp   | Each provider responds to context broker with the result of the GET request based on the entities held internally  |
+| **PATCH**  | Pass request to the **Context Consumers**, proxy back the HTTP back status code. | Update the entity within the **Context Source**, Respond to the context broker with a status code |
+| **DELETE** | Pass request to the **Context Consumers**                                        | Delete the entity within the **Context Source**, Respond to the context broker with a status code |
+
+There result is that each of the registered **Context Sources** should end up with a duplicate copy of the data, and no data is held in the primary context broker.
+
+
+#### 3️⃣ Request:
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
@@ -340,11 +357,11 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 `"mode":"redirect"` prevents the **FMIS context broker** from holding any `type=Animal` data whatsoever. All `type=Animal`
 requests are forwarded elsewhere. `operations": "redirectionOps"` is a short-hand for all NGSI-LD endpoints - any CRUD
 operations will now affect the farmer sub-system (i.e. the farmer tenant), not the FMIS system (i.e. the default
-tenant). Effectively this registration has ceded the control of `type=Animal` to the farmer subsystem. After creating
+tenant). Effectively this registration has ceded the control of `type=Animal` to the farmer's subsystem. After creating
 the registration, resending the `type=Animal` request on the FMIS system (the default tenant) now returns all the
 animals from the farmer subsystem:
 
-#### 3️⃣ Request:
+#### 4️⃣ Request:
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
@@ -377,151 +394,59 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&option
    ...etc
 ```
 
-The animals can now aslo be found within the tutorial application `http://localhost:3000/` .
+The animals can now also be found within the tutorial application `http://localhost:3000/`.
 
-### Read Subscription Details
+![](https://fiware.github.io/tutorials.Context-Providers/img/fmis.png)
+
+### Read Registration Details
 
 Subscription details can be read by making a GET request to the `/ngsi-ld/v1/subscriptions/`. All subscription CRUD
-actions continue to be mapped to the same HTTP verbs as before. Adding the `Accept: application/json` will remove the
-`@context` element from the response body.
+actions continue to be mapped to the same HTTP verbs as before. For NGSI-LD systems, the request must be limited somehow.
+In this case we are looking for registrations regarding **Animal** entities, `type=Animal` the mapping of which is defined 
+by the associated `@context` file.
 
-#### 3️⃣ Request:
+#### 5️⃣ Request:
 
 ```console
-curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/subscriptions/'
+curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/?type=Animal' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
 ```
 
 #### Response:
 
-The response consists of the details of the subscriptions within the system. The parameters within the `q` attribute
-have been expanded to use the full URIs, as internally the broker consistently uses long names. The differences between
-the payloads offered by the two subscriptions will be discussed below.
+The response consists of the details of the registration within the system. The `management.timeout` is the default length of time a 
+registration will wait to receive a response.
 
 ```json
 [
     {
-        "id": "urn:ngsi-ld:Subscription:5e62405ee232da3a07b5fa7f",
-        "type": "Subscription",
-        "description": "Notify me of low stock in Store 001",
-        "entities": [
+        "id": "urn:ngsi-ld:ContextSourceRegistration:-225064078",
+        "type": "ContextSourceRegistration",
+        "endpoint": "http://farmer",
+        "information": [
             {
-                "type": "Shelf"
+                "entities": [
+                    {
+                        "type": "AgriParcel"
+                    },
+                    {
+                        "type": "Animal"
+                    }
+                ]
             }
         ],
-        "watchedAttributes": ["numberOfItems"],
-        "q": "https://fiware.github.io/tutorials.Step-by-Step/schema/numberOfItems<10;https://fiware.github.io/tutorials.Step-by-Step/schema/locatedIn==%22urn:ngsi-ld:Building:store001%22",
-        "notification": {
-            "attributes": ["numberOfItems", "stocks", "locatedIn"],
-            "format": "keyValues",
-            "endpoint": {
-                "uri": "http://tutorial:3000/subscription/low-stock-store001",
-                "accept": "application/json"
-            }
+        "management": {
+            "timeout": 1000
         },
-        "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
-    },
-    {
-        "id": "urn:ngsi-ld:Subscription:5e624063e232da3a07b5fa80",
-        "type": "Subscription",
-        "description": "Notify me of low stock in Store 002",
-        "entities": [
-            {
-                "type": "Shelf"
-            }
-        ],
-        "watchedAttributes": ["numberOfItems"],
-        "q": "https://fiware.github.io/tutorials.Step-by-Step/schema/numberOfItems<10;https://fiware.github.io/tutorials.Step-by-Step/schema/locatedIn==%22urn:ngsi-ld:Building:store002%22",
-        "notification": {
-            "attributes": ["numberOfItems", "stocks", "locatedIn"],
-            "format": "keyValues",
-            "endpoint": {
-                "uri": "http://tutorial:3000/subscription/low-stock-store002",
-                "accept": "application/json"
-            }
-        },
-        "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
+        "mode": "redirect",
+        "operations": "redirectionOps"
     }
 ]
 ```
 
-### Retrieving Subscription Events
+### Creating a redirection registration
 
-Open two tabs on a browser. Go to the event monitor (`http://localhost:3000/app/monitor`) to see the payloads that are
-received when a subscription fires, and then go to store001
-(`http://localhost:3000/app/store/urn:ngsi-ld:Building:store001`) and buy beer until less than 10 items are in stock.
-The low stock message should be displayed on screen.
 
-![low-stock](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/low-stock-warehouse.png)
-
-`low-stock-store001` is fired when the Products on the shelves within Store001 are getting low, the subscription payload
-can be seen below:
-
-![low-stock-json](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/low-stock-monitor.png)
-
-The data within the payload consists of key-value pairs of the attributes which were specified in the request. This is
-because the subscription was created using the `format=keyValues` attribute. The `@context` is not present in the
-payload body since `endpoint.accept=application/json` was set. The effect is to return a `data` array in a very similar
-format to the `v2/subscription/` payload. In addition to the `data` array, the `subscriptionId` is included in the
-response, along with a `notifiedAt` element which describes when the notification was fired.
-
-Now go to store002 (`http://localhost:3000/app/store/urn:ngsi-ld:Building:store002`) and buy beer until fewer than 10
-items are in stock. The low stock message is once again displayed on screen, the payload can be seen within the event
-monitor.
-
-![low-stock-ld](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/low-stock-monitor-ld.png)
-
-The second subscription has been set up to pass the full normalized NGSI-LD payload along with the `@context`. This has
-been achieved by using the using the `format=normalized` attribute within the subscription itself, as well as setting
-`endpoint.accept=application/ld+json`, so that the `@context` is also passed with each entity.
-
-## Using Registrations with NGSI-LD
-
-Context Registrations allow some (or all) data within an entity to be provided by an external context provider. It could
-be another full context-provider a separate micro-service which only responds to a subset of the NGSI-LD endpoints.
-However, there needs to be a contract created as to who supplies what.
-
-All **NGSI-LD** registrations can be subdivided into one of four types:
-
-### Additive Registrations
-
-A Context Broker is permitted to hold context data about the Entities and Attributes locally itself, and also obtain
-data from (possibly multiple) external sources
-
--   An **inclusive** Context Source Registration specifies that the Context Broker considers all registered Context
-    Sources as equals and will distribute operations to those Context Sources even if relevant context data is available
-    directly within the Context Broker itself (in which case, all results will be integrated in the final response).
-    This federative and is the default mode of operation.
-
--   An **auxiliary** Context Source Registration never overrides data held directly within a Context Broker. Auxiliary
-    distributed operations are limited to context information consumption operations (i.e. entity **GET** operations).
-    Context data from auxiliary context sources is only included if it is supplementary to the context data otherwise
-    available to the Context Broker.
-
-### Proxied Registrations
-
-A Context Broker is not permitted to hold context data about the Entities and Attributes locally itself. All context
-data is obtained from the external registered sources.
-
--   An **exclusive** Context Source Registration specifies that all of the registered context data is held in a single
-    location external to the Context Broker. The Context Broker itself holds no data locally about the registered
-    Attributes and no overlapping proxied Context Source Registrations shall be supported for the same combination of
-    registered Attributes on the Entity. An exclusive registration must be fully specified. It always relates to
-    specific Attributes found on a single Entity. It can be used for actuations
-
--   A **redirect** Context Source Registration also specifies that the registered context data is held in a location
-    external to the Context Broker, but potentially multiple distinct redirect registrations can apply at the same time.
-
-### Accepted Operations
-
-**NGSI-LD** also defines groups of operations that are allowed on the registrant. The default group is called
-`federationOps` and includes all entity **GET** operations. Three other common operational groups are also defined
-`updateOps` (for actuators), `retrieveOps` (for "lazy" sensors) and `redirectionOps` (for hierarchical broker
-architectures). The details won't be covered here, but it should be noted that unless specified, the default **NGSI-LD**
-operation is `federationOps` using `inclusive` mode, whereas the default **NGSI-v2** operation is
-`updateOps + retrieveOps` using `exclusive` mode.
-
-For simplicity, for **NGSI-v2** - **NGSI-LD** comparison, this tutorial will only deal with `exclusive` mode, which is
-the only mode offered by **NGSI-v2** brokers.
 
 With the **NGSI-LD** `exclusive` mode, all registrations can be subdivided into one of two types. Simple registrations
 where a single context provider is responsible for the maintenance of the whole entity, and partial registrations where
