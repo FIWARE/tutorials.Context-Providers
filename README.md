@@ -254,8 +254,9 @@ only the Building data from the previous tutorial is available, since this has b
 
 ### Reading Animal data
 
-The **farmer's context broker** data about animals on the farm has been preloaded onto the `farmer` tenant and a simple forwarding proxy
-set up on port `1027`. The farmer's data can be read as shown:
+Animals are not available on the default tenant, Data about animals on the farm has been preloaded into the **farmer's context broker** 
+- for simplicitiy this is actually set up as the `farmer` tenant and a simple forwarding proxy set up on port `1027`. The farmer's data
+- can be read as shown:
 
 #### 1️⃣ Request:
 
@@ -267,7 +268,7 @@ curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&option
 
 #### Response:
 
-The response consists of the details of the **Animal** entities held within the system. 
+The response on port `1027` consists of the details of the **Animal** entities held within the  **farmer's context broker**. 
 
 ```json
 [
@@ -310,7 +311,7 @@ Since no registrations have been created yet, the equivalent request on the **FM
 
 ### Creating a redirection registration
 
-A redirection registration informs a context broker that all data for a given `type` is held externally in another context source.
+A redirection registration informs a context broker that **all data** for a given `type` is held externally - in another context source.
 
 | Request    | Action at **Context Broker** (Primary)                                               | Action at **Context Source** (Secondary)                                                                     |
 | ---------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
@@ -329,7 +330,8 @@ In the case that multiple redirection registrations have been set up on the same
 
 Similarly, if a subscription CRUD request is passed into the primary context broker, it is passed onto the secondary sources to deal with.
 
-There result is a hierarchy in that each of the registered **Context Sources** should end up with a duplicate copy of the data, and no data is held in the primary context broker.
+The result of a `redirect` registration is a hierarchy of context brokers, in that each of the registered **Context Sources** should end up with a duplicate copy of the data,
+but no data is held in the primary context broker whatsoever.
 
 
 #### 3️⃣ Request:
@@ -397,13 +399,13 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&option
    ...etc
 ```
 
-The animals can now also be found within the tutorial application `http://localhost:3000/`.
+The animals are now also visible within the tutorial application `http://localhost:3000/`.
 
 ![](https://fiware.github.io/tutorials.Context-Providers/img/fmis.png)
 
 ### Read Registration Details
 
-Subscription details can be read by making a GET request to the `/ngsi-ld/v1/subscriptions/`. All subscription CRUD
+Registration details can be read by making a GET request to the `/ngsi-ld/v1/csourceRegistrations/`. All registration CRUD
 actions continue to be mapped to the same HTTP verbs as before. For NGSI-LD systems, the request must be limited somehow.
 In this case we are looking for registrations regarding **Animal** entities, `type=Animal` the mapping of which is defined 
 by the associated `@context` file.
@@ -449,14 +451,15 @@ registration will wait to receive a response.
 
 ### Creating a federative registration
 
-With the **NGSI-LD** `inclusive` mode, data from all context sources is considered to be equally valid. `inclusive`  is typically used
+The default type of registration within  **NGSI-LD**  systems is `inclusive` mode. In this case, data from all context sources is considered 
+to be equally valid and the context broker returns the most recent data found from across all registered context sources. `inclusive` mode is typically used
 to create a federation of peers (i.e. ``"operations": "federationOps"`) where context brokers are able to augment their understanding of the
 world with data from other sources, but more often than not are unable to **PATCH** or **POST** onto each other.
 
 Imagine the situation where the farmer has his own animal data, but wishes to add additional data from the vet and the contract labourer.
 In this case there is data within the farmer's context broker, as well as the other context sources.
 
-In the case of inclusive registrations have been set up on the same entity `type`, the following occurs:
+In the case where an `inclusive` registrations has been set up, the following occurs:
 
 | Request    | Action at **Context Broker** (Primary)                                                 | Action at **Context Source** (Secondary)                                                                      |
 | ---------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
@@ -464,399 +467,178 @@ In the case of inclusive registrations have been set up on the same entity `type
 | **PATCH**  | Update the data locally and pass request to the **Context Consumers**, proxy back the HTTP back status code. | Update the entity within the **Context Source**, Respond to the context broker with a status code |
 | **DELETE** | Delete the data locally, pass request to the **Context Consumers**                                        | Delete the entity within the **Context Source**, Respond to the context broker with a status code |
 
-
-
-
 Similarly, if a subscription CRUD request is passed into the primary context broker, it is passed onto the secondary sources to deal with.
 
-Effectively every simple registration is saying _"this entity is held elsewhere"_, but the entity data can be requested
-and modified via requests to this context broker. All context brokers should support simple registrations, and indeed,
-simple registrations such as these are necessary for the operation of federated arrays of context brokers working in
-large scale systems, where there is no concept of "entity exclusiveness", that is no entity is bound to an individual
-broker.
+Effectively every `inclusive` registration is saying _"this entity is held both locally and elsewhere"_. 
 
-For partial registrations the situation is more complex
+The **Vet's Context Broker** can be found on port `1030`, a simple query can be made to retrieve the data directly:
 
-| Request    | Action at **Context Broker**                                                                                                                                                                                                | Action at **Context Provider**                                                                                                       |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **GET**    | Assuming an entity exists locally, pass request for additional proxied attributes to **Context Provider**, concatenate a response back for locally held attributes and additional information from the **Context Provider** | Respond to context broker with the result of the GET request based on the entities held internally                                   |
-| **PATCH**  | Update any locally held attributes, Pass update requests for additional attributes to **Context Provider**, and return **success** or **partial success** HTTP status code dependent upon the overall result.               | Update the requested attributes of the entity held within the **Context Provider**. Respond to the context broker with a status code |
-| **DELETE** | If deleting an entity, remove the complete local instance. If deleting locally held attributes remove them. If deleting attributes held in the **Context Provider**, pass request on to **Context Provider**                | Delete the entity attributes within the **Context Provider**, Respond to the context broker with a status code                       |
-
-Each partial registration is saying _"additional augmented context for this entity is held elsewhere"_. The entity data
-can be requested and modified via requests to this context broker. In this case the entity data is effectively bound to
-an individual context broker, and therefore may need special processing when running in a large-scale federated
-environment. Covering the special needs of the federation use-case is not the concern of this tutorial here.
-
-Note that within the context broker a single entity cannot partake in both a simple registration and a partial
-registration at the same time, as this would indicate that both the whole entity and only part of that entity are to be
-retrieved remotely and this is nonsensical. If such a situation is requested, the context broker will return with a
-`409` - **Conflict** HTTP response.
-
-Also, a simple registration for an entity will be rejected if an entity already exists within the context broker, and a
-partial registration for an entity attribute will be rejected if the attribute exists within the context broker (or is
-already subject to a partial registration). The latter may be ovecome with the use of the `datasetId`.
-
-Internally the [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header is
-used to avoid circular dependencies where **context broker A** registers an entity with **context broker B** which
-registers an entity with **context broker C** which registers an entity with **context broker A** again. The
-`X-Forwarded-For` Header is removed prior to responding to a client however.
-
-With normal operation, the NGSI-LD response does not expose whether data collated from multiple sources is held directly
-within the context broker or whether the information has been retrieved externally. It is only when an error occurs
-(e.g. timeout) that the HTTP status error code reveals that externally held information could not be retrieved or
-amended.
-
-### Create a Registration
-
-All NGSI-LD Context Provider Registration actions take place on the `/ngsi-ld/v1/csourceRegistrations/` endpoint. The
-standard CRUD mappings apply. The `@context` must be passed either as a `Link` header or within the main body of the
-request.
-
-The body of the request is similar to the **NGSI-v2** equivalent with the following modifications:
-
--   The **NGSI-v2** `dataProvided` object is now an array called `information`.
--   **NGSI-v2** `attrs` have been split into separate arrays of `propertyNames` and `relationshipNames`
--   The **NGSI-v2** `provider.url` has moved up to `endpoint`
--   The **NGSI-LD** `mode` and `operations` are now required - if they are missing the defaults are `federationOps` and
-    `inclusive` which does not match the default **NGSI-v2** `supportedForwardingMode`
-
-`contextSourceInfo` usually defines additional HTTP Headers which are passed to the registrant, but `jsonldContext` is a
-special key which fires a JSON-LD expansion/compaction operation to ensure that the attribute names within the request
-match the expected **NGSI-v2** attribute names.
-
-#### 4️⃣ Request:
+#### 6️⃣ Request:
 
 ```console
-curl -iX POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+curl -G -X GET \
+    'http://localhost:1030/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
 -H 'Content-Type: application/json' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
---data-raw ' {
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-d 'attrs=name,comment'
+```
+
+#### Response:
+
+```json
+{
+    "id": "urn:ngsi-ld:Animal:cow001",
+    "type": "Animal",
+    "comment": {
+        "type": "Property",
+        "value": "Please check hooves.",
+        "observedAt": "2024-01-01T15:00:00.000Z"
+    }
+}
+```
+
+An `inclusive` federative regsistration can be invoked on the **Farmer's Context Broker**  - this is merely stating that the farmer will coalesce Animal data from their
+own broker and the vet:
+
+
+#### 7️⃣ Request:
+
+```console
+curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'NGSILD-Tenant: farmer' \
+-H 'Content-Type: application/json' \
+-d '{
     "type": "ContextSourceRegistration",
     "information": [
         {
             "entities": [
                 {
-                    "type": "Building",
-                    "id": "urn:ngsi-ld:Building:store001"
+                    "type": "Animal"
                 }
-            ],
-            "propertyNames": [
-                "tweets"
             ]
         }
     ],
-    "contextSourceInfo":[
-        {
-            "key": "jsonldContext",
-            "value": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
-        }
-    ],
-    "mode": "exclusive",
+    "mode": "inclusive",
     "operations": [
-        "updateOps", "retrieveOps"
+        "federationOps"
     ],
-    "endpoint": "http://tutorial:3000/static/tweets"
+    "management": {
+        "timeout": 1000
+    },
+    "endpoint": "http://vet"
 }'
-```
 
-> [!NOTE]
->
-> that `propertyNames` and `relationshipNames` have replaced the older `properties` attribute that was is defined in the
-> 1.1.1 NGSI-LD core context. It was replaced in order to offer full GeoJSON-LD support. Your context broker may or may
-> not support the updated core context
-
-### Read Registration Details
-
-Retrieving the registration details can be made by sending a GET request to the `/ngsi-ld/v1/csourceRegistrations/`
-endpoint, along with an appropriate JSON-LD context in the `Link` header and the `type` of entity to filter
-
-#### 5️⃣ Request:
-
-```console
-curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
--H 'Accept: application/ld+json' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--d 'type=Building'
-```
-
-#### Response:
-
-The response returns the details of the registration. In this case the short names of the `properties` have been
-returned, along with the `@context`.
-
-```json
-[
-    {
-        "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
-        "id": "urn:ngsi-ld:ContextSourceRegistration:5e6242179c26be5aef9991d4",
-        "type": "ContextSourceRegistration",
-        "endpoint": "http://tutorial:3000/static/tweets",
-        "information": [
-            {
-                "entities": [
-                    {
-                        "id": "urn:ngsi-ld:Building:store001",
-                        "type": "Building"
-                    }
-                ],
-                "properties": ["tweets"]
-            }
-        ],
-        "contextSourceInfo": [
-            {
-                "key": "jsonldContext",
-                "value": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld"
-            }
-        ],
-        "mode": "exclusive",
-        "operations": ["updateOps", "retrieveOps"]
-    }
-]
-```
-
-### Read from Store 1
-
-Once a registration has been set up, the additional registered `properties` and `relationships` are transparently
-returned when an requested entity is requested. For simple registrations, a request to obtain the whole entity will be
-proxied to the registered `endpoint`, for partial registrations the `properties` and `relationships` are added to the
-existing entity held within the context broker.
-
-#### 6️⃣ Request:
-
-```console
-curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Content-Type: application/json'
-```
-
-> Note that at the time of writing, for the federated Scorpio broker, this request indicates the retrieval of a local
-> entity only - forwarded data from a registration must be retrieved using:
-> `/ngsi-ld/v1/entities/?id=urn:ngsi-ld:Building:store001` instead.
-
-#### Response:
-
-The response now holds an additional `tweets` Property, which returns the values obtained from
-`http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001` - i.e. the forwarding endpoint.
-
-```json
-{
-    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
-    "id": "urn:ngsi-ld:Building:store001",
-    "type": "Building",
-    "furniture": {
-        "type": "Relationship",
-        "object": ["urn:ngsi-ld:Shelf:unit001", "urn:ngsi-ld:Shelf:unit002", "urn:ngsi-ld:Shelf:unit003"]
-    },
-    "address": {
-        "type": "Property",
-        "value": {
-            "streetAddress": "Bornholmer Straße 65",
-            "addressRegion": "Berlin",
-            "addressLocality": "Prenzlauer Berg",
-            "postalCode": "10439"
-        },
-        "verified": {
-            "type": "Property",
-            "value": true
-        }
-    },
-    "name": {
-        "type": "Property",
-        "value": "Bösebrücke Einkauf"
-    },
-    "category": {
-        "type": "Property",
-        "value": "commercial"
-    },
-    "location": {
-        "type": "GeoProperty",
-        "value": {
-            "type": "Point",
-            "coordinates": [13.3986, 52.5547]
-        }
-    },
-    "tweets": {
-        "type": "Property",
-        "value": [
-            "It has great practical value – you can wrap it around you for warmth as you bound across the cold moons of Jaglan Beta;",
-            "You can lie on it on the brilliant marble-sanded beaches of Santraginus V, inhaling the heady sea vapours;",
-            "You can sleep under it beneath the stars which shine so redly on the desert world of Kakrafoon;",
-            "Use it to sail a mini raft down the slow heavy river Moth;",
-            "Wet it for use in hand-to-hand-combat;",
-            "Wrap it round your head to ward off noxious fumes or to avoid the gaze of the Ravenous Bugblatter Beast of Traal  (a mindboggingly stupid animal, it assumes that if you can’t see it, it can’t see you – daft as a bush, but very, very ravenous);",
-            "You can wave your towel in emergencies as a distress signal, and of course dry yourself off with it if it still seems to be clean enough."
-        ]
-    }
-}
-```
-
-The same response data can be seen within the supermarket application itself. In practice this data has been created via
-a series of requests - the context broker is responsible for the `urn:ngsi-ld:Building:store001` data, however it checks
-to see if any further information can be provided from other sources. In our case the `CSourceRegistration` indicates
-that one further attribute _may_ be available. The broker then requests `tweets` information from the context provider,
-and provided that it responds in a timely manner, the `tweets` information is added to the resultant payload.
-
-The supermarket application displays the received data on screen within the supermarket application itself:
-
-![tweets-1](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/tweets-1.png)
-
-### Read direct from the Context Provider
-
-Every context-provider must stand by a fixed contract. At a minimum must be able to respond to varieties of the
-`/ngsi-ld/v1/entities/<entity-id>` GET request. If the registration is limited to certain properties, this request will
-also contain an `attrs` parameter in the query string.
-
-Dependent upon the use case of the context-provider, it may or may not need to be able to interpret JSON-LD `@context` -
-in this case a request is merely returning the full `tweets` attribute.
-
-The same request is made by the context broker itself when querying for registered attributes
-
-#### 7️⃣ Request:
-
-```console
-curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Content-Type: application/ld+json'
-```
-
-#### Response:
-
-As can be seen the `@context` has been returned in the request (since the `Content-Type` header was set). The rest of
-the response resembles any standard NGSI-LD request.
-
-```json
-{
-    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
-    "id": "urn:ngsi-ld:Building:store001",
-    "type": "Building",
-    "tweets": {
-        "type": "Property",
-        "value": [
-            "It has great practical value – you can wrap it around you for warmth as you bound across the cold moons of Jaglan Beta;",
-            "You can lie on it on the brilliant marble-sanded beaches of Santraginus V, inhaling the heady sea vapours;",
-            "You can sleep under it beneath the stars which shine so redly on the desert world of Kakrafoon;",
-            "Use it to sail a mini raft down the slow heavy river Moth;",
-            "Wet it for use in hand-to-hand-combat;",
-            "Wrap it round your head to ward off noxious fumes or to avoid the gaze of the Ravenous Bugblatter Beast of Traal (a mindboggingly stupid animal, it assumes that if you can’t see it, it can’t see you – daft as a bush, but very, very ravenous);",
-            "You can wave your towel in emergencies as a distress signal, and of course dry yourself off with it if it still seems to be clean enough."
-        ]
-    }
-}
-```
-
-### Direct update of the Context Provider
-
-For a read-write interface it is also possible to amend context data by making a PATCH request to the relevant
-`ngsi-ld/v1/entities/<entity-id>/attrs` endpoint.
+A subsequent request on the  **Farmer's Context Broker** - port `1027`, will receive more information on the cow than previously - Farmer data + Vet data:
 
 #### 8️⃣ Request:
 
 ```console
-curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+curl -G -X GET \
+    'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
 -H 'Content-Type: application/json' \
---data-raw '{
-  "tweets": {
-    "type": "Property",
-    "value": [
-      "Space is big.",
-      "You just won'\''t believe how vastly, hugely, mind-bogglingly big it is.",
-      "I mean, you may think it'\''s a long way down the road to the chemist'\''s, but that'\''s just peanuts to space."
-    ]
-  }
-}'
-```
-
-#### 9️⃣ Request:
-
-If the regisitered attribute is requested from the context broker, it returns the _updated_ values obtained from
-`http://tutorial:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001` - i.e. the forwarding endpoint.
-
-```console
-curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets&options=keyValues' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
 ```
 
 #### Response:
 
-This alters the response to match the values updated in the previous PATCH request.
+The response now includes the Farmer's own data as well as the `comment` attribute found only within the **Vet's context broker**
 
 ```json
 {
-    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
-    "id": "urn:ngsi-ld:Building:store001",
-    "type": "Building",
-    "tweets": [
-        "Space is big.",
-        "You just won't believe how vastly, hugely, mind-bogglingly big it is.",
-        "I mean, you may think it's a long way down the road to the chemist's, but that's just peanuts to space."
-    ]
+    "id": "urn:ngsi-ld:Animal:cow001",
+    "type": "Animal",
+    "name": {
+        "type": "Property",
+        "value": "Beany"
+    },
+    "comment": {
+        "type": "Property",
+        "value": "Please check hooves.",
+        "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "fedWith": {
+        "type": "Property",
+        "value": "Grass"
+    },
+    "legalId": {
+        "type": "Property",
+        "value": "M-bull001-Beany"
+    },
+    "phenologicalCondition": {
+        "type": "VocabProperty",
+        "vocab": "maleAdult"
+    },
+    "reproductiveCondition": {
+        "type": "VocabProperty",
+        "vocab": "active",
+        "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "sex": {
+        "type": "VocabProperty",
+        "vocab": "Male"
+    },
+    "species": {
+        "type": "Property",
+        "value": "dairy cattle"
+    }
 }
 ```
 
-Since the context provider is responsible for supplying `tweets` information, changes in the context provider will
-always be reflected in requests to the context-broker itself. The supermarket application is calling the context broker
-for context regardless of origin, so the updated `tweets` data are displayed on screen within the supermarket
-application itself:
+Furthermore, additional **Animal** entities only found within the **Vet's Context Broker** are now also visible within the tutorial application `http://localhost:3000/` - 
+this is the response from the FMIS (which holds no animals locally) plus the response from the Farmer, plus the response from the Vet. The result is a listing which
+includes all the animals on the farm, plus all the animals which are requiring vetenary care.
 
-![tweets-2](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/tweets-2.png)
-
-The context broker is therefore able to return a complete holistic picture of the current state of the world.
-
-### Forwarded Update
-
-#### 1️⃣0️⃣ Request:
-
-A PATCH request to the context broker ( either `ngsi-ld/v1/entities/<entity-id>/` or
-`ngsi-ld/v1/entities/<entity-id>/attrs`) will be forwarded to the registered context provider if a registration is
-found. It is therefore possible to alter the state of a context-provider as a side effect. Of course, not all context
-providers are necessarily read-write, so attempting to change the attributes of forwarded context may not be fully
-respected.
-
-In this case however a request to PATCH `ngsi-ld/v1/entities/<entity-id>` will be successfully forwarded as a series of
-`ngsi-ld/v1/entities/<entity-id>/attrs` requests for each regsitered attribute that is found in the registration.
+It is still possible to retrieve the locally held data in the **Farmer's Context Broker** without invoking the registration, through adding the `local=true` parameter
 
 ```console
-curl -L -X PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs/tweets' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+curl -G -X GET \
+    'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
 -H 'Content-Type: application/json' \
---data-raw '{
-  "type": "Property",
-  "value": [
-    "This must be Thursday",
-    "I never could get the hang of Thursdays."
-  ]
-} '
-```
-
-#### 1️⃣1️⃣ Request:
-
-The result of the previous operation can be seen by retrieving the whole entity using a GET request.
-
-```console
-curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets&options=keyValues' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Content-Type: application/json'
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-d 'local=true'
 ```
 
 #### Response:
 
-This alters the response to match the values updated in the previous PATCH request which was sent to the context broker
-and then forwarded to the context provider endpoint.
+The response now includes the Farmer's own data only without the `comment` attribute found only within the **Vet's context broker**
 
 ```json
 {
-    "@context": "https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld",
-    "id": "urn:ngsi-ld:Building:store001",
-    "type": "Building",
-    "tweets": ["This must be Thursday", "I never could get the hang of Thursdays."]
+    "id": "urn:ngsi-ld:Animal:cow001",
+    "type": "Animal",
+    "name": {
+        "type": "Property",
+        "value": "Beany"
+    },
+    "fedWith": {
+        "type": "Property",
+        "value": "Grass"
+    },
+    "legalId": {
+        "type": "Property",
+        "value": "M-bull001-Beany"
+    },
+    "phenologicalCondition": {
+        "type": "VocabProperty",
+        "vocab": "maleAdult"
+    },
+    "reproductiveCondition": {
+        "type": "VocabProperty",
+        "vocab": "active",
+        "observedAt": "2024-01-01T15:00:00.000Z"
+    },
+    "sex": {
+        "type": "VocabProperty",
+        "vocab": "Male"
+    },
+    "species": {
+        "type": "Property",
+        "value": "dairy cattle"
+    }
 }
 ```
 
-As can be seen, the updated `tweets` data is also displayed within the supermarket application itself:
-
-![tweets-3](https://fiware.github.io/tutorials.LD-Subscriptions-Registrations/img/tweets-3.png)
 
 ---
 
