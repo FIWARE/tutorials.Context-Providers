@@ -124,26 +124,6 @@ loadData () {
 
 }
 
-addDatabaseIndex () {
-	printf "Adding appropriate \033[1mMongoDB\033[0m indexes for \033[1;34mOrion\033[0m  ..."
-	docker exec  db-mongo mongo --eval '
-	conn = new Mongo();db.createCollection("orion");
-	db = conn.getDB("orion");
-	db.createCollection("entities");
-	db.entities.createIndex({"_id.servicePath": 1, "_id.id": 1, "_id.type": 1}, {unique: true});
-	db.entities.createIndex({"_id.type": 1});
-	db.entities.createIndex({"_id.id": 1});' > /dev/null
-
-	docker exec  db-mongo mongo --eval '
-	conn = new Mongo();db.createCollection("orion-openiot");
-	db = conn.getDB("orion-openiot");
-	db.createCollection("entities");
-	db.entities.createIndex({"_id.servicePath": 1, "_id.id": 1, "_id.type": 1}, {unique: true});
-	db.entities.createIndex({"_id.type": 1});
-	db.entities.createIndex({"_id.id": 1});' > /dev/null
-	echo -e " \033[1;32mdone\033[0m"
-}
-
 stoppingContainers () {
 	CONTAINERS=$(docker ps -aq)
 	if [[ -n $CONTAINERS ]]; then 
@@ -180,7 +160,6 @@ case "${command}" in
 		${dockerCmd} -f docker-compose/common.yml -f docker-compose/orion-ld.yml up -d --remove-orphans --renew-anon-volumes
 		displayServices "orion|fiware"
 		waitForMongo
-		addDatabaseIndex
 		waitForOrionLD
 		export CONTEXT_BROKER=orion:1026
 		loadData
