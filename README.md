@@ -286,7 +286,7 @@ Animals are not available on the default tenant, Data about animals on the farm 
 ```console
 curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
@@ -321,7 +321,7 @@ The response on port `1027` consists of the details of the **Animal** entities h
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
@@ -359,7 +359,7 @@ but no data is held in the primary context broker whatsoever.
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
--H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -H 'Content-Type: application/json' \
 -d '{
   "type": "ContextSourceRegistration",
@@ -392,7 +392,7 @@ animals from the farmer subsystem:
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+-H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
@@ -435,7 +435,7 @@ by the associated `@context` file.
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/?type=Animal' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json'
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
 ```
 
 #### Response:
@@ -502,7 +502,7 @@ The **Vet's Context Broker** can be found on port `1030`, a simple query can be 
 curl -G -X GET \
   'http://localhost:1030/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -d 'attrs=name,comment'
 ```
 
@@ -529,7 +529,7 @@ own broker and the vet:
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -H 'NGSILD-Tenant: farmer' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -562,7 +562,7 @@ A subsequent request on the **Farmer's Context Broker** - port `1027`, will rece
 curl -G -X GET \
   'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 ```
 
 #### Response:
@@ -622,7 +622,7 @@ It is still possible to retrieve the locally held data in the **Farmer's Context
 curl -G -X GET \
   'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
 -H 'Content-Type: application/json' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -d 'local=true'
 ```
 
@@ -702,7 +702,7 @@ The contractor data can be federated by the farmer as shown:
 ```console
 curl -iX POST \
   'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'NGSILD-Tenant: farmer' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -823,7 +823,7 @@ An exclusive registration can be made on the **Farmer** context broker to always
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H  'NGSILD-Tenant: farmer' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -1027,7 +1027,7 @@ An auxiliary registration can be made on the **Farmer** context broker to only r
 
 ```console
 curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json' \
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'NGSILD-Tenant: farmer' \
   -H 'Content-Type: application/json' \
   -d '{
