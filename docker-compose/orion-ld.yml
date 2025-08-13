@@ -34,7 +34,15 @@ services:
     healthcheck:
       test: curl --fail -s http://orion:${ORION_LD_PORT}/version || exit 1
       interval: 30s
-     
+  
+  iot-agent:
+    depends_on:
+      - orion
+    environment:
+      - IOTA_DEFAULT_RESOURCE=/iot/d
+      - IOTA_CB_HOST=orion # name of the context broker to update context
+      - IOTA_CB_PORT=${ORION_LD_PORT} # port the context broker listens on to update context
+         
   # Tutorial connects to the Orion-LD Broker
   tutorial:
     environment:
