@@ -236,7 +236,8 @@ Context Broker 自体への GET リクエストと同じように機能します
 #### 1️⃣ リクエスト:
 
 ```console
-curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+curl -L -X POST \
+  'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 -H 'Content-Type: application/ld+json' \
 --data-raw '{
   "description": "Notify me of low stock in Store 001",
@@ -267,7 +268,8 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 #### 2️⃣ リクエスト:
 
 ```console
-curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+curl -L -X POST \
+  'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 -H 'Content-Type: application/json' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 --data-raw '{
@@ -298,7 +300,8 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 #### 3️⃣ リクエスト:
 
 ```console
-curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/subscriptions/'
+curl -L -X GET \
+  'http://localhost:1026/ngsi-ld/v1/subscriptions/'
 ```
 
 #### レスポンス:
@@ -469,7 +472,8 @@ Context Broker A にレジストレーションする循環依存関係を回避
 #### 4️⃣ リクエスト:
 
 ```console
-curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+curl -L -X POST \
+  'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 -H 'Content-Type: application/json' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 --data-raw ' {
@@ -506,7 +510,8 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 #### 5️⃣ リクエスト:
 
 ```console
-curl -G -iX GET 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+curl -G -iX GET \
+  'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 -H 'Accept: application/ld+json' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
 -d 'type=Building'
@@ -651,9 +656,11 @@ curl -iX GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:sto
 #### 7️⃣ リクエスト:
 
 ```console
-curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets' \
+curl -G -X GET \
+  'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Content-Type: application/ld+json'
+-H 'Content-Type: application/ld+json' \
+-d 'pick=id,type,tweets'
 ```
 
 #### レスポンス:
@@ -689,7 +696,8 @@ curl -L -X GET 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi
 #### 8️⃣ リクエスト:
 
 ```console
-curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs' \
+curl -L -X PATCH \
+  'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -H 'Content-Type: application/json' \
 --data-raw '{
@@ -711,8 +719,11 @@ curl -L -X PATCH 'http://localhost:3000/static/tweets/ngsi-ld/v1/entities/urn:ng
 から取得した更新された値を返します。例えば、フォワーディング・エンドポイント
 
 ```console
-curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets&options=keyValues' \
--H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001' \
+-H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-d 'pick=id,type,tweets' \
+-d 'format=simplified'
 ```
 
 #### レスポンス:
@@ -757,7 +768,8 @@ Context Broker への PATCH リクエスト (`ngsi-ld/v1/entities/<entity-id>/` 
 されます。
 
 ```console
-curl -L -X PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs/tweets' \
+curl -L -X PATCH \
+  'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs/tweets' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -H 'Content-Type: application/json' \
 --data-raw '{
@@ -774,9 +786,11 @@ curl -L -X PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building
 前の操作の結果は、GET リクエストを使用してエンティティ全体を取得することで確認できます。
 
 ```console
-curl -L -X GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?attrs=tweets&options=keyValues' \
+curl -L -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?options=keyValues' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--H 'Content-Type: application/json'
+-H 'Content-Type: application/json' \
+-d 'pick=id,type,tweets'
 ```
 
 #### レスポンス:

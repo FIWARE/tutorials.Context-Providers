@@ -22,7 +22,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 [Postman documentation](https://fiware.github.io/tutorials.Context-Providers/ngsi-ld.html)
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/2c53b7c2bce9fd7b7b47)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=FIWARE/tutorials.LD-Subscriptions-Registrations/tree/NGSI-LD)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=FIWARE/tutorials.LD-Subscriptions-Registrations&ref=NGSI-LD)
 
 ## Contents
 
@@ -284,9 +284,13 @@ Animals are not available on the default tenant, Data about animals on the farm 
 #### 1️⃣ Request:
 
 ```console
-curl -L 'http://localhost:1027/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
--H 'Content-Type: application/json' \
--H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET \
+  'http://localhost:1027/ngsi-ld/v1/entities' \
+  -H 'Content-Type: application/json' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'format=Animal' \
+  -d 'limit=100' \
+  -d 'format=concise'
 ```
 
 #### Response:
@@ -319,9 +323,13 @@ The response on port `1027` consists of the details of the **Animal** entities h
 #### 2️⃣ Request:
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
--H 'Content-Type: application/json' \
--H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities' \
+  -H 'Content-Type: application/json' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
+  -d 'format=Animal' \
+  -d 'limit=100' \
+  -d 'format=concise'
 ```
 
 #### Response:
@@ -358,7 +366,8 @@ but no data is held in the primary context broker whatsoever.
 #### 3️⃣ Request:
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+curl -X POST \
+  'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -390,9 +399,13 @@ animals from the farmer subsystem:
 #### 4️⃣ Request:
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise' \
--H 'Content-Type: application/json' \
--H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities' \
+  -H 'Content-Type: application/json' \
+  -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
+  -d 'format=Animal' \
+  -d 'limit=100' \
+  -d 'format=concise'
 ```
 
 #### Response:
@@ -434,8 +447,10 @@ by the associated `@context` file.
 #### 5️⃣ Request:
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/?type=Animal' \
--H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+-H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+-d 'type=Animal'
 ```
 
 #### Response:
@@ -503,7 +518,7 @@ curl -G -X GET \
   'http://localhost:1030/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
 -H 'Content-Type: application/json' \
 -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
--d 'attrs=name,comment'
+-d 'pick=id,type,name,comment'
 ```
 
 #### Response:
@@ -528,7 +543,8 @@ own broker and the vet:
 #### 7️⃣ Request:
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+curl -X POST \
+  'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -H 'NGSILD-Tenant: farmer' \
 -H 'Content-Type: application/json' \
@@ -676,7 +692,7 @@ curl -G -X GET \
   -H  'Accept: application/json' \
   -H  'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H  'NGSILD-Tenant: contractor' \
-  -d 'attrs=name%2Ccomment'
+  -d 'pick=id,type,name,comment'
 ```
 
 #### Response:
@@ -734,7 +750,7 @@ curl -G -X GET \
   -H  'Accept: application/json' \
   -H  'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H  'NGSILD-Tenant: farmer' \
-  -d 'attrs=name%2Ccomment'
+  -d 'pick=id,type,name,comment'
 ```
 
 #### Response:
@@ -776,7 +792,8 @@ The result of a `exclusive` registration is that no data for the registered attr
 Consider for example an Animal collar which supplies data for the entity `urn:ngsi-ld:Animal:cow001` - this is likely to be a device attached to an IoT Agent. The underlying device protocol and payload doesn't matter, since we are able to make an NGSI-LD request to the IoT Agent which then requests information from the device itself:
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
+curl -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
   -H 'Accept: application/json' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H  'NGSILD-Tenant: openiot'
@@ -822,7 +839,8 @@ The response shows the live readings from the device itself.
 An exclusive registration can be made on the **Farmer** context broker to always receive **live** information from the IoT Agent. The `mode` is set to `"exclusive"`, and since the IoT Agent is only accepting **GET** requests the `"operations` attribute is set to `"retrieveOps"` only. A fixed `contextSourceInfo` can be used if the endpoint does not understand JSON-LD expansion/compaction.
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+curl -X POST \
+  'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H  'NGSILD-Tenant: farmer' \
   -H 'Content-Type: application/json' \
@@ -861,10 +879,11 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 The **farmer** context broker is now able to get the `location` and `heartRate` of `urn:ngsi-ld:Device:cow001`
 
 ```console
-curl -L 'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001?attrs=location%2CheartRate' \
+curl -G -X 'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
   -H 'Accept: application/json' \
   -H  'NGSILD-Tenant: farmer' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'pick=id,type,location,heartRate'
 ```
 
 #### Response:
@@ -903,7 +922,8 @@ curl -L 'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001?att
 Note that an attempt by the Farmer to directly update the `location` or `heartRate` attributes will **fail** with **409 - Conflict** as an exclusive registration prohibits this:
 
 ```console
-curl -L -X PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
+curl -L -X PATCH \
+  'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
   -H 'Accept: application/ld+json' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'NGSILD-Tenant: farmer' \
@@ -944,10 +964,11 @@ of fields. In some cases you already have a temperature gauge in a field and you
 To find the **AgriParcel** `temperature` data currently available to the **farmer**, make a request to the `/entities` endpoint and supply the `type` parameter.
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel&attrs=temperature' \
+curl -G -X 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
   -H 'Accept: application/json' \
   -H 'NGSILD-Tenant: farmer' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'pick=id,type,temperature'
 ```
 
 #### Response:
@@ -974,10 +995,11 @@ Initially only one AgriParcel is returned, since it is the only one which the **
 Make the same request directly to the **Weather** context broker to obtain the information known to the Weather forecaster:
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel&attrs=temperature' \
+curl -G -X 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
   -H 'Accept: application/json' \
   -H 'NGSILD-Tenant: weather' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'pick=id,type,temperature'
 ```
 
 #### Response:
@@ -1026,7 +1048,8 @@ The weather forecast context broker has more information and its values have a m
 An auxiliary registration can be made on the **Farmer** context broker to only receive **live** information from the weather forecaster if it does not hold information locally. The `mode` is set to `"auxilary"`, and since the IoT Agent is only accepting **GET** requests the `"operations` attribute is set to `"retrieveOps"` only.
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
+curl -X POST \
+  'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
   -H 'NGSILD-Tenant: farmer' \
   -H 'Content-Type: application/json' \
@@ -1056,10 +1079,11 @@ curl -L 'http://localhost:1026/ngsi-ld/v1/csourceRegistrations/' \
 Once the registration has been created, the farmer can request for `temperature` data once again.
 
 ```console
-curl -L 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel&attrs=temperature' \
+curl -G -X 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
   -H 'Accept: application/json' \
   -H 'NGSILD-Tenant: farmer' \
-  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'
+  -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
+  -d 'pick=id,type,temperature'
 ```
 
 #### Response:
