@@ -288,7 +288,7 @@ curl -G -X GET \
   'http://localhost:1027/ngsi-ld/v1/entities' \
   -H 'Content-Type: application/json' \
   -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
-  -d 'format=Animal' \
+  -d 'type=Animal' \
   -d 'limit=100' \
   -d 'format=concise'
 ```
@@ -327,7 +327,7 @@ curl -G -X GET \
   'http://localhost:1026/ngsi-ld/v1/entities' \
   -H 'Content-Type: application/json' \
   -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
-  -d 'format=Animal' \
+  -d 'type=Animal' \
   -d 'limit=100' \
   -d 'format=concise'
 ```
@@ -403,7 +403,7 @@ curl -G -X GET \
   'http://localhost:1026/ngsi-ld/v1/entities' \
   -H 'Content-Type: application/json' \
   -H 'Link: <http://context/user-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"'  \
-  -d 'format=Animal' \
+  -d 'type=Animal' \
   -d 'limit=100' \
   -d 'format=concise'
 ```
