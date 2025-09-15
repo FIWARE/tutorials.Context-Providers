@@ -786,11 +786,12 @@ curl -L -X PATCH \
 前の操作の結果は、GET リクエストを使用してエンティティ全体を取得することで確認できます。
 
 ```console
-curl -L -X GET \
-  'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001?options=keyValues' \
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001' \
 -H 'Link: <https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
 -H 'Content-Type: application/json' \
--d 'pick=id,type,tweets'
+-d 'pick=id,type,tweets' \
+-d 'format=simplified'
 ```
 
 #### レスポンス:
