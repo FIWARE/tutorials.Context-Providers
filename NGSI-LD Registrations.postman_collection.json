@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "c41ead05-48b8-4f30-9460-d921a817ebec",
+		"_postman_id": "31256bfe-4ef9-47b8-a771-a07c0d4e168d",
 		"name": "NGSI-LD Registrations",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "513743",
-		"_collection_link": "https://fiware.postman.co/workspace/NGSI-LD-tutorials~60157bf9-a93f-4c6e-90d1-0917133c1872/collection/513743-c41ead05-48b8-4f30-9460-d921a817ebec?action=share&source=collection_link&creator=513743"
+		"_exporter_id": "4106882"
 	},
 	"item": [
 		{
@@ -266,7 +265,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					}
 				],
 				"url": {
@@ -344,7 +343,7 @@
 					},
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -512,7 +511,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -605,7 +604,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -808,7 +807,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -848,7 +847,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -878,7 +877,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -908,7 +907,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -939,7 +938,7 @@
 				"header": [
 					{
 						"key": "Link",
-						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json"
+						"value": "<{{ngsi-context.jsonld}}>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
 					},
 					{
 						"key": "NGSILD-Tenant",
@@ -968,6 +967,7 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -977,6 +977,7 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -994,28 +995,23 @@
 		},
 		{
 			"key": "farmer",
-			"value": "localhost:1027",
-			"type": "string"
+			"value": "localhost:1027"
 		},
 		{
 			"key": "vet",
-			"value": "localhost:1030",
-			"type": "string"
+			"value": "localhost:1030"
 		},
 		{
 			"key": "contractor",
-			"value": "localhost:1029",
-			"type": "string"
+			"value": "localhost:1029"
 		},
 		{
 			"key": "devices",
-			"value": "localhost:1028",
-			"type": "string"
+			"value": "localhost:1028"
 		},
 		{
 			"key": "weather",
-			"value": "localhost:1031",
-			"type": "string"
+			"value": "localhost:1031"
 		}
 	]
 }

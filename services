@@ -13,6 +13,8 @@ ORION2="http://orion2:1026/version"
 STELLIO="http://localhost:8080/actuator/health"
 CONTEXT="http://context/user-context.jsonld"
 CORE_CONTEXT="https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.8.jsonld"
+DATA_LOADER="http://tutorial:3000"
+IOT_DEVICES="http://iot-sensors:3001"
 
 dockerCmd="docker compose"
 if (( $# == 2 )); then
@@ -117,9 +119,12 @@ loadData () {
 	echo ""
 	waitForUserContext
 	docker run --rm -v $(pwd)/import-data:/import-data \
+	    -v $(pwd)/data/:/home/curl_user/data \
 		--network fiware_default \
 		-e CONTEXT_BROKER=${CONTEXT_BROKER} \
-		-e TUTORIAL_DATA_MODELS_CONTEXT=${CONTEXT} \
+		-e DATA_LOADER=${DATA_LOADER} \
+		-e IOT_DEVICES=${IOT_DEVICES} \
+		-e TUTORIAL_DATA_MODELS_CONTEXT="http://context/user-context.jsonld" \
 		--entrypoint /bin/ash quay.io/curl/curl:${CURL_VERSION} /import-data
 
 }
