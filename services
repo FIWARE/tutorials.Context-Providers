@@ -5,12 +5,12 @@
 #  For this tutorial the commands are merely a convenience script to run docker compose
 #
 
-set -e
+set -eo pipefail
 
 SCORPIO="http://scorpio:9090/"
 ORION="http://orion:1026/version"
 ORION2="http://orion2:1026/version"
-STELLIO="http://localhost:8080/actuator/health"
+STELLIO="http://stellio:8080/actuator/health"
 CONTEXT="http://context/user-context.jsonld"
 CORE_CONTEXT="https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.8.jsonld"
 DATA_LOADER="http://tutorial:3000"
@@ -41,7 +41,7 @@ pause(){
 }
 
 getHeartbeat(){
-	eval "response=$(docker run --network fiware_default --rm quay.io/curl/curl:${CURL_VERSION} -s -o /dev/null -w "%{http_code}" "$1")"
+	response=$(docker run --network fiware_default --rm "quay.io/curl/curl:${CURL_VERSION}" -s -o /dev/null -w "%{http_code}" "$1")
 }
 
 waitForOrionLD () {
@@ -98,12 +98,12 @@ waitForUserContext () {
 
 waitForCoreContext () {
 	echo -e "\n⏳ Checking availability of \033[1m core @context\033[0m from ETSI\n"
-	eval "response=$(docker run --rm quay.io/curl/curl:${CURL_VERSION} -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
+	response=$(docker run --rm "quay.io/curl/curl:${CURL_VERSION}" -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")
 	while [ "${response}" -eq 000 ]
 	do
 		echo -e "\n@context HTTP state: ${response} (waiting for 200)"
 		pause 3
-		eval "response=$(docker run --rm quay.io/curl/curl:${CURL_VERSION} -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")"
+		response=$(docker run --rm "quay.io/curl/curl:${CURL_VERSION}" -s -o /dev/null -w "%{http_code}" "$CORE_CONTEXT")
 	done
 }
 
@@ -131,12 +131,12 @@ loadData () {
 
 stoppingContainers () {
 	CONTAINERS=$(docker ps -aq)
-	if [[ -n $CONTAINERS ]]; then 
+	if [[ -n "$CONTAINERS" ]]; then 
 		echo "Stopping containers"
 		docker rm -f $CONTAINERS
 	fi
 	VOLUMES=$(docker volume ls -qf dangling=true) 
-	if [[ -n $VOLUMES ]]; then 
+	if [[ -n "$VOLUMES" ]]; then 
 		echo "Removing old volumes"
 		docker volume rm $VOLUMES
 	fi
