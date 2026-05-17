@@ -344,8 +344,7 @@ curl -X GET \
     "array": ["Arthur", "Dent"],
     "boolean": true,
     "number": 42,
-    "structuredValue": { somevalue: 'this' },
-    "text": "I never could get the hang of Thursdays"
+    "text": "I never could get the hang of thursdays"
 }
 ```
 
@@ -651,8 +650,8 @@ curl -iX POST \
 
 リクエストのボディには、"URL
 `http://context-provider:3000/random/weatherConditions` は、
-`id=urn:ngsi-ld:Store:001` と呼ばれるエンティティ の `relativeHumidity` と
-`temperature` データ を提供することができます" と記述します。
+`id=urn:ngsi-ld:Store:001` と呼ばれるエンティティ の `relativeHumidity`
+データ を提供することができます" と記述します。
 
 値は**決して**、 Orion 内に保持されず、登録されたコンテキスト・プロバイダからの
 要求に応じて常にリクエストされます。Orion は、どのコンテキスト・プロバイダがコン
@@ -735,14 +734,9 @@ curl -X GET \
         "value": "Bösebrücke Einkauf",
         "metadata": {}
     },
-    "temperature": {
-        "type": "Number",
-        "value": "22.6",
-        "metadata": {}
-    },
     "relativeHumidity": {
         "type": "Number",
-        "value": "58",
+        "value": 27,
         "metadata": {}
     }
 }
@@ -807,17 +801,18 @@ curl -X GET \
         "dataProvided": {
             "entities": [
                 {
-                    "id": "urn:ngsi-ld:Store:002",
+                    "id": "urn:ngsi-ld:Store:001",
                     "type": "Store"
                 }
             ],
-            "attrs": ["temperature", "relativeHumidity"]
+            "attrs": ["relativeHumidity"]
         },
         "provider": {
             "http": {
                 "url": "http://context-provider:3000/random/weatherConditions"
             },
-            "supportedForwardingMode": "all"
+            "supportedForwardingMode": "all",
+            "legacyForwarding": false
         },
         "status": "active"
     }

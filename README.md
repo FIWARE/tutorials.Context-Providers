@@ -302,8 +302,7 @@ curl -X GET \
     "array": ["Arthur", "Dent"],
     "boolean": true,
     "number": 42,
-    "structuredValue": { "somevalue": "this" },
-    "text": "I never could get the hang of Thursdays"
+    "text": "I never could get the hang of thursdays"
 }
 ```
 
@@ -578,7 +577,7 @@ apply:
 This example registers the Random Data Context Provider with the Orion Context Broker.
 
 The body of the request states that: _"The URL_ `http://context-provider:3000/random/weatherConditions` _is capable of
-providing_ `relativeHumidity` and `temperature` _data for the entity called_ `id=urn:ngsi-ld:Store:001`._"_
+providing_ `relativeHumidity` _data for the entity called_ `id=urn:ngsi-ld:Store:001`._"_
 
 The values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion
 merely holds the registration information about which context providers can offer context data.
@@ -657,14 +656,9 @@ curl -X GET \
         "value": "Bösebrücke Einkauf",
         "metadata": {}
     },
-    "temperature": {
-        "type": "Number",
-        "value": "22.6",
-        "metadata": {}
-    },
     "relativeHumidity": {
         "type": "Number",
-        "value": "58",
+        "value": 27,
         "metadata": {}
     }
 }
@@ -722,17 +716,18 @@ curl -X GET \
         "dataProvided": {
             "entities": [
                 {
-                    "id": "urn:ngsi-ld:Store:002",
+                    "id": "urn:ngsi-ld:Store:001",
                     "type": "Store"
                 }
             ],
-            "attrs": ["temperature", "relativeHumidity"]
+            "attrs": ["relativeHumidity"]
         },
         "provider": {
             "http": {
                 "url": "http://context-provider:3000/random/weatherConditions"
             },
-            "supportedForwardingMode": "all"
+            "supportedForwardingMode": "all",
+            "legacyForwarding": false
         },
         "status": "active"
     }
