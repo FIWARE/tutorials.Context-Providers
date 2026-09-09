@@ -9,6 +9,7 @@ set -eo pipefail
 
 SCORPIO="http://scorpio:9090/"
 ORION="http://orion:1026/version"
+CORAINE="http://coraine:1026/ngsi-ld/v1/entities/?type=X"
 ORION2="http://orion2:1026/version"
 STELLIO="http://stellio:8080/actuator/health"
 CONTEXT="http://context/user-context.jsonld"
@@ -23,7 +24,7 @@ fi
 
 if (( $# < 1 )); then
 	echo "Illegal number of parameters"
-	echo "usage: services [create|orion|scorpio|stop]"
+	echo "usage: services [create|orion|scorpio|coraine|stop]"
 	exit 1
 fi
 
@@ -82,6 +83,17 @@ waitForStellio () {
 	  echo -e "Context Broker HTTP state: " $(curl -s -o /dev/null -w %{http_code} 'http://localhost:8080/ngsi-ld/v1/entities/?type=X') " (waiting for 200)"
 	  echo -e "Waiting for ${waitSeconds} seconds ..."
 	  sleep ${waitSeconds}
+	done
+}
+
+waitForCoraine () {
+	echo -e "\n⏳ Waiting for \033[1;34mCoraine\033[0m to respond\n"
+	getHeartbeat "${CORAINE}"
+	while [ "${response}" -eq 000 ]
+	do
+		echo -e "Context Broker HTTP state: ${response} (waiting for 404)"
+		pause 6
+		getHeartbeat "${CORAINE}"
 	done
 }
 
@@ -152,7 +164,7 @@ displayServices () {
 command="$1"
 case "${command}" in
 	"help")
-		echo "usage: services [create|orion|scorpio|stellio|stop]"
+		echo "usage: services [create|orion|scorpio|stellio|coraine|stop]"
 		;;
 	"orion")
 		set -a; source .env; set +a
@@ -202,6 +214,22 @@ case "${command}" in
 		loadData
 		echo -e "\033[1;34m${command}\033[0m is now running and exposed on localhost:${EXPOSED_PORT}"
 		;;
+	"coraine")
+		set -a; source .env; set +a
+		stoppingContainers
+		waitForCoreContext
+		echo -e "Starting containers:  \033[1;34mCoraine\033[0m,  \033[1mTutorial\033[0m and a \033[1mMongoDB\033[0m database."
+		echo -e "- \033[1;34mCoraine\033[0m is the context broker"
+		echo -e "- Data models \033[1m@context\033[0m (Smart Farm) is supplied externally"
+		echo ""
+		${dockerCmd} -f docker-compose/common.yml -f docker-compose/coraine.yml up -d --remove-orphans --renew-anon-volumes
+		displayServices "coraine|fiware"
+		waitForMongo
+		waitForCoraine
+		export CONTEXT_BROKER=coraine:1026
+		loadData
+		echo -e "\033[1;34m${command}\033[0m is now running and exposed on localhost:${EXPOSED_PORT}"
+		;;
 	"stop")
 		set -a; source .env; set +a
 		stoppingContainers
@@ -214,11 +242,11 @@ case "${command}" in
 		set -a; source .env; set +a
 		echo "Pulling Docker images"
 		docker pull -q quay.io/curl/curl:${CURL_VERSION}
-		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio.yml -f docker-compose/orion-ld.yml -f docker-compose/stellio.yml pull --ignore-buildable
+		${dockerCmd} -f docker-compose/common.yml -f docker-compose/scorpio.yml -f docker-compose/orion-ld.yml -f docker-compose/stellio.yml -f docker-compose/coraine.yml pull --ignore-buildable
 		;;
 	*)
 		echo "Command not Found."
-		echo "usage: services [create|orion|scorpio|stellio|stop]"
+		echo "usage: services [create|orion|scorpio|stellio|coraine|stop]"
 		exit 127;
 		;;
 esac
