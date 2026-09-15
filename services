@@ -9,7 +9,7 @@ set -eo pipefail
 
 SCORPIO="http://scorpio:9090/"
 ORION="http://orion:1026/version"
-CORAINE="http://coraine:1026/ngsi-ld/v1/entities/?type=X"
+CORAINE="http://coraine:1026/admin/health"
 ORION2="http://orion2:1026/version"
 STELLIO="http://stellio:8080/actuator/health"
 CONTEXT="http://context/user-context.jsonld"
