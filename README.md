@@ -910,7 +910,8 @@ curl -X POST \
 The **farmer** context broker is now able to get the `location` and `heartRate` of `urn:ngsi-ld:Device:cow001`
 
 ```console
-curl -G -X 'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
+curl -G -X GET \
+  'http://localhost:1027/ngsi-ld/v1/entities/urn:ngsi-ld:Animal:cow001' \
   -H 'Accept: application/json' \
   -H  'NGSILD-Tenant: farmer' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
@@ -1003,7 +1004,8 @@ To find the **AgriParcel** `temperature` data currently available to the **farme
 endpoint and supply the `type` parameter.
 
 ```console
-curl -G -X 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
   -H 'Accept: application/json' \
   -H 'NGSILD-Tenant: farmer' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
@@ -1036,7 +1038,8 @@ Make the same request directly to the **Weather** context broker to obtain the i
 forecaster:
 
 ```console
-curl -G -X 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
   -H 'Accept: application/json' \
   -H 'NGSILD-Tenant: weather' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
@@ -1123,7 +1126,8 @@ curl -X POST \
 Once the registration has been created, the farmer can request for `temperature` data once again.
 
 ```console
-curl -G -X 'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
+curl -G -X GET \
+  'http://localhost:1026/ngsi-ld/v1/entities/?type=AgriParcel' \
   -H 'Accept: application/json' \
   -H 'NGSILD-Tenant: farmer' \
   -H 'Link: <http://context/ngsi-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"' \
