@@ -25,7 +25,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise",
+					"raw": "http://localhost:1026/ngsi-ld/v1/entities/?type=Animal&limit=100&format=concise",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -47,7 +47,7 @@
 							"value": "100"
 						},
 						{
-							"key": "options",
+							"key": "format",
 							"value": "concise"
 						}
 					]
@@ -139,7 +139,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://{{FMIS}}/ngsi-ld/v1/entities/?type=Animal&limit=100&options=concise",
+					"raw": "http://{{FMIS}}/ngsi-ld/v1/entities/?type=Animal&limit=100&format=concise",
 					"protocol": "http",
 					"host": [
 						"{{FMIS}}"
@@ -160,7 +160,7 @@
 							"value": "100"
 						},
 						{
-							"key": "options",
+							"key": "format",
 							"value": "concise"
 						}
 					]
