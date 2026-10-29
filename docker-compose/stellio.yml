@@ -176,6 +176,9 @@ services:
   vet:
     environment:
       - CONTEXT_BROKER=http://stellio:${STELLIO_PORT}
+  weather:
+    environment:
+      - CONTEXT_BROKER=http://stellio:${STELLIO_PORT}
   devices:
     environment:
       - CONTEXT_BROKER=http://stellio:${STELLIO_PORT}  

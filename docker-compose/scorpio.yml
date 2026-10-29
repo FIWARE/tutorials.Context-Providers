@@ -58,6 +58,9 @@ services:
   vet:
     environment:
       - CONTEXT_BROKER=http://scorpio:${SCORPIO_PORT}
+  weather:
+    environment:
+      - CONTEXT_BROKER=http://scorpio:${SCORPIO_PORT}
   devices:
     environment:
       - CONTEXT_BROKER=http://scorpio:${SCORPIO_PORT}
