@@ -142,17 +142,21 @@ loadData () {
 }
 
 stoppingContainers () {
-	CONTAINERS=$(docker ps -aq)
+	CONTAINERS=$(docker ps --filter "label=org.fiware=tutorial" -aq)
 	if [[ -n "$CONTAINERS" ]]; then 
 		echo "Stopping containers"
-		docker rm -f $CONTAINERS
+		docker rm -f -v $CONTAINERS || true
 	fi
-	VOLUMES=$(docker volume ls -qf dangling=true) 
+	VOLUMES=$(docker volume ls -q --filter dangling=true --filter "label=com.docker.compose.project=fiware")
 	if [[ -n "$VOLUMES" ]]; then 
 		echo "Removing old volumes"
-		docker volume rm $VOLUMES
+		docker volume rm $VOLUMES || true
 	fi
-
+	NETWORKS=$(docker network ls  --filter "label=org.fiware=tutorial" -q) 
+	if [[ -n "$NETWORKS" ]]; then 
+		echo "Removing tutorial networks"
+		docker network rm $NETWORKS || true
+	fi
 }
 
 displayServices () {

@@ -71,6 +71,9 @@ services:
   vet:
     environment:
       - CONTEXT_BROKER=http://coraine:${CORAINE_PORT}
+  weather:
+    environment:
+      - CONTEXT_BROKER=http://coraine:${CORAINE_PORT}
   devices:
     environment:
       - CONTEXT_BROKER=http://coraine:${CORAINE_PORT}
